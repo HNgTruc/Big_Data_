@@ -1,0 +1,83 @@
+# MinIO (S3-compatible storage) + Spark standalone cluster (1 master, 2 workers).
+# UNTESTED as a whole: only image pulls and entrypoints were checked. See infra/README.md.
+name: bigdata
+
+x-spark-common: &spark-common
+  image: ${SPARK_IMAGE}
+  environment: &spark-env
+    SPARK_NO_DAEMONIZE: "true"
+    SPARK_DAEMON_MEMORY: 512m   # master/worker daemons (default 1g); Docker/WSL capped at 6 GB
+    AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER}
+    AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+    AWS_ENDPOINT_URL: http://minio:9000
+  volumes:
+    - ../data:/opt/spark/work-dir/data
+    - ../src:/opt/spark/work-dir/src:ro
+    - ../results:/opt/spark/work-dir/results
+  networks: [bigdata]
+
+services:
+  minio:
+    image: ${MINIO_IMAGE}
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # web console
+    volumes:
+      - minio-data:/data
+    networks: [bigdata]
+
+  # The Chainguard mc image has no shell, so: one `mc` command, credentials via MC_HOST_<alias>,
+  # and restart on failure until MinIO is up. Passwords with special characters must be URL-encoded.
+  minio-init:
+    image: ${MC_IMAGE}
+    depends_on: [minio]
+    restart: on-failure
+    environment:
+      MC_HOST_local: http://${MINIO_ROOT_USER}:${MINIO_ROOT_PASSWORD}@minio:9000
+    command: ["mb", "--ignore-existing", "local/${MINIO_BUCKET}"]
+    volumes:
+      - ../data:/data:ro   # lets `compose run minio-init cp ...` upload data/raw to MinIO
+    networks: [bigdata]
+
+  spark-master:
+    <<: *spark-common
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master --host spark-master
+    ports:
+      - "${SPARK_MASTER_PORT:-7077}:7077"   # cluster endpoint
+      - "${SPARK_MASTER_UI_PORT:-8090}:8080"   # master UI
+
+  spark-worker-1:
+    <<: *spark-common
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    depends_on: [spark-master]
+    environment:
+      <<: *spark-env
+      SPARK_WORKER_CORES: ${SPARK_WORKER_CORES}
+      SPARK_WORKER_MEMORY: ${SPARK_WORKER_MEMORY}
+      # Each app copies the --packages jars into its work dir (~4 GB per worker after 7 apps); delete dirs of finished apps after 1 h.
+      SPARK_WORKER_OPTS: "-Dspark.worker.cleanup.enabled=true -Dspark.worker.cleanup.interval=600 -Dspark.worker.cleanup.appDataTtl=3600"
+    ports:
+      - "${SPARK_WORKER1_UI_PORT:-8091}:8081"
+
+  spark-worker-2:
+    <<: *spark-common
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    depends_on: [spark-master]
+    environment:
+      <<: *spark-env
+      SPARK_WORKER_CORES: ${SPARK_WORKER_CORES}
+      SPARK_WORKER_MEMORY: ${SPARK_WORKER_MEMORY}
+      # Each app copies the --packages jars into its work dir (~4 GB per worker after 7 apps); delete dirs of finished apps after 1 h.
+      SPARK_WORKER_OPTS: "-Dspark.worker.cleanup.enabled=true -Dspark.worker.cleanup.interval=600 -Dspark.worker.cleanup.appDataTtl=3600"
+    ports:
+      - "${SPARK_WORKER2_UI_PORT:-8092}:8081"
+
+networks:
+  bigdata:
+
+volumes:
+  minio-data:

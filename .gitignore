@@ -1,0 +1,26 @@
+# Dữ liệu sinh ra / dữ liệu lớn: không đưa lên git (README của từng thư mục vẫn được giữ)
+data/**/*.parquet
+data/**/*.csv
+data/**/*.json
+data/**/*.jsonl
+data/**/*.crc
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Cấu hình cá nhân của Claude Code
+.claude/settings.local.json
+.claude/agent-memory-local/
+CLAUDE.local.md
+
+# Hệ điều hành / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Local secrets/config
+.env
