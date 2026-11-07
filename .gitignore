@@ -13,6 +13,9 @@ __pycache__/
 .venv/
 .pytest_cache/
 
+# Spark event logs of experiments (several MB per run); plan_check.csv keeps the derived evidence
+results/logs/**/eventlogs/
+
 # Cấu hình cá nhân của Claude Code
 .claude/settings.local.json
 .claude/agent-memory-local/

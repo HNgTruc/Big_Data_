@@ -15,6 +15,7 @@ Phạm vi: giai đoạn **Storage → Processing** trong pipeline Big Data, dùn
 | `docs/design/` | Schema dữ liệu và thiết kế | [docs/design/README.md](docs/design/README.md) |
 | `infra/` | Hạ tầng chạy thí nghiệm (Docker Compose: Spark + MinIO) | [infra/README.md](infra/README.md) |
 | `src/` | Mã nguồn: sinh dữ liệu, ETL Spark, thí nghiệm | [src/README.md](src/README.md) |
+| `src/experiments/` | Bộ thí nghiệm hiệu năng (a)–(g): chạy, đo, phân tích | [src/experiments/README.md](src/experiments/README.md) |
 | `data/` | Dữ liệu thô / đã xử lý / bản ghi lỗi (không đưa lên git) | [data/README.md](data/README.md) |
 | `results/` | Log, số đo, hình — bằng chứng thực nghiệm | [results/README.md](results/README.md) |
 | `report/` | Báo cáo theo đúng cấu trúc đề yêu cầu | [report/README.md](report/README.md) |

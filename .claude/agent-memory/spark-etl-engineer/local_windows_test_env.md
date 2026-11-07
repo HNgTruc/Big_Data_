@@ -17,3 +17,9 @@ JAVA_HOME = Microsoft JDK 17. Two local blockers, both environmental, not code b
 to the schema) and only `collect()` results; this works (CleanItemsTest passes). The full pipeline test needs either
 winutils + a fix for the worker crash, or running pytest inside a Linux container. Ask before installing winutils or
 running containers.
+
+Added 2026-11-07: Hadoop FS calls on local Windows paths (`getContentSummary`, `listFiles`) also fail
+(UnsatisfiedLinkError NativeIO$Windows.access0). Working alternative used for query_bench: a local-mode Spark container,
+`docker compose run --rm --no-deps -v <scratch>:/scratch spark-master spark-submit --master local[2] ...` (does not
+touch the cluster). From Git Bash set `MSYS_NO_PATHCONV=1`, otherwise `/opt/...` args get mangled. Parquet written by
+pandas has ns timestamps that Spark rejects; rewrite with `coerce_timestamps="us"` for test data.

@@ -6,7 +6,9 @@ Kiểm thử cho mã trong `src/`, chạy trên dữ liệu rất nhỏ (sinh tr
 |---|---|
 | `test_data_generation.py` | Bộ sinh dữ liệu: schema, tỉ lệ lỗi, khoá `(order_id, line_no)`, manifest (12 test) |
 | `test_etl.py` | ETL chạy `local`: quarantine và bỏ trùng khớp manifest, chuẩn hoá ngày, bỏ trùng `order_items` theo khoá (14 test) |
-| `run_in_container.sh` | Chạy cả hai file trong image Spark của cụm (Linux) |
+| `test_experiments.py` | Bộ thí nghiệm `src/experiments/`: thống kê, speedup/efficiency, dựng lệnh docker, kiểm tra worker ALIVE, run record, event log, bảng phân tích (22 test, không cần Docker/Spark) |
+| `test_experiments_pandas.py` | Baseline Pandas: luật làm sạch trên bảng dựng tay, đối chiếu hằng số với `src/etl/`, chạy trọn trên bộ sinh nhỏ (14 test) |
+| `run_in_container.sh` | Chạy `test_etl.py` và `test_data_generation.py` trong image Spark của cụm (Linux) |
 | `conftest.py`, `requirements.txt` | Cho phép `import src...`; phụ thuộc của test |
 
 ## Cách chạy khuyến nghị: trong container Spark (Linux)
@@ -28,4 +30,5 @@ python -m pytest -q tests/test_data_generation.py
 ```
 
 - `test_data_generation.py`: 12 passed trên Windows `.venv` (Python 3.12.10, pandas 3.1.1), 2026-11-07.
+- `test_experiments.py` + `test_experiments_pandas.py`: 36 passed (2026-11-07) trên Windows, cả trong `.venv` của repo (không có matplotlib: bỏ qua vẽ hình) lẫn venv có `src/experiments/requirements.txt` (Python 3.12.10, pandas 3.1.1, pyarrow 26.0.1, matplotlib 3.11.2, pytest 9.2.0). Chạy: `python -m pytest -q tests/test_experiments.py tests/test_experiments_pandas.py`.
 - `test_etl.py` **không chạy được trên Windows** dù có pyspark 4.0.0 và JDK 17: Python worker của Spark bị crash khi tạo DataFrame từ dữ liệu Python, và ghi Parquet cần `HADOOP_HOME`/`winutils.exe`. Vì vậy dùng cách chạy trong container ở trên.
