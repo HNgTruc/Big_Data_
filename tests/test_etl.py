@@ -1,8 +1,8 @@
 """ETL tests: generate a small dirty dataset, run the pipeline in local mode, check the results.
 
 Needs pyspark, a JVM and the generator dependencies (numpy, pandas, pyarrow).
-Run from the repo root: python -m pytest -q tests/test_etl.py
-NOT RUN YET: written before pyspark could be installed where the tests were authored.
+Run inside the Spark image with tests/run_in_container.sh (see tests/README.md); all pass there.
+On Windows most tests fail for environment reasons (Python worker crash, no winutils.exe).
 """
 import json
 import shutil
@@ -11,9 +11,11 @@ import unittest
 from datetime import date
 from pathlib import Path
 
+from pyspark.sql import functions as F
+
 from src.data_generation.config import Config
 from src.data_generation.generate import generate
-from src.etl import cleaning, pipeline
+from src.etl import cleaning, pipeline, schemas
 from src.etl.session import build_session
 
 ORDERS = 2000
@@ -62,6 +64,15 @@ class EtlPipelineTest(unittest.TestCase):
         self.assertEqual(reasons.get("non_positive_price", 0), injected["negative_unit_price"])
         self.assertEqual(reasons.get("orphan_product_id", 0), injected["orphan_product_id"])
 
+    def test_item_duplicates_removed_by_key(self):
+        stats = self.metrics["tables"]["order_items"]
+        self.assertEqual(stats["duplicates_removed"],
+                         self.manifest["defects_injected"]["order_items"]["duplicate_rows"])
+        items = self.read("curated", "order_items")
+        self.assertEqual(items.columns, ["order_id", "line_no", "product_id", "quantity", "unit_price"])
+        self.assertEqual(items.count(), items.select("order_id", "line_no").distinct().count())
+        self.assertIn("line_no", self.read("quarantine", "order_items").columns)
+
     def test_clean_items_are_valid_and_reference_clean_orders(self):
         items = self.read("curated", "order_items")
         self.assertEqual(items.filter("quantity <= 0 OR unit_price <= 0 OR unit_price IS NULL").count(), 0)
@@ -99,6 +110,57 @@ class EtlPipelineTest(unittest.TestCase):
             self.assertEqual(m["tables"]["orders"]["clean_rows"], self.metrics["tables"]["orders"]["clean_rows"])
         self.assertEqual(results["auto"], results["broadcast"])
         self.assertEqual(results["auto"], results["shuffle"])
+
+
+class CleanItemsTest(unittest.TestCase):
+    """clean_items on hand-made rows: the dedupe key is (order_id, line_no), not the full row."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.spark = build_session("file:///tmp", shuffle_partitions=1, app_name="clean_items_test")
+        # Inputs are built JVM-side (range / VALUES) so the test needs no Python worker.
+        cls.orders = cls.spark.range(1, 3).withColumnRenamed("id", "order_id")
+        cls.products = cls.spark.range(10, 12).withColumnRenamed("id", "product_id")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.spark.stop()
+
+    def items(self, rows):
+        values = ", ".join("(" + ", ".join("NULL" if v is None else repr(v) for v in row) + ")" for row in rows)
+        names = ", ".join(schemas.ORDER_ITEMS.fieldNames())
+        df = self.spark.sql(f"SELECT * FROM VALUES {values} AS t({names})")
+        return df.select([F.col(f.name).cast(f.dataType) for f in schemas.ORDER_ITEMS.fields])
+
+    def test_identical_lines_with_different_line_no_are_kept(self):
+        raw = self.items([
+            (1, 1, 10, 2, 5.0),
+            (1, 2, 10, 2, 5.0),  # same values, distinct line: must be kept
+            (1, 2, 10, 2, 5.0),  # exact copy of line 2: must be removed
+            (2, 1, 11, 1, 3.0),
+        ])
+        clean, rejected = cleaning.clean_items(raw, self.orders, self.products, "auto")
+        self.assertEqual(sorted((r["order_id"], r["line_no"]) for r in clean.collect()),
+                         [(1, 1), (1, 2), (2, 1)])
+        self.assertEqual(rejected.count(), 0)
+
+    def test_rejected_rows_keep_line_no_and_reason(self):
+        raw = self.items([
+            (1, 1, 10, 0, 5.0),     # non_positive_quantity
+            (1, 2, 99, 1, 5.0),     # orphan_product_id
+            (3, 1, 10, 1, 5.0),     # no_clean_order
+            (2, 1, 11, 1, None),    # null_unit_price
+            (2, 2, 11, 1, -1.0),    # non_positive_price
+            (2, 2, 11, 1, -1.0),    # exact copy: deduped before flagging
+        ])
+        clean, rejected = cleaning.clean_items(raw, self.orders, self.products, "auto")
+        self.assertEqual(clean.count(), 0)
+        self.assertEqual(rejected.columns,
+                         ["order_id", "line_no", "product_id", "quantity", "unit_price", "reject_reason"])
+        got = sorted((r["order_id"], r["line_no"], r["reject_reason"]) for r in rejected.collect())
+        self.assertEqual(got, [(1, 1, "non_positive_quantity"), (1, 2, "orphan_product_id"),
+                               (2, 1, "null_unit_price"), (2, 2, "non_positive_price"),
+                               (3, 1, "no_clean_order")])
 
 
 class DateParsingTest(unittest.TestCase):

@@ -51,12 +51,19 @@ def build_orders_chunk(rng: np.random.Generator, cfg: C.Config, start_id: int, n
 
 def build_items_chunk(rng: np.random.Generator, cfg: C.Config, order_ids: np.ndarray,
                       list_prices: np.ndarray) -> pd.DataFrame:
-    """1 + Poisson(items_mean - 1) items per order, capped at items_max."""
+    """1 + Poisson(items_mean - 1) items per order, capped at items_max.
+
+    `line_no` runs 1..k inside each order, so (order_id, line_no) is the table key.
+    """
     per_order = np.minimum(1 + rng.poisson(cfg.items_mean - 1.0, len(order_ids)), cfg.items_max)
     ids = np.repeat(order_ids, per_order)
+    # Derived without drawing from rng, so all other columns keep their values for a given seed.
+    order_starts = np.repeat(np.cumsum(per_order) - per_order, per_order)
+    line_no = (np.arange(len(ids)) - order_starts + 1).astype(np.int32)
     product_ids = pick_products(rng, cfg, len(ids))
     return pd.DataFrame({
         "order_id": ids,
+        "line_no": line_no,
         "product_id": product_ids,
         "quantity": rng.choice(C.QUANTITIES, len(ids), p=C.QUANTITY_WEIGHTS).astype(np.int32),
         "unit_price": list_prices[product_ids - 1],

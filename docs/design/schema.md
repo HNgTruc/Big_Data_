@@ -6,7 +6,7 @@ cho dữ liệu mô phỏng, không phải dữ liệu thật; có thể chỉnh
 | Bảng | Định dạng | Cột | Ghi chú |
 |---|---|---|---|
 | `orders` | CSV | `order_id` (long), `customer_id` (long), `order_date` (date), `status` (string), `payment_method` (string) | Bảng sự kiện chính |
-| `order_items` | CSV | `order_id` (long), `product_id` (long), `quantity` (int), `unit_price` (double) | Khóa ngoại tới `orders`, `products` |
+| `order_items` | CSV | `order_id` (long), `line_no` (int), `product_id` (long), `quantity` (int), `unit_price` (double) | Khóa (`order_id`, `line_no`), `line_no` = 1..k trong mỗi đơn; khóa ngoại tới `orders`, `products` |
 | `customers` | CSV | `customer_id` (long), `region` (string), `signup_date` (date) | Dùng cho tổng hợp theo khu vực |
 | `products` | Parquet | `product_id` (long), `category` (string), `list_price` (double) | Bảng nhỏ, dùng thử broadcast join |
 | `web_events` | JSON lines | `event_id` (string), `event_time` (timestamp), `customer_id` (long), `product_id` (long), `event_type` (string) | Thể hiện Variety |
@@ -31,6 +31,7 @@ Tỉ lệ: **2% mỗi loại** (người dùng chọn 2026-11-06), là tham số
 - **Độ lệch key:** có, bật/tắt bằng tham số; sinh được cả bản cân bằng lẫn bản lệch để so sánh (thí nghiệm skew).
 - `customers` ≈ `orders`/10; `products` ≈ max(100, `orders`/250); `web_events` = `orders` (đề xuất của trợ lý, người dùng duyệt "ok rồi thực hiện đi" 2026-11-06; đều ghi đè được bằng tham số).
 - Dòng trùng được **thêm vào** (không thay thế), nên số dòng ghi ra lớn hơn khoảng 2%.
+- `line_no` được thêm (người dùng duyệt 2026-11-07) vì khi bật skew, các dòng hợp lệ khác nhau trong cùng đơn có thể trùng toàn bộ giá trị; có khóa thì khử trùng theo (`order_id`, `line_no`) chỉ xóa đúng dòng trùng đã chèn. Dòng trùng chèn vào là bản sao đầy đủ (cùng `order_id` và `line_no`); không chèn lỗi vào `line_no`.
 
 ## Tập giá trị liệt kê (lựa chọn thiết kế, mô phỏng)
 Định nghĩa trong `src/data_generation/config.py`.

@@ -16,6 +16,7 @@ python -m src.data_generation.generate --help
 - Dữ liệu là **mô phỏng** (phân phối do nhóm tự chọn, không phải dữ liệu thật).
 - Kết quả là hàm của `Config` (`seed`, `chunk_size`, ...): cùng tham số → cùng byte. Đổi `chunk_size` sẽ đổi dữ liệu.
 - Schema 5 bảng: xem [docs/design/schema.md](../../docs/design/schema.md).
+- `order_items.csv`: cột `order_id, line_no, product_id, quantity, unit_price`; khóa (`order_id`, `line_no`), `line_no` = 1..k trong mỗi đơn, gán trước khi chèn lỗi. Dòng trùng chèn vào là bản sao đầy đủ của một dòng có sẵn, nên khử trùng theo khóa xóa đúng `duplicate_rows` trong manifest. Không chèn lỗi vào `line_no`.
 - Dữ liệu bẩn: mỗi loại lỗi ~2% số dòng (`--dirty-rate`), các loại lỗi không chồng lên cùng một dòng. Dòng trùng được **thêm vào**, nên `--orders 500000` ghi ra ~510.000 dòng `orders`.
 - `manifest.json` trong thư mục đầu ra ghi tham số, phiên bản thư viện, số dòng, số lỗi đã chèn từng loại, kích thước file và thời gian sinh.
 - Kích thước mặc định: `customers = orders/10`, `products = max(100, orders/250)`, `web_events = orders`.
@@ -33,5 +34,6 @@ python -m src.data_generation.generate --help
 
 ## Đã kiểm chứng
 
-- `tests/test_data_generation.py`: 11 test qua trên VM (Python 3.10, pandas 2.3.3, pyarrow 25.0.1).
-- Chạy thử 500.000 đơn: ~5 giây, đỉnh RAM ~0,9 GB, ~99 MB (VM, không phải máy người dùng). Các mốc 1M/2.5M/5M chưa chạy.
+- `tests/test_data_generation.py`: 12 test qua trên máy người dùng (Python 3.12.10, numpy 2.5.4, pandas 3.1.1, pyarrow 26.0.1), 2026-11-07.
+- Ngày 2026-11-07 đã sinh lại cả 5 bộ (`orders_500k`, `orders_1m`, `orders_2500k`, `orders_5m`, `orders_5m_skew`) với `line_no`, tham số mặc định (seed 42, chunk 500.000, dirty-rate 0.02).
+  Số dòng, số lỗi và thời gian sinh nằm trong `data/raw/<bộ>/manifest.json`. Số dòng trùng theo khóa (`order_id`, `line_no`) trong `order_items.csv` bằng `duplicate_rows` của manifest ở cả 5 bộ.

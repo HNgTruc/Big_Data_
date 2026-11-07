@@ -1,0 +1,66 @@
+{
+  "params": {
+    "orders": 2500000,
+    "seed": 42,
+    "chunk_size": 500000,
+    "dirty_rate": 0.02,
+    "skew": false,
+    "hot_products": 10,
+    "hot_share": 0.5,
+    "items_mean": 2.0,
+    "items_max": 10,
+    "customers": null,
+    "products": null,
+    "events": null,
+    "n_customers": 250000,
+    "n_products": 10000,
+    "n_events": 2500000
+  },
+  "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.4",
+    "pandas": "3.1.1",
+    "pyarrow": "26.0.1"
+  },
+  "rows_written": {
+    "products": 10000,
+    "customers": 255000,
+    "orders": 2550000,
+    "order_items": 5099824,
+    "web_events": 2550000
+  },
+  "defects_injected": {
+    "customers": {
+      "null_region": 4950,
+      "bad_signup_date": 5052,
+      "duplicate_rows": 5000
+    },
+    "orders": {
+      "null_customer_id": 49748,
+      "orphan_customer_id": 50224,
+      "bad_order_date": 49978,
+      "duplicate_rows": 50000
+    },
+    "order_items": {
+      "null_unit_price": 99823,
+      "zero_quantity": 49708,
+      "negative_unit_price": 50188,
+      "orphan_product_id": 100342,
+      "duplicate_rows": 99997
+    },
+    "products": {},
+    "web_events": {
+      "null_customer_id": 50050,
+      "bad_event_time": 50441,
+      "duplicate_rows": 50000
+    }
+  },
+  "bytes": {
+    "customers": 6394224,
+    "orders": 107337869,
+    "order_items": 113823334,
+    "products": 108298,
+    "web_events": 310109676
+  },
+  "elapsed_seconds": 15.32
+}

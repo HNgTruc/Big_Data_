@@ -14,4 +14,4 @@ Thiết kế và quy tắc: [docs/design/etl.md](../../docs/design/etl.md).
 | `smoke_s3a.py` | kiểm tra Spark ↔ MinIO (đã chạy thành công trên cụm) |
 
 Cách chạy trên cụm: xem [infra/README.md](../../infra/README.md), mục "Chạy job ETL".
-Trạng thái: đã chạy thành công trên cụm với `orders_500k` (24 giây, kết quả khớp số lỗi đã chèn; xem `docs/design/etl.md`). Các mốc dữ liệu khác chưa chạy.
+Trạng thái: đã chạy trên cụm cả 5 bộ (`orders_500k` đến `orders_5m_skew`) với `order_items` bỏ trùng theo khoá (`order_id`, `line_no`); kết quả khớp manifest, xem `docs/design/etl.md`.

@@ -7,7 +7,7 @@
     "metrics_dir": "/opt/spark/work-dir/results/metrics"
   },
   "spark_version": "4.0.0",
-  "app_id": "app-20261106164455-0005",
+  "app_id": "app-20261106180748-0002",
   "default_parallelism": 4,
   "conf": {
     "spark.sql.shuffle.partitions": "8",
@@ -15,13 +15,13 @@
     "spark.sql.autoBroadcastJoinThreshold": "10485760b"
   },
   "stage_seconds": {
-    "dimensions": 9.436,
-    "orders": 12.89,
-    "order_items": 16.64,
-    "web_events": 15.226,
-    "aggregates": 8.944
+    "dimensions": 7.58,
+    "orders": 12.851,
+    "order_items": 14.958,
+    "web_events": 13.521,
+    "aggregates": 10.212
   },
-  "processing_seconds_total": 63.136,
+  "processing_seconds_total": 59.122,
   "tables": {
     "customers": {
       "raw_rows": 255000,
@@ -49,16 +49,16 @@
     },
     "order_items": {
       "raw_rows": 5099824,
-      "clean_rows": 4511518,
-      "quarantined_rows": 488206,
+      "clean_rows": 4511618,
+      "quarantined_rows": 488209,
       "quarantine_by_reason": {
         "non_positive_price": 50188,
         "orphan_product_id": 100342,
-        "no_clean_order": 188145,
         "null_unit_price": 99823,
+        "no_clean_order": 188148,
         "non_positive_quantity": 49708
       },
-      "duplicates_removed": 100100
+      "duplicates_removed": 99997
     },
     "web_events": {
       "raw_rows": 2550000,

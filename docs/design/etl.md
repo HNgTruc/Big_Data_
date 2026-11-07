@@ -1,6 +1,6 @@
 # Thiết kế job ETL (Storage → Processing)
 
-Trạng thái: **đã chạy thành công trên cụm với `orders_500k`** (2026-11-06); các mốc 1M, 2.5M, 5M và bản lệch key chưa chạy. Mã ở `src/etl/`. Quy tắc dưới đây là **lựa chọn thiết kế của dự án** cho dữ liệu mô phỏng.
+Trạng thái: đã chạy trên cụm cả 5 bộ (`orders_500k` đến `orders_5m_skew`) với schema có `line_no` (2026-11-07); số dòng loại bỏ và quarantine khớp hoàn toàn với `manifest.json`. Mã ở `src/etl/`. Quy tắc dưới đây là **lựa chọn thiết kế của dự án** cho dữ liệu mô phỏng.
 
 ## Luồng
 
@@ -12,7 +12,7 @@ Mỗi bảng sạch được ghi ra Parquet rồi **đọc lại** làm đầu v
 | Bảng | Bỏ trùng | Đưa vào quarantine (`reject_reason`) | Sửa tại chỗ |
 |---|---|---|---|
 | `orders` | theo `order_id` | `null_customer_id`, `invalid_order_date`, `orphan_customer_id` | ngày sai định dạng → `yyyy-MM-dd` |
-| `order_items` | cả dòng | `null_unit_price`, `non_positive_quantity`, `non_positive_price`, `orphan_product_id`, `no_clean_order` | — |
+| `order_items` | theo khoá (`order_id`, `line_no`) | `null_unit_price`, `non_positive_quantity`, `non_positive_price`, `orphan_product_id`, `no_clean_order` | — |
 | `customers` | theo `customer_id` | (không có) | `region` null → `unknown`; ngày chuẩn hoá |
 | `web_events` | theo `event_id` | `null_customer_id`, `invalid_event_time` | thời gian sai định dạng → timestamp |
 | `products` | — | — | — |
@@ -24,8 +24,9 @@ Mỗi bảng sạch được ghi ra Parquet rồi **đọc lại** làm đầu v
 
 ## Hạn chế đã biết (cần nêu trong báo cáo)
 
-- `order_items` **không có khoá duy nhất**, nên bỏ trùng theo cả dòng có thể xoá nhầm dòng hàng hợp lệ lặp lại (cùng đơn, cùng sản phẩm, cùng số lượng và giá). Với dữ liệu lệch key (`--skew`) tỉ lệ này cao hơn. Số "trùng đã xoá" của bảng này vì thế không đồng nhất với số dòng trùng đã chèn.
-- Dòng trùng ở `orders`, `customers`, `web_events` được bỏ theo khoá nên không có hạn chế này.
+- `order_items` bỏ trùng theo khoá (`order_id`, `line_no`); `line_no` = 1..k trong mỗi đơn và không bị chèn lỗi. Hai dòng hàng hợp lệ giống hệt nhau về sản phẩm, số lượng, giá nhưng khác `line_no` đều được giữ. Phiên bản trước (schema chưa có `line_no`) bỏ trùng theo cả dòng nên đã xoá nhầm các dòng như vậy, rõ nhất ở bộ lệch key; xem các mục kết quả bên dưới.
+- Bỏ trùng theo khoá giữ dòng đầu tiên Spark gặp trong mỗi khoá. Điều này đúng vì dòng trùng được chèn là bản sao đầy đủ; nếu hai dòng cùng khoá mà khác nội dung thì một dòng bị bỏ mà không vào quarantine.
+- Dòng trùng ở `orders`, `customers`, `web_events` cũng được bỏ theo khoá.
 - Sai ngày được **sửa** chứ không loại; chỉ dữ liệu không nhận diện được định dạng mới ra `NULL` (rồi vào quarantine với `orders`).
 
 ## Tổng hợp
@@ -43,6 +44,26 @@ Thời gian chỉ có ý nghĩa so sánh khi cùng máy, cùng cấu hình cụm
 ## Tham số thí nghiệm
 
 `--join-strategy auto|broadcast|shuffle`, `--shuffle-partitions N`, `--no-aqe`, `--no-auto-broadcast`.
+
+## Kết quả với schema có `line_no` (2026-11-07, cụm 2 worker × 2 lõi, Spark 4.0.0, cấu hình mặc định)
+
+Nguồn: `results/metrics/<bộ>.json`, `results/logs/etl_<bộ>.log`; dữ liệu sinh lại với seed 42 (`data/raw/<bộ>/manifest.json`). Mỗi bộ chạy một lần, máy không ở trạng thái sạch (VS Code, Docker của dự án khác vẫn chạy), nên thời gian chỉ để tham khảo; số đo chính thức lấy từ bộ thí nghiệm có lặp lại.
+
+| Bộ dữ liệu | dimensions | orders | order_items | web_events | aggregates | Tổng (giây) |
+|---|---|---|---|---|---|---|
+| orders_500k | 7,32 | 7,32 | 6,83 | 5,93 | 5,96 | 33,36 |
+| orders_1m | 4,07 | 8,38 | 7,97 | 8,72 | 6,32 | 35,46 |
+| orders_2500k | 7,58 | 12,85 | 14,96 | 13,52 | 10,21 | 59,12 |
+| orders_5m | 10,70 | 21,41 | 34,39 | 25,39 | 11,46 | 103,36 |
+| orders_5m_skew | 8,69 | 18,94 | 31,21 | 24,13 | 11,75 | 94,72 |
+
+Đối chiếu tự động với manifest cho cả 5 bộ: số dòng thô của 5 bảng, số dòng trùng đã bỏ của `customers`, `orders`, `order_items`, `web_events`, và từng lý do quarantine (`null_customer_id`, `orphan_customer_id`, `null_unit_price`↔`zero_quantity`/`negative_unit_price`, `orphan_product_id`) **đều khớp, không lệch dòng nào**. Không có dòng nào bị loại vì ngày/thời gian sai định dạng.
+
+- Với `orders_5m_skew`: `order_items` bỏ đúng 200.008 dòng trùng (schema cũ: 255.378), các lý do quarantine bằng đúng số đã chèn (schema cũ hụt 41 dòng). Thêm khoá đã loại bỏ hoàn toàn sai lệch.
+- `no_clean_order` (dòng hàng thuộc đơn bị quarantine): 37.789 / 75.509 / 188.148 / 376.230 / 376.787 cho 5 bộ theo thứ tự trên.
+- `orders_5m_skew` chạy nhanh hơn `orders_5m` trong lần này (94,72 so với 103,36 giây). Một lần đo trong điều kiện không sạch không đủ để kết luận về ảnh hưởng của skew.
+
+> Các mục kết quả dưới đây được tạo với **schema cũ** (bỏ trùng `order_items` theo cả dòng, chưa có `line_no`). File metrics tương ứng đã bị ghi đè; bản cũ còn trong commit `993d30b` (`results/metrics/`, `results/logs/`). Giữ lại làm bằng chứng cho hạn chế của cách bỏ trùng theo cả dòng.
 
 ## Kết quả chạy đầu tiên (`orders_500k`, cụm 2 worker × 2 lõi, Spark 4.0.0)
 
@@ -82,7 +103,7 @@ Nguồn: `results/metrics/orders_5m_skew.json`, log `results/logs/etl_orders_5m_
 - Khớp hoàn toàn: số dòng thô 5 bảng; `orders` null_customer_id 100.446, orphan_customer_id 99.809; `web_events` null_customer_id 99.662; `order_items` orphan_product_id 199.990; dòng trùng `orders` 100.000, `web_events` 100.000, `customers` 10.000.
 - `order_items` bỏ 255.378 dòng trùng so với 200.008 dòng đã chèn, thừa 55.370 dòng (≈0,54% của 10.200.359 dòng). Nguyên nhân nằm ở bộ sinh (`src/data_generation/tables.py`): `unit_price` là giá niêm yết cố định theo sản phẩm, `quantity` lấy từ một tập nhỏ, nên khi 50% lượt chọn dồn vào 10 sản phẩm thì hai dòng hàng hợp lệ trong cùng một đơn thường trùng nhau hoàn toàn và bị xoá. Đây là hạn chế bỏ trùng theo cả dòng đã nêu ở trên, lớn hơn khoảng 490 lần so với bộ không lệch (113 dòng).
 - Cũng vì thế, quarantine của `order_items` hụt nhẹ so với số lỗi chèn: null_unit_price 200.242/200.267 (−25), non_positive_quantity 100.098/100.109 (−11), non_positive_price 100.049/100.054 (−5). Giải thích hợp lý nhất là hai dòng lỗi khác nhau trở thành giống hệt (cùng đơn, cùng sản phẩm nóng, cùng số lượng, cùng loại lỗi) và bị gộp ở bước bỏ trùng trước khi gắn lý do. Chưa kiểm chứng trực tiếp trên dữ liệu.
-- Hướng khắc phục nếu cần: sinh thêm khoá `item_id` (hoặc `line_no`) cho `order_items` và bỏ trùng theo khoá. Chưa thực hiện; cần quyết định có đổi schema hay không.
+- Hướng khắc phục nếu cần: sinh thêm khoá `item_id` (hoặc `line_no`) cho `order_items` và bỏ trùng theo khoá. Chưa thực hiện; cần quyết định có đổi schema hay không. (Cập nhật sau: người dùng đã duyệt, đã thêm `line_no`; xem mục "Quy tắc làm sạch".)
 
 Đối chiếu `orders_2500k` với `data/raw/orders_2500k/manifest.json`:
 

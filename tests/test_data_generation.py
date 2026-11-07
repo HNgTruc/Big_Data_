@@ -2,9 +2,11 @@
 import hashlib
 import json
 
+import numpy as np
 import pandas as pd
 import pytest
 
+from src.data_generation import tables
 from src.data_generation.config import Config
 from src.data_generation.generate import FILES, generate, main
 
@@ -26,7 +28,7 @@ def test_files_and_schema(tmp_path):
     assert list(pd.read_csv(out / "orders.csv").columns) == [
         "order_id", "customer_id", "order_date", "status", "payment_method"]
     assert list(pd.read_csv(out / "order_items.csv").columns) == [
-        "order_id", "product_id", "quantity", "unit_price"]
+        "order_id", "line_no", "product_id", "quantity", "unit_price"]
     assert list(pd.read_csv(out / "customers.csv").columns) == ["customer_id", "region", "signup_date"]
     assert list(pd.read_parquet(out / "products.parquet").columns) == ["product_id", "category", "list_price"]
     events = pd.read_json(out / "web_events.jsonl", lines=True, dtype=False)
@@ -63,6 +65,23 @@ def test_item_defects_match_manifest(tmp_path):
     assert (items["quantity"] == 0).sum() == d["zero_quantity"]
     assert (items["unit_price"] < 0).sum() == d["negative_unit_price"]
     assert (items["product_id"] > m["params"]["n_products"]).sum() == d["orphan_product_id"]
+
+
+def test_item_key_unique_and_key_duplicates_match_manifest(tmp_path):
+    cfg = Config(orders=2000, chunk_size=700, dirty_rate=0.05, skew=True)
+    rng = np.random.default_rng(cfg.seed)
+    prices = tables.build_products(rng, cfg)["list_price"].to_numpy()
+    clean = tables.build_items_chunk(rng, cfg, np.arange(1, 2001, dtype=np.int64), prices)
+    assert not clean.duplicated(["order_id", "line_no"]).any()
+    sizes = clean.groupby("order_id")["line_no"].agg(["min", "max", "count"])
+    assert (sizes["min"] == 1).all() and (sizes["max"] == sizes["count"]).all()
+
+    out, m = _run(tmp_path, dirty_rate=0.05, skew=True)
+    items = pd.read_csv(out / "order_items.csv")
+    key_dups = items.duplicated(["order_id", "line_no"]).sum()
+    assert key_dups == m["defects_injected"]["order_items"]["duplicate_rows"]
+    # Injected duplicates are full-row copies, so key and full-row dedupe agree.
+    assert key_dups == items.duplicated().sum()
 
 
 def test_rate_is_close_to_target(tmp_path):

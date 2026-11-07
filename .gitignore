@@ -2,6 +2,8 @@
 data/**/*.parquet
 data/**/*.csv
 data/**/*.json
+# manifest.json is small (~2 KB) evidence of injected defects, used to check results/metrics
+!data/**/manifest.json
 data/**/*.jsonl
 data/**/*.crc
 

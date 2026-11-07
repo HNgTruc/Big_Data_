@@ -17,6 +17,7 @@ ORDERS = StructType([
 
 ORDER_ITEMS = StructType([
     StructField("order_id", LongType()),
+    StructField("line_no", IntegerType()),
     StructField("product_id", LongType()),
     StructField("quantity", IntegerType()),
     StructField("unit_price", DoubleType()),

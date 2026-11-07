@@ -79,10 +79,13 @@ def clean_orders(raw: DataFrame, customers: DataFrame, strategy: str) -> tuple[D
 
 
 def clean_items(raw: DataFrame, orders: DataFrame, products: DataFrame, strategy: str) -> tuple[DataFrame, DataFrame]:
-    """Full-row dedupe (items have no key; see docs/design/etl.md for the caveat)."""
+    """Dedupe on the key (order_id, line_no), then flag invalid lines.
+
+    Input: raw items, curated orders and products. Output: (clean, rejected); both keep `line_no`.
+    """
     known_products = products.select("product_id").withColumn("_p", F.lit(True))
     known_orders = orders.select("order_id").withColumn("_o", F.lit(True))
-    flagged = (raw.dropDuplicates()
+    flagged = (raw.dropDuplicates(["order_id", "line_no"])
                .join(hint(known_products, strategy), "product_id", "left")
                .join(known_orders, "order_id", "left")
                .withColumn("reject_reason",
@@ -91,7 +94,7 @@ def clean_items(raw: DataFrame, orders: DataFrame, products: DataFrame, strategy
                            .when(F.col("unit_price") <= 0, "non_positive_price")
                            .when(F.col("_p").isNull(), "orphan_product_id")
                            .when(F.col("_o").isNull(), "no_clean_order")))
-    cols = ["order_id", "product_id", "quantity", "unit_price"]
+    cols = ["order_id", "line_no", "product_id", "quantity", "unit_price"]
     return _split(flagged, cols, cols)
 
 
