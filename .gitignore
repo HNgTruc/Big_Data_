@@ -10,7 +10,7 @@ data/**/*.crc
 # Python
 __pycache__/
 *.pyc
-.venv/
+.venv*/
 .pytest_cache/
 
 # Spark event logs of experiments (several MB per run); plan_check.csv keeps the derived evidence
