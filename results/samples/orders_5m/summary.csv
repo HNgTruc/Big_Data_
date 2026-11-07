@@ -1,0 +1,9 @@
+table,raw_rows,curated_rows,quarantined_rows,duplicates_removed,metrics_raw_rows,metrics_clean_rows,metrics_quarantined_rows,metrics_duplicates_removed,matches_metrics
+customers,510000,500000,0,10000,510000,500000,0,10000,yes
+products,20000,20000,0,0,20000,20000,0,0,yes
+orders,5100000,4800044,199956,100000,5100000,4800044,199956,100000,yes
+order_items,10201505,9024635,976840,200030,10201505,9024635,976840,200030,yes
+web_events,5100000,4900063,99937,100000,5100000,4900063,99937,100000,yes
+agg_daily_revenue,,731,,,,731,,,yes
+agg_revenue_by_region_category,,56,,,,56,,,yes
+agg_events_daily,,2193,,,,2193,,,yes

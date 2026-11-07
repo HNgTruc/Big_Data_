@@ -1,0 +1,6 @@
+reject_reason,event_id,customer_id,product_id,event_type,event_time
+null_customer_id,E0000000010,,7278,add_to_cart,2024-02-11 04:57:04
+null_customer_id,E0000000012,,9382,view,2025-06-07 20:47:48
+null_customer_id,E0000000253,,7836,view,2025-12-14 17:15:21
+null_customer_id,E0000000269,,17735,add_to_cart,2025-10-03 18:30:15
+null_customer_id,E0000000335,,6645,view,2024-06-05 15:27:30

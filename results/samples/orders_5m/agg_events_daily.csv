@@ -1,0 +1,11 @@
+event_date,event_type,count
+2024-01-01,add_to_cart,948
+2024-01-01,purchase,303
+2024-01-01,view,5321
+2024-01-02,add_to_cart,980
+2024-01-02,purchase,334
+2024-01-02,view,5348
+2024-01-03,add_to_cart,1021
+2024-01-03,purchase,323
+2024-01-03,view,5313
+2024-01-04,add_to_cart,1027

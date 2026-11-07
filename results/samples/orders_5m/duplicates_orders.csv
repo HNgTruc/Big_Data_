@@ -1,0 +1,16 @@
+stage,order_id,customer_id,order_date,status,payment_method
+raw,30,25619,2024-07-24,paid,e_wallet
+raw,30,25619,2024-07-24,paid,e_wallet
+curated,30,25619,2024-07-24,paid,e_wallet
+raw,37,162760,2024-10-28,delivered,card
+raw,37,162760,2024-10-28,delivered,card
+curated,37,162760,2024-10-28,delivered,card
+raw,60,80556,2024-11-17,delivered,card
+raw,60,80556,2024-11-17,delivered,card
+curated,60,80556,2024-11-17,delivered,card
+raw,72,326855,2025-06-09,cancelled,card
+raw,72,326855,2025-06-09,cancelled,card
+curated,72,326855,2025-06-09,cancelled,card
+raw,140,109838,2025-02-07,delivered,e_wallet
+raw,140,109838,2025-02-07,delivered,e_wallet
+curated,140,109838,2025-02-07,delivered,e_wallet

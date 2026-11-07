@@ -1,0 +1,11 @@
+reject_reason,order_id,customer_id,status,payment_method,order_date
+null_customer_id,7,,paid,card,2025-09-03
+null_customer_id,104,,delivered,card,2025-01-19
+null_customer_id,119,,delivered,e_wallet,2025-12-10
+null_customer_id,203,,delivered,e_wallet,2025-08-26
+null_customer_id,215,,delivered,e_wallet,2024-05-11
+orphan_customer_id,20,500603,paid,bank_transfer,2025-01-22
+orphan_customer_id,21,500859,shipped,cod,2025-03-31
+orphan_customer_id,118,500981,delivered,cod,2025-05-12
+orphan_customer_id,145,500421,paid,cod,2025-06-26
+orphan_customer_id,234,500871,delivered,e_wallet,2024-04-03

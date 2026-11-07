@@ -1,0 +1,9 @@
+table,reject_reason,rows,metrics_rows,matches_metrics
+orders,null_customer_id,99579,99579,yes
+orders,orphan_customer_id,100377,100377,yes
+order_items,no_clean_order,376230,376230,yes
+order_items,non_positive_price,99817,99817,yes
+order_items,non_positive_quantity,99603,99603,yes
+order_items,null_unit_price,200700,200700,yes
+order_items,orphan_product_id,200490,200490,yes
+web_events,null_customer_id,99937,99937,yes
