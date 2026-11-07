@@ -1,24 +1,28 @@
 ---
 name: experiments-design
-description: Design decisions and Spark 4 pitfalls behind src/experiments (runner, event logs, ivy download, cache/format bench, skew caveat)
+description: Design decisions and verified Spark 4 facts behind src/experiments (runner, ivy cache, event logs, skew parameters, pipeline metrics)
 metadata:
   type: project
 ---
 
-Built 2026-11-07 (code + tests only; official runs belong to benchmark-analyst). User decisions: 3 reps per config, no
-warm-up discarded; cache measured in a separate query script (no `--cache` in etl_job.py, src/etl must not change);
-1-worker runs via `docker compose stop/start spark-worker-2` with try/finally; pandas baseline only on 500k and 1m.
+Built and revised 2026-11-07 (code + tests; official runs belong to benchmark-analyst). User decisions: 3 reps per
+config, no warm-up run discarded (an untimed warm-up ACTION inside query_bench is fine); cache only in query_bench;
+1-worker runs via `docker compose stop/start spark-worker-2` with try/finally; pandas baseline only 500k and 1m;
+(d) only auto/broadcast/shuffle_noauto; (e) 8 configs incl. a forced-shuffle variant; ivy cache on by default in
+data/ivy_cache; executor memory stays at Spark default 1g (Docker crash history), src/etl only metrics may change.
 
-Non-obvious facts found while building it:
-- Spark 4.0 event logs default to rolling dir `eventlog_v2_<app>/` + zstd. Host Python 3.12 cannot read zstd, so
-  runs pass `spark.eventLog.compress=false` and `spark.eventLog.rolling.enabled=false` (verified in local mode).
-- Each spark-submit in a fresh `--rm` container re-downloads ~546 MB of `--packages` jars (smoke: 65 s of a 120 s
-  wall clock for 500k, processing 28 s). `--ivy-cache` option exists but is untested and off by default.
-- Smoke (500k, `--join-strategy shuffle`): merge hint survives AQE (SMJ in final plans) but unhinted joins stay BHJ,
-  hence the extra `shuffle_noauto` config.
-- Skew is on `product_id` only; in auto mode `products` is broadcast, so skew may barely touch shuffles. Told the user.
-- Pandas baseline matched manifest + Spark metrics on 500k (49/49 checks).
+Verified facts (2026-11-07):
+- Spark 4.0 event logs default to rolling + zstd; runs pass `spark.eventLog.compress=false`,
+  `spark.eventLog.rolling.enabled=false` -> single plain JSON file (checked on the cluster). Spark redacts
+  `fs.s3a.secret.key`; MinIO password/user absent from event logs and run logs.
+- `--conf spark.jars.ivy=/opt/spark/work-dir/data/ivy_cache` works through the existing data/ bind mount; 2nd run
+  "0 artifacts copied" (download 59 ms vs 56 s). Cache is ~1.1 GB.
+- Skew: only product_id is skewed. With 8 partitions the hottest partition is 1.77x median (no AQE split possible);
+  with 64 it is 10.5x and 9 hot partitions are 8-16 MB vs <=1.7 MB others (results/metrics/skew/partition_stats*).
+  Chosen: 64 partitions, skewedPartitionThresholdInBytes=4 MiB, advisoryPartitionSizeInBytes=2 MiB; a test run of
+  skew_shuffle_aqe produced 3 SortMergeJoin(skew=true) (items x products writes and region/category aggregate).
+- `mc rm` on a missing prefix exits 0; always pass a trailing slash (labels share prefixes, e.g. *_aqe vs *_aqe_x).
 
 **Why:** these explain choices a reviewer would otherwise question or "fix".
-**How to apply:** keep event-log confs, keep record/archival behaviour; re-check smoke observations on 5m before
-citing them. Related: [[local-windows-test-env]], [[order-items-key-dedupe]].
+**How to apply:** keep these confs/flags; re-derive skew parameters with partition_stats.py if data size changes.
+Related: [[local-windows-test-env]], [[order-items-key-dedupe]].

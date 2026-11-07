@@ -39,10 +39,12 @@ def git_info(repo: Path = paths.REPO_ROOT) -> dict:
 
 
 def host_info() -> dict:
+    """Platform and Python version of the machine running the controller."""
     return {"platform": platform.platform(), "python": platform.python_version(), "machine": platform.machine()}
 
 
 def load_manifest(dataset: str, raw_dir: Path | None = None) -> dict | None:
+    """data/raw/<dataset>/manifest.json as a dict, or None if missing."""
     path = (raw_dir or paths.RAW_DIR) / dataset / "manifest.json"
     if not path.exists():
         return None
@@ -65,6 +67,7 @@ def parse_ivy_times(log_text: str) -> dict:
 
 
 def write_record(run_dir: Path, record: dict) -> Path:
+    """Write run_record.json into `run_dir` (created if needed); returns its path."""
     run_dir.mkdir(parents=True, exist_ok=True)
     path = run_dir / RECORD_NAME
     path.write_text(json.dumps(record, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -72,6 +75,7 @@ def write_record(run_dir: Path, record: dict) -> Path:
 
 
 def read_record(path: Path) -> dict:
+    """Load one run record."""
     return json.loads(path.read_text(encoding="utf-8"))
 
 
@@ -87,8 +91,10 @@ def find_records(exp: str, metrics_root: Path | None = None) -> list[Path]:
 
 
 def load_records(exp: str, metrics_root: Path | None = None) -> list[dict]:
+    """All run records of an experiment, sorted by (config, rep)."""
     return [read_record(p) for p in find_records(exp, metrics_root)]
 
 
 def ok_records(records: Iterable[dict]) -> list[dict]:
+    """Only the records whose status is ok."""
     return [r for r in records if r.get("status") == "ok"]

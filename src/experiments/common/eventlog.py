@@ -3,6 +3,8 @@
 For every SQL execution the last plan reported wins: the plan at execution start, replaced by
 each AQE update (`SparkListenerSQLAdaptiveExecutionUpdate`). The structured `sparkPlanInfo`
 tree is used (not the text plan), so the AQE "Initial Plan" section is not double counted.
+Spark's SparkPlanInfo also lists the original exchange under a `ReusedExchange` node; that subtree
+already ran elsewhere in the plan, so it is not walked again.
 """
 from __future__ import annotations
 
@@ -15,6 +17,9 @@ START = "org.apache.spark.sql.execution.ui.SparkListenerSQLExecutionStart"
 AQE_UPDATE = "org.apache.spark.sql.execution.ui.SparkListenerSQLAdaptiveExecutionUpdate"
 JOIN_NODES = ("SortMergeJoin", "BroadcastHashJoin", "ShuffledHashJoin", "BroadcastNestedLoopJoin",
               "CartesianProduct")
+# AQE's skew-join split renames the node, e.g. "SortMergeJoin(skew=true)".
+SKEW_NODES = ("SortMergeJoin(skew=true)", "ShuffledHashJoin(skew=true)")
+NO_DESCEND = ("ReusedExchange", "ReusedSubquery")
 
 
 def final_plans(lines: Iterable[str]) -> dict[int, dict]:
@@ -33,7 +38,7 @@ def final_plans(lines: Iterable[str]) -> dict[int, dict]:
 
 
 def count_nodes(plan: dict) -> Counter:
-    """Count node names in a sparkPlanInfo tree (children are walked iteratively)."""
+    """Count node names in a sparkPlanInfo tree (iterative walk; reused subtrees are not walked)."""
     counts: Counter = Counter()
     stack = [plan]
     while stack:
@@ -42,17 +47,19 @@ def count_nodes(plan: dict) -> Counter:
         counts[name] += 1
         if name == "AQEShuffleRead" and "skewed" in str(node.get("simpleString", "")):
             counts["AQEShuffleRead(skewed)"] += 1
-        stack.extend(node.get("children") or [])
+        if name not in NO_DESCEND:
+            stack.extend(node.get("children") or [])
     return counts
 
 
 def join_summary(plans: dict[int, dict]) -> dict:
-    """Join operator counts over all executions. `SortMergeJoin(skew=true)` is AQE's skew-join split."""
+    """Join operator counts over all executions, plus AQE skew-join splits and skewed shuffle reads."""
     total: Counter = Counter()
     for plan in plans.values():
         total.update(count_nodes(plan))
     out = {name: total.get(name, 0) for name in JOIN_NODES}
-    out["SortMergeJoin(skew=true)"] = total.get("SortMergeJoin(skew=true)", 0)
+    for name in SKEW_NODES:
+        out[name] = total.get(name, 0)
     out["AQEShuffleRead(skewed)"] = total.get("AQEShuffleRead(skewed)", 0)
     out["executions"] = len(plans)
     return out

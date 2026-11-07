@@ -21,16 +21,19 @@ TITLE = "baseline Pandas một máy"
 
 
 def add_args(p: argparse.ArgumentParser) -> None:
+    """Add this experiment's own command-line options to `p`."""
     p.add_argument("--datasets", default="orders_500k,orders_1m", help="comma-separated (decided: 500k and 1m)")
 
 
 def build_specs(args: argparse.Namespace) -> list[RunSpec]:
+    """One RunSpec per configuration of this experiment, from the parsed arguments."""
     return [RunSpec(exp=EXP, config=ds, kind="pandas", dataset=ds, workers=None,
                     params={"engine": "pandas", "reader": "read_csv (C engine) / read_json", "host": "local"})
             for ds in cli.split_list(args.datasets)]
 
 
 def main(argv=None) -> int:
+    """Command-line entry point; returns the process exit status."""
     return cli.run_main(EXP, TITLE, __doc__, add_args, build_specs, argv)
 
 

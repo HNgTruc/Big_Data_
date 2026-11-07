@@ -7,6 +7,8 @@
 `format`: the same queries on raw CSV/JSON (explicit schemas from src/etl/schemas.py, read exactly as
 the ETL does) and on curated Parquet. `cache`: K aggregate queries over curated orders JOIN order_items,
 with or without cache(). Times cover the action (collect) only; plans are captured after it.
+Before any timed query an untimed warm-up runs (a small computation plus a read of the dataset's
+products.parquet), so the first measured query does not pay executor JVM/codegen/S3A start-up.
 Writes nothing to MinIO. Python 3.10 compatible (container interpreter).
 """
 from __future__ import annotations
@@ -44,6 +46,7 @@ def explain_text(df: DataFrame, mode: str = "formatted") -> str:
 
 
 def timed_collect(df: DataFrame) -> tuple[float, list]:
+    """(seconds, rows) of df.collect()."""
     start = time.perf_counter()
     rows = df.collect()
     return round(time.perf_counter() - start, 3), rows
@@ -58,6 +61,14 @@ def path_size(spark: SparkSession, path: str) -> dict | None:
         return None
     cs = fs.getContentSummary(p)
     return {"bytes": int(cs.getLength()), "files": int(cs.getFileCount())}
+
+
+def warm_up(spark: SparkSession, storage_root: str, dataset: str) -> float:
+    """Warm-up before the timed queries; returns its own duration (recorded, not part of any measurement)."""
+    start = time.perf_counter()
+    spark.range(0, 2_000_000, numPartitions=8).selectExpr("sum(id)").collect()
+    spark.read.parquet(f"{storage_root}/raw/{dataset}/products.parquet").groupBy().count().collect()
+    return round(time.perf_counter() - start, 3)
 
 
 # ---- format_compare -------------------------------------------------------------------------
@@ -86,6 +97,7 @@ def _result_summary(name: str, rows: list) -> dict:
 
 
 def run_format(spark: SparkSession, args: argparse.Namespace) -> dict:
+    """Sizes, then every format query on raw and curated (order per --order); returns the result JSON."""
     cfg = pipeline.RunConfig(dataset=args.dataset, storage_root=args.storage_root)
     curated_root = f"{args.storage_root}/curated/{args.curated_label}"
     missing = [t for t in ("orders", "order_items", "web_events") if path_size(spark, f"{curated_root}/{t}") is None]
@@ -96,6 +108,7 @@ def run_format(spark: SparkSession, args: argparse.Namespace) -> dict:
         "raw": {f: path_size(spark, cfg.raw(f)) for f in RAW_FILES},
         "curated": {t: path_size(spark, f"{curated_root}/{t}") for t in CURATED_TABLES},
     }
+    warmup_seconds = warm_up(spark, args.storage_root, args.dataset)
     raw = pipeline.read_raw(spark, cfg)  # same reader options and schemas as the ETL
     sources = {
         "raw": (raw["orders"].withColumn("order_date", cleaning.parse_date(F.col("order_date"))),
@@ -117,7 +130,7 @@ def run_format(spark: SparkSession, args: argparse.Namespace) -> dict:
     curated_rows = {t: spark.read.parquet(f"{curated_root}/{t}").count()
                     for t in ("orders", "order_items", "web_events")}
     return {"bench": "format", "dataset": args.dataset, "curated_label": args.curated_label,
-            "format_order": fmt_order, "sizes": sizes, "curated_rows": curated_rows,
+            "format_order": fmt_order, "warmup_seconds": warmup_seconds, "sizes": sizes, "curated_rows": curated_rows,
             "measurements": measurements}
 
 
@@ -131,6 +144,7 @@ def cache_base(spark: SparkSession, curated_root: str) -> DataFrame:
 
 
 def cache_queries(base: DataFrame) -> dict[str, DataFrame]:
+    """The K-query workload of the cache benchmark (cycled in CACHE_QUERIES order)."""
     return {
         "revenue_by_date": base.groupBy("order_date").agg(F.sum("line_amount").alias("revenue")),
         "revenue_by_status": base.groupBy("status").agg(F.sum("line_amount").alias("revenue")),
@@ -153,13 +167,16 @@ def storage_info(spark: SparkSession) -> list[dict]:
 
 
 def run_cache(spark: SparkSession, args: argparse.Namespace) -> dict:
+    """K queries on curated orders JOIN order_items, cached or not; returns the result JSON."""
     curated_root = f"{args.storage_root}/curated/{args.curated_label}"
     missing = [t for t in ("orders", "order_items") if path_size(spark, f"{curated_root}/{t}") is None]
     if missing:
         raise FileNotFoundError(f"curated tables missing under {curated_root}: {missing}")
+    warmup_seconds = warm_up(spark, args.storage_root, args.dataset)
     base = cache_base(spark, curated_root)
     out = {"bench": "cache", "dataset": args.dataset, "curated_label": args.curated_label, "mode": args.mode,
-           "k": args.k, "materialize_seconds": None, "storage_level": None, "storage_after_materialize": None}
+           "k": args.k, "warmup_seconds": warmup_seconds, "materialize_seconds": None, "storage_level": None,
+           "storage_after_materialize": None}
     if args.mode == "cache":
         base = base.cache()
         out["storage_level"] = str(base.storageLevel)
@@ -183,6 +200,7 @@ def run_cache(spark: SparkSession, args: argparse.Namespace) -> dict:
         measurements.append(entry)
     if args.mode == "cache":
         base.unpersist(blocking=True)
+        out["storage_after_unpersist"] = storage_info(spark)
     out["measurements"] = measurements
     out["queries_seconds_total"] = round(sum(m["seconds"] for m in measurements), 3)
     out["total_seconds"] = round(out["queries_seconds_total"] + (out["materialize_seconds"] or 0.0), 3)
@@ -192,6 +210,7 @@ def run_cache(spark: SparkSession, args: argparse.Namespace) -> dict:
 # ---- CLI ------------------------------------------------------------------------------------
 
 def parse_args(argv=None) -> argparse.Namespace:
+    """Parse `format ...` / `cache ...` arguments; curated label defaults to the dataset name."""
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="bench", required=True)
     for name in ("format", "cache"):
@@ -210,6 +229,7 @@ def parse_args(argv=None) -> argparse.Namespace:
 
 
 def main(argv=None) -> int:
+    """Run one benchmark and write its JSON; 2 if curated tables are missing."""
     args = parse_args(argv)
     spark = session.build_session(args.storage_root, args.shuffle_partitions, app_name=f"query_bench_{args.bench}")
     try:
@@ -220,6 +240,7 @@ def main(argv=None) -> int:
         return 2
     result.update({"spark_version": spark.version, "app_id": spark.sparkContext.applicationId,
                    "default_parallelism": spark.sparkContext.defaultParallelism,
+                   "resources": pipeline._resources(spark),  # same resource record as the ETL metrics
                    "conf": {k: spark.conf.get(k) for k in ("spark.sql.shuffle.partitions",
                                                            "spark.sql.adaptive.enabled",
                                                            "spark.sql.autoBroadcastJoinThreshold")}})

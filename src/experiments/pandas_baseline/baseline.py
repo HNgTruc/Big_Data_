@@ -5,6 +5,8 @@ Run from the repository root (host, no Docker):
 
 Reads data/raw/<dataset>/ from the local disk, writes Parquet to a temporary folder (deleted at the
 end unless --keep-output), and compares row counts with manifest.json and the Spark metrics JSON.
+Exit code 0 only if every check matches; 3 if any count differs (the JSON is still written), so the
+experiment runner records the run as failed and keeps it out of the statistics.
 """
 from __future__ import annotations
 
@@ -75,12 +77,14 @@ def peak_rss_bytes() -> tuple[int | None, str]:
 
 def read_csv(path: Path, table: str) -> pd.DataFrame:
     # Spark's CSV reader treats only the empty string as null (nullValue=""); mirror that.
+    """Read one raw CSV with the dtypes of src/etl/schemas.py."""
     return pd.read_csv(path, dtype=P.CSV_DTYPES[table], keep_default_na=False, na_values=[""])
 
 
 def read_events(path: Path) -> pd.DataFrame:
     # dtype=False: no inference, so pandas does not turn the *_time column into datetimes on its own;
     # then cast to the types of src/etl/schemas.py (ids < 2**53, so the float -> Int64 cast is exact).
+    """Read web_events.jsonl with the dtypes of src/etl/schemas.py."""
     return pd.read_json(path, lines=True, dtype=False).astype(P.EVENTS_DTYPES)
 
 
@@ -95,6 +99,7 @@ class StageTimer:
 
     @contextmanager
     def stage(self, name: str):
+        """Time one ETL stage and record the peak memory after it."""
         self._current = name
         self.substeps[name] = {}
         start = time.perf_counter()
@@ -104,6 +109,7 @@ class StageTimer:
 
     @contextmanager
     def step(self, name: str):
+        """Add the duration of one sub-step (read/transform/write) to the current stage."""
         start = time.perf_counter()
         yield
         steps = self.substeps[self._current]
@@ -222,6 +228,7 @@ def compare(result: dict, manifest: dict | None, spark: dict | None) -> list[dic
 
 
 def parse_args(argv=None) -> argparse.Namespace:
+    """Command-line options of the baseline."""
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--dataset", required=True, help="folder under --raw-root, e.g. orders_500k")
     p.add_argument("--raw-root", type=Path, default=REPO_ROOT / "data" / "raw")
@@ -234,6 +241,7 @@ def parse_args(argv=None) -> argparse.Namespace:
 
 
 def main(argv=None) -> int:
+    """Run the baseline once; 0 = all counts match, 2 = raw folder missing, 3 = some count differs."""
     # KHỚP/LỆCH must print even when stdout is a redirected file using a legacy Windows code page.
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
@@ -271,9 +279,13 @@ def main(argv=None) -> int:
     if args.metrics_out:
         args.metrics_out.parent.mkdir(parents=True, exist_ok=True)
         args.metrics_out.write_text(json.dumps(result, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
-    print(f"PANDAS_OK processing_seconds_total={result['processing_seconds_total']} "
+    status = "PANDAS_OK" if all_match else "PANDAS_DONE"
+    print(f"{status} processing_seconds_total={result['processing_seconds_total']} "
           f"stages={result['stage_seconds']} all_match={all_match} "
           f"checks={result['n_checks']} mismatches={result['n_mismatch']} peak_rss_bytes={result['peak_rss_bytes']}")
+    if not all_match:
+        print("PANDAS_ERROR row counts differ from the references (see LỆCH lines)")
+        return 3
     return 0
 
 

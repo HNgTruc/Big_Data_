@@ -70,10 +70,12 @@ def parse_first_match(values: pd.Series, rules) -> pd.Series:
 
 
 def parse_date(values: pd.Series) -> pd.Series:
+    """Date from any of DATE_RULES (NaT otherwise)."""
     return parse_first_match(values, DATE_RULES)
 
 
 def parse_timestamp(values: pd.Series) -> pd.Series:
+    """Timestamp from any of TIMESTAMP_RULES (NaT otherwise)."""
     return parse_first_match(values, TIMESTAMP_RULES)
 
 
@@ -105,6 +107,7 @@ def clean_customers(raw: pd.DataFrame) -> pd.DataFrame:
 
 
 def clean_orders(raw: pd.DataFrame, customers: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Dedupe by order_id; quarantine null/orphan customer and unparseable date; date normalised."""
     df = raw.drop_duplicates(subset=["order_id"], keep="first").copy()
     df["_date"] = parse_date(df["order_date"])
     known = _mask(df["customer_id"].isin(customers["customer_id"].dropna()))
@@ -136,6 +139,7 @@ def clean_items(raw: pd.DataFrame, orders: pd.DataFrame, products: pd.DataFrame)
 
 
 def clean_events(raw: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Dedupe by event_id; quarantine null customer and unparseable time; time normalised."""
     df = raw.drop_duplicates(subset=["event_id"], keep="first").copy()
     df["_time"] = parse_timestamp(df["event_time"])
     reason = assign_reasons(df.index, [
@@ -164,6 +168,7 @@ def daily_revenue(orders: pd.DataFrame, items: pd.DataFrame) -> pd.DataFrame:
 
 def revenue_by_region_category(orders: pd.DataFrame, items: pd.DataFrame, customers: pd.DataFrame,
                                products: pd.DataFrame) -> pd.DataFrame:
+    """Revenue and units per region x category."""
     lines = (_revenue_lines(orders, items)
              .merge(customers[["customer_id", "region"]], on="customer_id", how="inner")
              .merge(products[["product_id", "category"]], on="product_id", how="inner"))
@@ -174,6 +179,7 @@ def revenue_by_region_category(orders: pd.DataFrame, items: pd.DataFrame, custom
 
 
 def events_daily(events: pd.DataFrame) -> pd.DataFrame:
+    """Number of events per day and event type."""
     df = events.assign(event_date=events["event_time"].dt.normalize())
     out = df.groupby(["event_date", "event_type"], dropna=False).size().reset_index(name="count")
     return out.sort_values(["event_date", "event_type"]).reset_index(drop=True)

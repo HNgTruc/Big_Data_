@@ -4,13 +4,14 @@
 """
 from __future__ import annotations
 
+import math
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from src.experiments.common import analysis as A  # noqa: E402
-from src.experiments.common import paths, plots, records, stats  # noqa: E402
+from src.experiments.common import paths, plots, records  # noqa: E402
 
 EXP = "cache"
 TOTALS = ("materialize_seconds", "queries_seconds_total", "total_seconds")
@@ -23,7 +24,7 @@ def step_rows(recs: list[dict]) -> list[dict]:
         m = rec.get("metrics") or {}
         base = {"config": rec.get("config"), "rep": rec.get("rep"), "dataset": rec.get("dataset"),
                 "status": rec.get("status"), "k": m.get("k"), "storage_level": m.get("storage_level"),
-                **A.provenance(rec)}
+                "warmup_seconds": m.get("warmup_seconds"), **A.provenance(rec)}
         if rec.get("status") != "ok":
             out.append({**base, "step": None, "seconds": None})
             continue
@@ -37,32 +38,42 @@ def step_rows(recs: list[dict]) -> list[dict]:
 
 
 def summarize_steps(rows: list[dict]) -> list[dict]:
-    groups: dict[tuple, list] = {}
-    for r in rows:
-        if r.get("status") == "ok" and r.get("step"):
-            groups.setdefault((r["config"], r["step"]), []).append(r["seconds"])
-    summary = [{"config": c, "step": s, "metric": "seconds", "unit": "s", **stats.summarize(v)}
-               for (c, s), v in sorted(groups.items())]
-    return summary
+    """Per (config, step) over valid runs (quality columns from analysis.summary_rows)."""
+    measured = [r for r in rows if r.get("step")]
+    summary = A.summary_rows(measured, ["config", "dataset", "step"], ["seconds"])
+    failed = [r for r in rows if not r.get("step")]
+    for row in summary:
+        row["n_failed"] = sum(1 for r in failed if r.get("config") == row["config"])
+    return sorted(summary, key=lambda r: (r["config"], r["step"]))
 
 
 def break_even(summary: list[dict], k: int | None) -> dict:
-    """Queries needed before cache pays off: materialize / (per-query saving), from the means."""
+    """Number of queries n* after which caching is cheaper, from the means.
+
+    Cost of n queries of the measured mix: without cache n*u, with cache M + n*c, where u and c are the mean
+    per-query times (queries_seconds_total / k) and M the materialisation (cache + count). Hence
+    n* = M / (u - c), valid only when u > c. Both benchmarks run an untimed warm-up first, so neither the
+    first nocache query nor the materialisation pays JVM/executor start-up.
+    """
     def mean(config: str, step: str):
         row = next((s for s in summary if s["config"] == config and s["step"] == step), None)
         return row["mean"] if row else None
-    no_q, c_q, mat = mean("nocache", "queries_seconds_total"), mean("cache", "queries_seconds_total"), \
-        mean("cache", "materialize_seconds")
+    no_q, c_q = mean("nocache", "queries_seconds_total"), mean("cache", "queries_seconds_total")
+    mat = mean("cache", "materialize_seconds")
     if not k or no_q is None or c_q is None or mat is None:
         return {"k": k, "break_even_queries": None}
-    saving = (no_q - c_q) / k
-    return {"k": k, "per_query_nocache_mean": no_q / k, "per_query_cache_mean": c_q / k,
-            "materialize_mean": mat, "per_query_saving": saving,
-            "break_even_queries": mat / saving if saving > 0 else None,
+    u, c = no_q / k, c_q / k
+    n_star = mat / (u - c) if u > c else None
+    return {"k": k, "per_query_nocache_mean": u, "per_query_cache_mean": c, "materialize_mean": mat,
+            "per_query_saving": u - c, "break_even_queries": n_star,
+            "break_even_queries_ceil": math.ceil(n_star) if n_star is not None else None,
+            "saving_at_k": no_q - (mat + c_q),
+            "formula": "n* = M / (u - c); u, c = mean per-query time without/with cache; M = materialize",
             "note": "từ trung bình; None nếu cache không làm truy vấn nhanh hơn"}
 
 
 def plot(summary: list[dict], fig_dir: Path) -> None:
+    """Draw this experiment's figures into results/figures/<exp>/ (skipped without matplotlib)."""
     plt = plots.pyplot()
     if plt is None or not summary:
         return
@@ -94,6 +105,7 @@ def plot(summary: list[dict], fig_dir: Path) -> None:
 
 
 def analyze(results_root: Path = paths.RESULTS_DIR) -> list[dict]:
+    """Rebuild runs.csv, summary.csv (and extra tables) and figures from the run records; returns the summary."""
     recs = records.load_records(EXP, results_root / "metrics")
     if not recs:
         print(f"[{EXP}] no run records under {results_root / 'metrics' / EXP}")
@@ -103,6 +115,7 @@ def analyze(results_root: Path = paths.RESULTS_DIR) -> list[dict]:
     A.write_csv(out_dir / "runs.csv", rows)
     summary = summarize_steps(rows)
     A.write_csv(out_dir / "summary.csv", summary)
+    A.warn_quality(EXP, summary)
     ks = {r.get("k") for r in rows if r.get("k")}
     A.write_csv(out_dir / "break_even.csv", [break_even(summary, ks.pop() if len(ks) == 1 else None)])
     plot(summary, results_root / "figures" / EXP)
@@ -111,6 +124,7 @@ def analyze(results_root: Path = paths.RESULTS_DIR) -> list[dict]:
 
 
 def main() -> int:
+    """Command-line entry point: analyze the records under results/."""
     analyze()
     return 0
 

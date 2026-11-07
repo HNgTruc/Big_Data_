@@ -17,6 +17,7 @@ SPARK_EXP = "scale_data"
 
 
 def run_row(rec: dict) -> dict:
+    """ETL-style CSV row plus peak memory and the KHỚP/LỆCH outcome."""
     m = rec.get("metrics") or {}
     row = A.etl_run_row(rec)
     peak = m.get("peak_rss_bytes")
@@ -48,6 +49,7 @@ def spark_comparison(summary: list[dict], spark_summary: Path) -> list[dict]:
 
 
 def plot(comparison: list[dict], summary: list[dict], fig_dir: Path) -> None:
+    """Draw this experiment's figures into results/figures/<exp>/ (skipped without matplotlib)."""
     plt = plots.pyplot()
     if plt is None:
         return
@@ -69,6 +71,7 @@ def plot(comparison: list[dict], summary: list[dict], fig_dir: Path) -> None:
 
 
 def analyze(results_root: Path = paths.RESULTS_DIR) -> list[dict]:
+    """Rebuild runs.csv, summary.csv (and extra tables) and figures from the run records; returns the summary."""
     recs = records.load_records(EXP, results_root / "metrics")
     if not recs:
         print(f"[{EXP}] no run records under {results_root / 'metrics' / EXP}")
@@ -95,6 +98,7 @@ def analyze(results_root: Path = paths.RESULTS_DIR) -> list[dict]:
 
 
 def main() -> int:
+    """Command-line entry point: analyze the records under results/."""
     analyze()
     return 0
 

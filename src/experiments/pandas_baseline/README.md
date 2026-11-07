@@ -22,7 +22,7 @@ Khác biệt đã biết: làm tròn doanh thu kiểu NumPy (half-to-even) thay 
 
 ## Đối chiếu
 
-Mỗi lần chạy in `KHỚP`/`LỆCH` cho: số dòng thô, dòng trùng đã bỏ, từng lý do quarantine so với `data/raw/<bộ>/manifest.json`; và mọi số dòng sạch/quarantine/trùng, từng lý do, số dòng bảng tổng hợp so với `results/metrics/<bộ>.json` của Spark. Kết quả ghi trong JSON (`checks`, `all_match`).
+Mỗi lần chạy in `KHỚP`/`LỆCH` cho: số dòng thô, dòng trùng đã bỏ, từng lý do quarantine so với `data/raw/<bộ>/manifest.json`; và mọi số dòng sạch/quarantine/trùng, từng lý do, số dòng bảng tổng hợp so với `results/metrics/<bộ>.json` của Spark. Kết quả ghi trong JSON (`checks`, `all_match`). Có số đếm LỆCH thì `baseline.py` thoát với mã 3: bộ chạy ghi lần đó là `failed` và không đưa vào thống kê (JSON vẫn được ghi để xem nguyên nhân).
 
 ## So sánh với Spark: khác biệt môi trường (bắt buộc nêu trong báo cáo)
 

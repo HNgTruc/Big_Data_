@@ -1,13 +1,13 @@
 """Tests for src/experiments (host side, no Docker, no Spark): statistics, commands, cluster checks,
 runner records, event-log parsing and the analysis tables."""
 import json
+import subprocess
 import sys
-from pathlib import Path
 
 import pytest
 
 from src.experiments.common import analysis as A
-from src.experiments.common import cluster, commands, eventlog, paths, records, runner, stats
+from src.experiments.common import cluster, commands, eventlog, host, paths, records, runner, stats
 from src.experiments.common.runner import Runner, RunnerOptions, RunSpec
 
 
@@ -44,19 +44,25 @@ def test_etl_command_matches_infra_readme_prefix():
     assert "exec" not in cmd
     joined = " ".join(cmd)
     assert ("spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 "
-            "--conf spark.driver.host=etl-driver --conf spark.jars.ivy=/tmp/.ivy "
+            "--conf spark.driver.host=etl-driver --conf spark.jars.ivy=/opt/spark/work-dir/data/ivy_cache "
             "--packages org.apache.hadoop:hadoop-aws:3.4.1 /opt/spark/work-dir/src/etl/etl_job.py") in joined
+    # without the cache the command is exactly the one documented in infra/README.md
+    plain, _ = runner.build_command(spec, 2, RunnerOptions(ivy_cache=False))
+    assert "spark.jars.ivy=/tmp/.ivy" in plain
     tail = cmd[cmd.index("/opt/spark/work-dir/src/etl/etl_job.py") + 1:]
     assert tail == ["--dataset", "orders_500k", "--run-label", "scale_data_orders_500k", "--metrics-dir",
                     "/opt/spark/work-dir/results/metrics/scale_data/runs/orders_500k/r2"]
     assert "spark.eventLog.enabled=true" not in cmd
 
 
-def test_event_log_ivy_and_extra_args():
+def test_event_log_conf_and_extra_args():
     spec = RunSpec(exp="join_strategy", config="shuffle_noauto", kind="etl", dataset="orders_5m",
-                   args=("--join-strategy", "shuffle", "--no-auto-broadcast"), event_log=True)
-    cmd, _ = runner.build_command(spec, 1, RunnerOptions(ivy_cache=Path("C:/ivy")))
-    assert cmd[cmd.index("-v") + 1].endswith(":/tmp/.ivy")
+                   args=("--join-strategy", "shuffle", "--no-auto-broadcast"), event_log=True,
+                   spark_conf=("spark.sql.adaptive.advisoryPartitionSizeInBytes=2097152",))
+    cmd, _ = runner.build_command(spec, 1, RunnerOptions())
+    assert "-v" not in cmd  # data/ is already mounted; no extra volume
+    i = cmd.index("spark.sql.adaptive.advisoryPartitionSizeInBytes=2097152")
+    assert cmd[i - 1] == "--conf" and i < cmd.index("--packages")
     assert "spark.eventLog.dir=file:///opt/spark/work-dir/results/logs/join_strategy/eventlogs" in cmd
     assert "spark.eventLog.compress=false" in cmd and "spark.eventLog.rolling.enabled=false" in cmd
     assert cmd[-3:] == ["--join-strategy", "shuffle", "--no-auto-broadcast"]
@@ -79,10 +85,16 @@ def test_compose_and_minio_guards():
     assert commands.compose_service("stop", "spark-worker-2") == ["docker", "compose", "stop", "spark-worker-2"]
     with pytest.raises(ValueError):
         commands.compose_service("rm", "spark-worker-2")
-    assert commands.minio_remove("bigdata", "curated/x_y")[-1] == "local/bigdata/curated/x_y"
-    for bad in ("", "/", "curated/../raw"):
+    cmd = commands.minio_remove("bigdata", "curated/x_y", "quarantine/x_y")
+    assert cmd[-2:] == ["local/bigdata/curated/x_y/", "local/bigdata/quarantine/x_y/"]  # trailing slash
+    assert "exec" not in cmd
+    for bad in ("", "/", "curated/../raw", "curated"):
         with pytest.raises(ValueError):
             commands.minio_remove("bigdata", bad)
+    with pytest.raises(ValueError):
+        commands.minio_remove("bigdata")
+    with pytest.raises(ValueError):
+        commands.spark_submit("x.py", [], "d", commands.SparkSubmitOptions(spark_conf=("novalue",)))
 
 
 def test_plan_orders():
@@ -135,6 +147,23 @@ def test_worker_controller_refuses_unexpected_state(monkeypatch):
     with pytest.raises(cluster.ClusterStateError):
         ctl.ensure(1)  # only 1 ALIVE before we stopped anything: do not guess which one is missing
     assert ctl.actions == []
+
+
+def test_worker_flag_set_before_stop(monkeypatch):
+    two = cluster.parse_master_json({"workers": [MASTER["workers"][0], MASTER["workers"][2]], "activeapps": []})
+    monkeypatch.setattr(cluster, "fetch_snapshot", lambda url, timeout=5.0: two)
+    monkeypatch.setattr(cluster.subprocess, "run",
+                        lambda *a, **k: subprocess.CompletedProcess(a, 1, stdout="", stderr="boom"))
+    ctl = cluster.WorkerController("http://x", log=lambda m: None)
+    with pytest.raises(cluster.ClusterStateError):
+        ctl.ensure(1)
+    assert ctl.stopped_worker_2  # so the runner's finally still runs `start`
+
+
+def test_foreign_containers_parsing():
+    text = "bigdata-minio-1\tbigdata\nxom-nho-mysql\txom-nho\nlonely\t\n"
+    assert host.parse_containers(text) == ["lonely", "xom-nho-mysql"]
+    assert "method" in host.memory_status()
 
 
 # ---- runner and records -------------------------------------------------------------------
@@ -216,6 +245,23 @@ def test_dry_run_writes_nothing(tmp_repo):
     assert "docker compose stop spark-worker-2" in text and "docker compose start spark-worker-2" in text
 
 
+def test_etl_pre_cleanup_runs_outside_the_timed_command(tmp_repo, monkeypatch):
+    calls = []
+
+    def fake_run(cmd, *a, **k):
+        calls.append(list(cmd))
+        return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
+    monkeypatch.setattr(runner.subprocess, "run", fake_run)
+    _fake_job(monkeypatch, 0, True)
+    spec = RunSpec(exp="exp", config="cfg", kind="etl", dataset="ds", workers=None)
+    Runner("exp", "t", [spec], RunnerOptions(reps=1), out=lambda m: None).run()
+    rm = [c for c in calls if "rm" in c and "minio-init" in c]
+    assert rm and rm[0][-2:] == ["local/bigdata/curated/exp_cfg/", "local/bigdata/quarantine/exp_cfg/"]
+    rec = records.load_records("exp")[0]
+    assert rec["pre_cleanup"]["exit_code"] == 0 and rec["pre_cleanup"]["seconds"] >= 0
+    assert "pre_cleanup_failed" not in A.run_flags(rec)
+
+
 def test_parse_ivy_times():
     log = ":: resolution report :: resolve 6546ms :: artifacts dl 54020ms\n"
     assert records.parse_ivy_times(log) == {"resolve_ms": 6546, "download_ms": 54020}
@@ -229,6 +275,17 @@ def _plan(*names):
     for n in names:
         node = {"nodeName": n, "simpleString": "", "children": [node]}
     return node
+
+
+def test_reused_exchange_not_counted_twice():
+    original = _plan("SortMergeJoin", "Exchange")
+    plan = {"nodeName": "Union", "children": [original, {"nodeName": "ReusedExchange", "children": [original]}]}
+    counts = eventlog.count_nodes(plan)
+    assert counts["SortMergeJoin"] == 1 and counts["ReusedExchange"] == 1
+    skewed_read = {"nodeName": "AQEShuffleRead", "simpleString": "AQEShuffleRead coalesced and skewed",
+                   "children": []}
+    skew = eventlog.join_summary({1: _plan("ShuffledHashJoin(skew=true)"), 2: skewed_read})
+    assert skew["ShuffledHashJoin(skew=true)"] == 1 and skew["AQEShuffleRead(skewed)"] == 1
 
 
 def test_event_log_last_plan_wins(tmp_path):
@@ -302,14 +359,81 @@ def test_scale_data_ratios():
 def test_format_and_cache_summaries():
     from src.experiments.cache import analyze as ca
     from src.experiments.format_compare import analyze as fc
-    rec = {"config": "d", "rep": 1, "dataset": "d", "status": "ok",
-           "metrics": {"measurements": [{"query": "q1", "format": "raw", "seconds": 3.0},
-                                        {"query": "q1", "format": "curated", "seconds": 1.0}]}}
-    summary = fc.summarize_queries(fc.query_rows([rec]))
+    def rec(config, order, raw_s, cur_s, rep=1):
+        return {"config": config, "rep": rep, "dataset": "d", "status": "ok", "kind": "query_bench",
+                "metrics": {"format_order": order, "measurements": [
+                    {"query": "q1", "format": "raw", "seconds": raw_s},
+                    {"query": "q1", "format": "curated", "seconds": cur_s}]}}
+    rows = fc.query_rows([rec("raw_first", ["raw", "curated"], 4.0, 1.0),
+                          rec("curated_first", ["curated", "raw"], 2.0, 1.0)])
+    summary = fc.summarize_queries(rows)  # both orders pooled
     raw = next(s for s in summary if s["format"] == "raw")
-    assert raw["ratio_raw_over_curated"] == 3.0
+    assert raw["n"] == 2 and raw["ratio_raw_over_curated"] == 3.0
+    by_order = fc.summarize_queries(rows, by_order=True)
+    assert {r["order"] for r in by_order} == {"raw-curated", "curated-raw"}
     summary = [{"config": "nocache", "step": "queries_seconds_total", "mean": 50.0},
                {"config": "cache", "step": "queries_seconds_total", "mean": 10.0},
                {"config": "cache", "step": "materialize_seconds", "mean": 16.0}]
     be = ca.break_even(summary, 5)
     assert be["per_query_saving"] == 8.0 and be["break_even_queries"] == 2.0
+    assert be["break_even_queries_ceil"] == 2 and be["saving_at_k"] == 50.0 - 26.0
+    slower = [dict(r) for r in summary]
+    slower[1]["mean"] = 60.0
+    assert ca.break_even(slower, 5)["break_even_queries"] is None
+
+
+def _full(config, rep, seconds, **extra):
+    rec = {**_etl_record(config, rep, "ok", seconds), "kind": "etl", "workers_expected": 2,
+           "cluster_after": {"alive_workers": 2}, "git": {"commit": "a" * 40, "dirty": False},
+           "raw_rows_manifest": {"orders": 100, "order_items": 200}, "runner_options": {"ivy_cache": True}}
+    rec.update(extra)
+    return rec
+
+
+def test_flags_exclude_bad_runs_but_keep_them_visible():
+    recs = [_full("a", 1, 10), _full("a", 2, 20),
+            _full("a", 3, 99, cluster_after={"alive_workers": 1}),
+            _full("a", 4, 50, raw_rows_manifest={"orders": 101, "order_items": 200}),
+            _full("a", 5, 30, host_before={"foreign_containers": ["xom-nho-mysql"]})]
+    rows = [A.etl_run_row(r) for r in recs]
+    assert [r["valid"] for r in rows] == [True, True, False, False, True]
+    assert "workers_changed" in rows[2]["flags"] and "raw_rows_mismatch" in rows[3]["flags"]
+    assert rows[4]["flags"] == "foreign_containers"
+    s = A.lookup(A.summary_rows(rows, ["config"], ["processing_seconds_total"]), "processing_seconds_total",
+                 config="a")
+    assert s["n"] == 3 and s["n_excluded"] == 2 and s["mean"] == 20.0
+    assert s["homogeneous"] is True and s["git_commits"] == "a" * 10 and s["dirty_any"] is False
+
+
+def test_quality_detects_mixed_commits_and_inconsistent_counts():
+    other = _full("a", 2, 20, git={"commit": "b" * 40, "dirty": True})
+    other["metrics"]["tables"]["orders"]["clean_rows"] = 5
+    rows = [A.etl_run_row(r) for r in (_full("a", 1, 10), other)]
+    s = A.summary_rows(rows, ["config"], ["processing_seconds_total"])[0]
+    assert s["homogeneous"] is False and s["dirty_any"] is True and s["counts_consistent"] is False
+    assert A.warn_quality("x", [s])
+
+
+def test_new_experiment_plans():
+    import argparse
+    from src.experiments.format_compare import run as fc_run
+    from src.experiments.join_strategy import run as js_run
+    from src.experiments.skew import run as sk_run
+
+    def specs(mod, argv=()):
+        p = argparse.ArgumentParser()
+        mod.add_args(p)
+        return mod.build_specs(p.parse_args(list(argv)))
+    assert [s.config for s in specs(js_run)] == ["auto", "broadcast", "shuffle_noauto"]
+    assert [s.config for s in specs(fc_run)] == ["raw_first", "curated_first"]
+    sk = {s.config: s for s in specs(sk_run)}
+    assert len(sk) == 8
+    forced = sk["skew_shuffle_aqe"]
+    assert forced.dataset == "orders_5m_skew" and "--no-aqe" not in forced.args
+    assert forced.args[:5] == ("--join-strategy", "shuffle", "--no-auto-broadcast", "--shuffle-partitions", "64")
+    assert forced.spark_conf == ("spark.sql.adaptive.skewJoin.skewedPartitionThresholdInBytes=4194304",
+                                 "spark.sql.adaptive.advisoryPartitionSizeInBytes=2097152")
+    assert sk["balanced_auto_noaqe"].args == ("--join-strategy", "auto", "--no-aqe")
+    assert sk["balanced_auto_noaqe"].spark_conf == ()
+    with pytest.raises(SystemExit):
+        specs(sk_run, ["--skew-threshold-bytes", "1", "--advisory-bytes", "2"])

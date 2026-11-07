@@ -1,6 +1,8 @@
 """Tests for the pandas baseline: same rules as src/etl (checked against the Spark source text, without
 importing pyspark) and behaviour on small hand-made tables."""
 import ast
+import json
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -171,7 +173,6 @@ def test_baseline_matches_generator_manifest(tmp_path):
     code = baseline.main(["--dataset", "ds", "--raw-root", str(tmp_path / "raw"), "--out-dir", str(tmp_path / "pq"),
                           "--spark-metrics", str(tmp_path / "missing.json"), "--metrics-out", str(out)])
     assert code == 0
-    import json
     result = json.loads(out.read_text(encoding="utf-8"))
     assert result["all_match"], [c for c in result["checks"] if not c["ok"]]
     assert result["n_checks"] == 18 and set(result["stage_seconds"]) == set(baseline.STAGES)
@@ -191,5 +192,20 @@ def test_compare_flags_mismatch():
 
 def test_peak_rss_is_measured():
     peak, method = baseline.peak_rss_bytes()
-    assert peak is None or peak > 0
-    assert method
+    if sys.platform == "win32":
+        assert method.startswith("win32") and peak > 0
+    else:
+        assert method and (peak is None or peak > 0)
+
+
+def test_mismatch_gives_nonzero_exit(tmp_path):
+    from src.data_generation.config import Config
+    from src.data_generation.generate import generate
+    generate(Config(orders=500, chunk_size=500, seed=3), tmp_path / "raw" / "ds")
+    wrong = tmp_path / "spark.json"
+    wrong.write_text(json.dumps({"tables": {"orders": {"raw_rows": 1}}, "aggregate_rows": {}}), encoding="utf-8")
+    out = tmp_path / "m.json"
+    code = baseline.main(["--dataset", "ds", "--raw-root", str(tmp_path / "raw"), "--spark-metrics", str(wrong),
+                          "--metrics-out", str(out)])
+    assert code == 3
+    assert json.loads(out.read_text(encoding="utf-8"))["all_match"] is False

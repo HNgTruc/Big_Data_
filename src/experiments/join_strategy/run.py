@@ -5,7 +5,6 @@
 Configurations (etl_job.py flags):
   auto            --join-strategy auto                         (Spark decides; reference)
   broadcast       --join-strategy broadcast                    (broadcast hint on the small join side)
-  shuffle_hint    --join-strategy shuffle                      (merge hint on the hinted joins only)
   shuffle_noauto  --join-strategy shuffle --no-auto-broadcast  (merge hint + autoBroadcastJoinThreshold=-1)
 Spark event logs are on, so analyze.py can count the join operators that actually ran (after AQE).
 """
@@ -25,17 +24,18 @@ TITLE = "broadcast join so với shuffle join"
 CONFIGS = {
     "auto": ("auto", False),
     "broadcast": ("broadcast", False),
-    "shuffle_hint": ("shuffle", False),
     "shuffle_noauto": ("shuffle", True),
 }
 
 
 def add_args(p: argparse.ArgumentParser) -> None:
+    """Add this experiment's own command-line options to `p`."""
     p.add_argument("--dataset", default="orders_5m")
     p.add_argument("--no-event-log", action="store_true", help="do not write Spark event logs")
 
 
 def build_specs(args: argparse.Namespace) -> list[RunSpec]:
+    """One RunSpec per configuration of this experiment, from the parsed arguments."""
     specs = []
     for name, (strategy, no_auto) in CONFIGS.items():
         extra = ["--join-strategy", strategy] + (["--no-auto-broadcast"] if no_auto else [])
@@ -47,6 +47,7 @@ def build_specs(args: argparse.Namespace) -> list[RunSpec]:
 
 
 def main(argv=None) -> int:
+    """Command-line entry point; returns the process exit status."""
     return cli.run_main(EXP, TITLE, __doc__, add_args, build_specs, argv)
 
 

@@ -20,6 +20,7 @@ from src.experiments.common.runner import Runner, RunnerOptions  # noqa: E402
 
 
 def main(argv=None) -> int:
+    """Delete the MinIO outputs of the selected experiments' ETL labels; returns 0."""
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--group", choices=sorted(registry.GROUPS), default="spark")
     p.add_argument("--exps", help="comma-separated experiments (overrides --group)")

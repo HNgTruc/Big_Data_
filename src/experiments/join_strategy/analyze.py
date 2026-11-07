@@ -13,10 +13,11 @@ from src.experiments.common import analysis as A  # noqa: E402
 from src.experiments.common import paths, plots, records  # noqa: E402
 
 EXP = "join_strategy"
-CONFIG_ORDER = ("auto", "broadcast", "shuffle_hint", "shuffle_noauto")
+CONFIG_ORDER = ("auto", "broadcast", "shuffle_noauto")
 
 
 def analyze(results_root: Path = paths.RESULTS_DIR, repo_root: Path = paths.REPO_ROOT) -> list[dict]:
+    """Rebuild runs.csv, summary.csv (and extra tables) and figures from the run records; returns the summary."""
     recs = records.load_records(EXP, results_root / "metrics")
     if not recs:
         print(f"[{EXP}] no run records under {results_root / 'metrics' / EXP}")
@@ -26,6 +27,7 @@ def analyze(results_root: Path = paths.RESULTS_DIR, repo_root: Path = paths.REPO
     A.write_csv(out_dir / "runs.csv", rows)
     summary = A.summary_rows(rows, ["config", "dataset"], A.etl_metric_names())
     A.write_csv(out_dir / "summary.csv", summary)
+    A.warn_quality(EXP, summary)
     plan = A.plan_rows(recs, repo_root)
     A.write_csv(out_dir / "plan_check.csv", plan)
     for row in plan:
@@ -40,6 +42,7 @@ def analyze(results_root: Path = paths.RESULTS_DIR, repo_root: Path = paths.REPO
 
 
 def main() -> int:
+    """Command-line entry point: analyze the records under results/."""
     analyze()
     return 0
 

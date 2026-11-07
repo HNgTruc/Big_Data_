@@ -18,14 +18,17 @@ ENV_KEYS = ("MINIO_BUCKET", "HADOOP_AWS_VERSION", "SPARK_MASTER_UI_PORT", "SPARK
 
 
 def metrics_dir(exp: str) -> Path:
+    """results/metrics/<exp>/ on the host."""
     return RESULTS_DIR / "metrics" / exp
 
 
 def logs_dir(exp: str) -> Path:
+    """results/logs/<exp>/ on the host."""
     return RESULTS_DIR / "logs" / exp
 
 
 def figures_dir(exp: str) -> Path:
+    """results/figures/<exp>/ on the host."""
     return RESULTS_DIR / "figures" / exp
 
 

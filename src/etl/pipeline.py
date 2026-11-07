@@ -34,6 +34,26 @@ class RunConfig:
         return f"{self.storage_root}/quarantine/{self.label}/{table}"
 
 
+# SQL settings recorded in the metrics (effective values, including ones passed with spark-submit --conf).
+METRIC_SQL_CONFS = (
+    "spark.sql.shuffle.partitions", "spark.sql.adaptive.enabled", "spark.sql.autoBroadcastJoinThreshold",
+    "spark.sql.adaptive.skewJoin.enabled", "spark.sql.adaptive.skewJoin.skewedPartitionFactor",
+    "spark.sql.adaptive.skewJoin.skewedPartitionThresholdInBytes", "spark.sql.adaptive.advisoryPartitionSizeInBytes",
+)
+RESOURCE_CONFS = ("spark.executor.memory", "spark.executor.cores", "spark.driver.memory", "spark.cores.max")
+
+
+def _resources(spark: SparkSession) -> dict:
+    """Resource settings as submitted (None = not set, i.e. Spark's default) and the executor count."""
+    conf = spark.sparkContext.getConf()
+    out = {k: conf.get(k, None) for k in RESOURCE_CONFS}
+    try:  # internal API; the map also lists the driver's block manager
+        out["executor_count"] = int(spark.sparkContext._jsc.sc().getExecutorMemoryStatus().size()) - 1
+    except Exception:  # metrics only: never fail the ETL because of it
+        out["executor_count"] = None
+    return out
+
+
 @contextmanager
 def _timed(timings: dict, name: str):
     start = time.perf_counter()
@@ -103,6 +123,7 @@ def run(spark: SparkSession, cfg: RunConfig) -> dict:
         _write(aggregates.events_daily(events), cfg.curated("agg_events_daily"))
 
     # Statistics are computed after the timed stages and are NOT part of processing time.
+    stats_start = time.perf_counter()
     tables = {
         "customers": _table_stats(spark, cfg, raw["customers"], "customers", False),
         "products": _table_stats(spark, cfg, raw["products"], "products", False),
@@ -110,19 +131,21 @@ def run(spark: SparkSession, cfg: RunConfig) -> dict:
         "order_items": _table_stats(spark, cfg, raw["order_items"], "order_items", True),
         "web_events": _table_stats(spark, cfg, raw["web_events"], "web_events", True),
     }
+    aggregate_rows = {name: spark.read.parquet(cfg.curated(name)).count() for name in (
+        "agg_daily_revenue", "agg_revenue_by_region_category", "agg_events_daily")}
+    stats_seconds = round(time.perf_counter() - stats_start, 3)
     metrics = {
         "config": asdict(cfg),
         "spark_version": spark.version,
         "app_id": spark.sparkContext.applicationId,
         "default_parallelism": spark.sparkContext.defaultParallelism,
-        "conf": {k: spark.conf.get(k) for k in (
-            "spark.sql.shuffle.partitions", "spark.sql.adaptive.enabled",
-            "spark.sql.autoBroadcastJoinThreshold")},
+        "conf": {k: spark.conf.get(k) for k in METRIC_SQL_CONFS},
+        "resources": _resources(spark),
         "stage_seconds": sec,
         "processing_seconds_total": round(sum(sec.values()), 3),
+        "stats_seconds": stats_seconds,
         "tables": tables,
-        "aggregate_rows": {name: spark.read.parquet(cfg.curated(name)).count() for name in (
-            "agg_daily_revenue", "agg_revenue_by_region_category", "agg_events_daily")},
+        "aggregate_rows": aggregate_rows,
     }
     if cfg.metrics_dir:
         out = Path(cfg.metrics_dir)

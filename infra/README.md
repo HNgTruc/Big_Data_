@@ -50,16 +50,16 @@ Xác nhận (2026-11-06): cụm có 2 worker ALIVE, 4 lõi, 4 GiB (UI master).
 Job `src/etl/smoke_s3a.py` ghi rồi đọc lại 1 triệu dòng Parquet qua `s3a://bigdata/smoke/`. Chạy trong thư mục `infra`:
 
 ```powershell
-docker compose exec spark-master /opt/spark/bin/spark-submit `
+docker compose run --rm --no-deps --name smoke-driver spark-master /opt/spark/bin/spark-submit `
   --master spark://spark-master:7077 `
-  --conf spark.driver.host=spark-master `
+  --conf spark.driver.host=smoke-driver `
   --conf spark.jars.ivy=/tmp/.ivy `
   --packages org.apache.hadoop:hadoop-aws:3.4.1 `
   /opt/spark/work-dir/src/etl/smoke_s3a.py
 ```
 
 Thành công khi thấy dòng `SMOKE_OK rows_written=1000000 rows_read=1000000`. Lần đầu cần Internet để tải `hadoop-aws` và các phụ thuộc của nó.
-Chưa kiểm chứng: lệnh trên chưa chạy lần nào.
+Không dùng `docker compose exec` (xem mục "Kết quả đã xác nhận"). Job này đã chạy thành công ngày 2026-11-06 bằng `exec` (driver trong container master); dạng `run` ở trên dùng cùng cách gọi như lệnh ETL (đã chạy nhiều lần), riêng job smoke chưa chạy lại theo dạng này.
 
 ## Kết quả đã xác nhận (2026-11-06, máy người dùng: 15,8 GB RAM, Windows, Docker Desktop + WSL2)
 
@@ -77,6 +77,7 @@ Chưa kiểm chứng: lệnh trên chưa chạy lần nào.
 - Sau 7 lần chạy, `/opt/spark/work` trên mỗi worker chiếm khoảng 4,1 GB: mỗi ứng dụng chép lại các jar của `--packages` vào thư mục riêng và worker không tự xoá. Ổ C còn 2,6 GB vì `docker_data.vhdx` (37,7 GB) nằm trên C.
 - Đã xử lý: worker bật `spark.worker.cleanup.enabled` (quét 10 phút/lần, xoá thư mục của ứng dụng đã kết thúc quá 1 giờ) và ổ đĩa Docker được chuyển sang `D:\Data\DockerDesktopWSL`.
 - Hệ quả: log executor (`stderr`) của một lần chạy chỉ còn trên worker khoảng 1 giờ. Log driver vẫn lưu trong `results/logs/`.
+- Lưu ý khi chạy cả bộ thí nghiệm: mỗi ứng dụng vẫn chép jar vào thư mục làm việc của worker (bộ đệm Ivy chỉ tránh tải lại ở driver), và thư mục chỉ bị xoá sau 1 giờ, nên trong lúc chạy liên tục dung lượng `/opt/spark/work` sẽ tăng theo số lần chạy trong một giờ. Theo dõi dung lượng ổ D.
 - Ổ C và ổ D là hai phân vùng của **cùng một ổ đĩa vật lý** (bộ đếm `PhysicalDisk(0 c: d:)`), nên chuyển sang D chỉ giải quyết dung lượng, không giảm tranh chấp I/O. Trước khi đo chính thức: tạm dừng Windows Update, đóng Chrome/Discord, dừng container không liên quan.
 
 ## Đưa dữ liệu thô lên MinIO
@@ -103,4 +104,5 @@ docker compose run --rm --no-deps --name etl-driver spark-master /opt/spark/bin/
 - Thành công khi thấy dòng `ETL_OK processing_seconds_total=...`.
 - Kết quả: `curated/orders_500k/`, `quarantine/orders_500k/` trong bucket (xem MinIO Console http://localhost:9001) và `results/metrics/orders_500k.json` trên máy.
 - Thêm `--join-strategy broadcast|shuffle`, `--run-label <tên>` để chạy thí nghiệm mà không ghi đè kết quả cũ.
-- Chưa kiểm chứng: lệnh trên chưa chạy lần nào.
+- Lệnh này đã chạy cho cả 5 bộ dữ liệu (log `results/logs/etl_<bộ>.log`). Các thí nghiệm trong `src/experiments/` dùng cùng lệnh, thêm `--conf spark.jars.ivy=/opt/spark/work-dir/data/ivy_cache` để không tải lại jar mỗi lần (xem `data/README.md`).
+- Bộ nhớ: worker cho phép tối đa `SPARK_WORKER_MEMORY` (2g), nhưng lệnh không đặt `--executor-memory` nên mỗi executor dùng heap mặc định 1g (`spark.executor.memory`, tài liệu Spark Configuration). Giữ nguyên vì Docker Desktop từng sập dưới giới hạn 6 GB.

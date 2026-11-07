@@ -16,6 +16,7 @@ from src.experiments.common import registry  # noqa: E402
 
 
 def main(argv=None) -> int:
+    """Analyze the selected experiments in registry order; returns 0."""
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--group", choices=sorted(registry.GROUPS), default="all")
     p.add_argument("--exps", help="comma-separated experiments (overrides --group)")

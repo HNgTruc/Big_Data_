@@ -22,16 +22,19 @@ TITLE = "mở rộng theo số worker (1 so với 2)"
 
 
 def add_args(p: argparse.ArgumentParser) -> None:
+    """Add this experiment's own command-line options to `p`."""
     p.add_argument("--dataset", default="orders_5m")
 
 
 def build_specs(args: argparse.Namespace) -> list[RunSpec]:
+    """One RunSpec per configuration of this experiment, from the parsed arguments."""
     return [RunSpec(exp=EXP, config=f"w{n}", kind="etl", dataset=args.dataset, workers=n,
                     params={"join_strategy": "auto", "aqe": True, "workers": n, "shuffle_partitions": 8})
             for n in (1, 2)]
 
 
 def main(argv=None) -> int:
+    """Command-line entry point; returns the process exit status."""
     return cli.run_main(EXP, TITLE, __doc__, add_args, build_specs, argv, default_order="blocked")
 
 

@@ -1,15 +1,7 @@
-﻿docker :  Container bigdata-spark-master-run-7bce2aaed939 Creating 
-At line:1 char:347
-+ ... ata_\infra; docker compose run --rm --no-deps -v ${PWD}/../tests:/opt ...
-+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: ( Container bigd...ed939 Creating :String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
- Container bigdata-spark-master-run-7bce2aaed939 Created 
+ Container bigdata-spark-master-run-724aaa3a6561 Creating 
+ Container bigdata-spark-master-run-724aaa3a6561 Created 
 Python 3.10.12
-WARNING: The directory '/nonexistent/.cache/pip' or its parent directory is not owned or is not writable by the 
-current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with 
-sudo, you should use sudo's -H flag.
+WARNING: The directory '/nonexistent/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
 versions numpy 2.2.6 pandas 2.3.3 pyarrow 25.0.1 pyspark 4.0.0
-..........................                                               [100%]
-26 passed in 36.09s
+.............................                                            [100%]
+29 passed in 34.01s

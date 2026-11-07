@@ -1,5 +1,5 @@
 # MinIO (S3-compatible storage) + Spark standalone cluster (1 master, 2 workers).
-# UNTESTED as a whole: only image pulls and entrypoints were checked. See infra/README.md.
+# Running on the lab machine since 2026-11-06 (ETL and experiments); history and caveats in infra/README.md.
 name: bigdata
 
 x-spark-common: &spark-common

@@ -2,7 +2,9 @@
 
 Every repetition writes `results/metrics/<exp>/runs/<config>/r<k>/run_record.json` (also when it
 fails) and its stdout/stderr to `results/logs/<exp>/<config>_r<k>.log`. A previous record or log of
-the same repetition is renamed with a timestamp, never deleted.
+the same repetition is renamed with a timestamp, never deleted. Before each ETL repetition (outside
+the timed command) curated/<label>/ and quarantine/<label>/ are deleted on MinIO, so every repetition
+writes into empty folders.
 """
 from __future__ import annotations
 
@@ -15,7 +17,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable, Sequence
 
-from . import cluster, commands, paths, records
+from . import cluster, commands, host, paths, records
 
 KINDS = ("etl", "query_bench", "pandas")
 METRICS_FILE = {"query_bench": "query_bench.json", "pandas": "pandas_baseline.json"}
@@ -33,6 +35,7 @@ class RunSpec:
     workers: int | None = 2           # ALIVE workers required; None = host-only run
     args: tuple[str, ...] = ()        # extra job arguments
     event_log: bool = False
+    spark_conf: tuple[str, ...] = ()  # extra spark-submit --conf key=value pairs
     params: dict = field(default_factory=dict)  # descriptive configuration saved in the record
 
     @property
@@ -41,11 +44,14 @@ class RunSpec:
         return f"{self.exp}_{self.config}"
 
     def metrics_file(self) -> str:
+        """Name of the JSON the job writes into the repetition folder."""
         return METRICS_FILE.get(self.kind, f"{self.label}.json")
 
 
 @dataclass
 class RunnerOptions:
+    """Options shared by all repetitions of one runner invocation (see cli.add_common_args)."""
+
     reps: int = 3
     dry_run: bool = False
     order: str = "interleaved"        # interleaved | blocked
@@ -54,7 +60,7 @@ class RunnerOptions:
     timeout_s: float = 3600.0
     master_url: str = "http://localhost:8090/json/"
     cores_per_worker: int | None = 2
-    ivy_cache: Path | None = None
+    ivy_cache: bool = True            # False = /tmp/.ivy in the --rm container (jars downloaded every run)
     bucket: str = "bigdata"
     hadoop_aws_version: str = "3.4.1"
     python: str = sys.executable
@@ -81,8 +87,10 @@ def build_command(spec: RunSpec, rep: int, opts: RunnerOptions) -> tuple[list[st
                "--metrics-out", str(rdir / spec.metrics_file())]
         return cmd, paths.REPO_ROOT
     submit = commands.SparkSubmitOptions(
-        hadoop_aws_version=opts.hadoop_aws_version, ivy_cache=opts.ivy_cache,
-        event_log_dir=paths.to_container(paths.logs_dir(spec.exp) / "eventlogs") if spec.event_log else None)
+        hadoop_aws_version=opts.hadoop_aws_version,
+        ivy_dir=commands.IVY_CACHE_CONTAINER if opts.ivy_cache else commands.IVY_EPHEMERAL,
+        event_log_dir=paths.to_container(paths.logs_dir(spec.exp) / "eventlogs") if spec.event_log else None,
+        spark_conf=spec.spark_conf)
     container_metrics = paths.to_container(rdir)
     if spec.kind == "etl":
         cmd = commands.spark_submit(commands.ETL_SCRIPT,
@@ -98,6 +106,7 @@ def build_command(spec: RunSpec, rep: int, opts: RunnerOptions) -> tuple[list[st
 
 
 def container_name(spec: RunSpec) -> str | None:
+    """Driver container name of a Spark run (None for host-only runs)."""
     return {"etl": commands.ETL_CONTAINER, "query_bench": commands.BENCH_CONTAINER}.get(spec.kind)
 
 
@@ -156,6 +165,7 @@ class Runner:
         self.runner_log = paths.logs_dir(exp) / "runner.log"
 
     def log(self, msg: str) -> None:
+        """Print a timestamped line and append it to results/logs/<exp>/runner.log (not in dry runs)."""
         line = f"[{records.now_iso()}] [{self.exp}] {msg}"
         self._out(line)
         if not self.opts.dry_run:
@@ -185,6 +195,8 @@ class Runner:
                       "--overwrite (old records are renamed, not deleted).")
             return 2
         ensure_result_dirs(self.exp, self.title)
+        if self.opts.ivy_cache and any(s.kind != "pandas" for s in self.specs):
+            commands.IVY_CACHE_HOST.mkdir(parents=True, exist_ok=True)
         git = records.git_info()
         self.log(f"start: {len(self.plan)} run(s), reps={self.opts.reps}, order={self.opts.order}, "
                  f"git={git['commit']} dirty={git['dirty']}")
@@ -249,6 +261,8 @@ class Runner:
             ev_dir.mkdir(parents=True, exist_ok=True)
         ev_before = set(ev_dir.iterdir()) if ev_dir.exists() else set()
         cmd, cwd = build_command(spec, rep, self.opts)
+        pre_cleanup = self._pre_cleanup(spec) if spec.kind == "etl" else None
+        host_before = host.snapshot()
         self.log(f"run {spec.config} r{rep}: {commands.to_display(cmd)}")
 
         started = records.now_iso()
@@ -284,6 +298,7 @@ class Runner:
             else:
                 error = error or f"exit code {exit_code}"
 
+        host_after = host.snapshot(with_containers=False)
         after = None
         if spec.workers is not None:
             try:
@@ -296,6 +311,7 @@ class Runner:
             "schema_version": records.RECORD_SCHEMA_VERSION,
             "exp": spec.exp, "config": spec.config, "rep": rep, "label": spec.label,
             "kind": spec.kind, "dataset": spec.dataset, "params": spec.params, "job_args": list(spec.args),
+            "spark_conf": list(spec.spark_conf),
             "status": status, "exit_code": exit_code, "error": error,
             "error_lines": _error_lines(log_text) if status != "ok" else [],
             "started_at": started, "ended_at": ended, "wall_seconds": wall,
@@ -303,6 +319,7 @@ class Runner:
             "git": git, "host": records.host_info(),
             "workers_expected": spec.workers,
             "cluster_before": snap.as_record() if snap else None, "cluster_after": after,
+            "host_before": host_before, "host_after": host_after, "pre_cleanup": pre_cleanup,
             "seed": manifest["seed"], "dataset_skew": manifest["skew"],
             "raw_rows_manifest": manifest["rows_written"], "raw_rows_total_manifest": manifest["raw_rows_total"],
             "runner_options": {k: (str(v) if isinstance(v, Path) else v) for k, v in asdict(self.opts).items()
@@ -313,6 +330,7 @@ class Runner:
             "ivy": records.parse_ivy_times(log_text),
             "processing_seconds_total": (metrics or {}).get("processing_seconds_total"),
             "stage_seconds": (metrics or {}).get("stage_seconds"),
+            "stats_seconds": (metrics or {}).get("stats_seconds"),
             "spark_version": (metrics or {}).get("spark_version"),
             "app_id": (metrics or {}).get("app_id"),
             "metrics": metrics,
@@ -320,7 +338,24 @@ class Runner:
         records.write_record(rdir, record)
         return record
 
+    def _pre_cleanup(self, spec: RunSpec) -> dict:
+        """Delete this label's MinIO output before the timed command; timing and result go to the record.
+
+        A failure is recorded but does not stop the run: Spark's overwrite mode still replaces the data,
+        only inside the timed stages (the record shows it).
+        """
+        cmd = commands.minio_remove(self.opts.bucket, f"curated/{spec.label}", f"quarantine/{spec.label}")
+        start = time.perf_counter()
+        res = subprocess.run(cmd, cwd=paths.INFRA_DIR, capture_output=True, text=True)
+        out = {"command": commands.to_display(cmd), "exit_code": res.returncode,
+               "seconds": round(time.perf_counter() - start, 3)}
+        if res.returncode != 0:
+            out["error"] = (res.stderr.strip() or res.stdout.strip())[-500:]
+            self.log(f"pre-cleanup of {spec.label} failed: {out['error']}")
+        return out
+
     def labels(self) -> list[str]:
+        """Run labels of the ETL configurations (their MinIO folders)."""
         return sorted({s.label for s in self.specs if s.kind == "etl"})
 
     def cleanup(self, labels: Sequence[str] | None = None) -> None:
@@ -328,13 +363,12 @@ class Runner:
         for label in (self.labels() if labels is None else labels):
             if not label.startswith(f"{self.exp}_"):
                 raise ValueError(f"label {label!r} does not belong to experiment {self.exp}")
-            for area in ("curated", "quarantine"):
-                cmd = commands.minio_remove(self.opts.bucket, f"{area}/{label}")
-                self.log(f"cleanup: {commands.to_display(cmd)}")
-                if not self.opts.dry_run:
-                    res = subprocess.run(cmd, cwd=paths.INFRA_DIR, capture_output=True, text=True)
-                    if res.returncode != 0:
-                        self.log(f"cleanup failed for {area}/{label}: {res.stderr.strip() or res.stdout.strip()}")
+            cmd = commands.minio_remove(self.opts.bucket, f"curated/{label}", f"quarantine/{label}")
+            self.log(f"cleanup: {commands.to_display(cmd)}")
+            if not self.opts.dry_run:
+                res = subprocess.run(cmd, cwd=paths.INFRA_DIR, capture_output=True, text=True)
+                if res.returncode != 0:
+                    self.log(f"cleanup failed for {label}: {res.stderr.strip() or res.stdout.strip()}")
 
     def _dry_run(self) -> int:
         self._out(f"# [{self.exp}] DRY RUN: {len(self.plan)} run(s), reps={self.opts.reps}, "
@@ -347,6 +381,9 @@ class Runner:
                 self._out(f"#   check: exactly {spec.workers} ALIVE worker(s) at {self.opts.master_url}, "
                           "no running application")
             cmd, cwd = build_command(spec, rep, self.opts)
+            if spec.kind == "etl":
+                pre = commands.minio_remove(self.opts.bucket, f"curated/{spec.label}", f"quarantine/{spec.label}")
+                self._out(f"#   pre-cleanup (not timed): {commands.to_display(pre)}")
             self._out(f"# {spec.config} r{rep} (cwd={paths.rel_to_repo(cwd) or '.'})")
             self._out(commands.to_display(cmd))
         workers.restore()

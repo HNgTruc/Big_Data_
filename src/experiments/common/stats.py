@@ -37,6 +37,7 @@ def throughput(rows: float | None, seconds: float | None) -> float | None:
 
 
 def ratio(a: float | None, b: float | None) -> float | None:
+    """a / b, or None if a is missing or b is missing/zero."""
     if a is None or not b:
         return None
     return a / b

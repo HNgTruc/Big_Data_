@@ -19,6 +19,7 @@ class ClusterStateError(RuntimeError):
 
 @dataclass
 class ClusterSnapshot:
+    """What the master reports: ALIVE workers, their cores, running apps."""
     alive_workers: int
     total_alive_cores: int
     workers: list[dict]
@@ -26,6 +27,7 @@ class ClusterSnapshot:
     status: str
 
     def as_record(self) -> dict:
+        """Plain dict for the run record."""
         return {"alive_workers": self.alive_workers, "total_alive_cores": self.total_alive_cores,
                 "active_apps": self.active_apps, "master_status": self.status,
                 "workers": self.workers}
@@ -48,6 +50,7 @@ def parse_master_json(data: dict) -> ClusterSnapshot:
 
 
 def fetch_snapshot(url: str, timeout: float = 5.0) -> ClusterSnapshot:
+    """Read the master's /json/ endpoint; ClusterStateError if it does not answer."""
     try:
         with urllib.request.urlopen(url, timeout=timeout) as resp:
             return parse_master_json(json.loads(resp.read().decode("utf-8")))
@@ -85,6 +88,7 @@ def wait_for(url: str, predicate: Callable[[ClusterSnapshot], bool], what: str,
 
 
 def wait_alive(url: str, workers: int, timeout_s: float = 180.0) -> ClusterSnapshot:
+    """Wait until exactly `workers` workers are ALIVE (two stable polls)."""
     return wait_for(url, lambda s: s.alive_workers == workers, f"{workers} ALIVE worker(s)", timeout_s)
 
 
@@ -124,19 +128,20 @@ class WorkerController:
             raise ValueError("only 1 or 2 workers are supported by this cluster")
         if self.dry_run:
             if workers == 1 and not self.stopped_worker_2:
-                self._compose("stop")
                 self.stopped_worker_2 = True
+                self._compose("stop")
             elif workers == 2 and self.stopped_worker_2:
-                self._compose("start")
                 self.stopped_worker_2 = False
+                self._compose("start")
             return
         if workers == 1 and not self.stopped_worker_2:
             snap = fetch_snapshot(self.master_url)
             if snap.alive_workers != 2:
                 raise ClusterStateError(f"before stopping {WORKER_2_SERVICE}: expected 2 ALIVE workers, "
                                         f"found {snap.alive_workers}")
-            self._compose("stop")
+            # Set first: if `stop` fails half-way, restore() in the runner's finally still starts the worker.
             self.stopped_worker_2 = True
+            self._compose("stop")
             wait_alive(self.master_url, 1)
             self.log("master reports 1 ALIVE worker")
         elif workers == 2 and self.stopped_worker_2:
@@ -146,7 +151,7 @@ class WorkerController:
         """Start spark-worker-2 again (if this controller stopped it) and wait for 2 ALIVE workers."""
         if not self.stopped_worker_2:
             return
-        self._compose("start")
+        self._compose("start")  # `docker compose start` on a running service is harmless
         self.stopped_worker_2 = False
         if not self.dry_run:
             wait_alive(self.master_url, 2)

@@ -30,6 +30,7 @@ def add_speedup(summary: list[dict]) -> None:
 
 
 def plot(summary: list[dict], fig_dir: Path, source: str) -> None:
+    """Draw this experiment's figures into results/figures/<exp>/ (skipped without matplotlib)."""
     plt = plots.pyplot()
     if plt is None:
         return
@@ -62,6 +63,7 @@ def plot(summary: list[dict], fig_dir: Path, source: str) -> None:
 
 
 def analyze(results_root: Path = paths.RESULTS_DIR) -> list[dict]:
+    """Rebuild runs.csv, summary.csv (and extra tables) and figures from the run records; returns the summary."""
     recs = records.load_records(EXP, results_root / "metrics")
     if not recs:
         print(f"[{EXP}] no run records under {results_root / 'metrics' / EXP}")
@@ -72,12 +74,14 @@ def analyze(results_root: Path = paths.RESULTS_DIR) -> list[dict]:
     summary = A.summary_rows(rows, ["config", "dataset"], A.etl_metric_names())
     add_speedup(summary)
     A.write_csv(out_dir / "summary.csv", summary)
+    A.warn_quality(EXP, summary)
     plot(summary, results_root / "figures" / EXP, f"results/metrics/{EXP}/summary.csv")
     print(f"[{EXP}] {len(rows)} run(s), {len(records.ok_records(recs))} ok -> {out_dir}")
     return summary
 
 
 def main() -> int:
+    """Command-line entry point: analyze the records under results/."""
     analyze()
     return 0
 

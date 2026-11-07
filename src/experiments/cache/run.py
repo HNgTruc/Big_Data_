@@ -21,12 +21,14 @@ TITLE = "cache DataFrame dùng lại"
 
 
 def add_args(p: argparse.ArgumentParser) -> None:
+    """Add this experiment's own command-line options to `p`."""
     p.add_argument("--dataset", default="orders_5m")
     p.add_argument("--curated-label", help="folder under curated/ (default: the dataset name)")
     p.add_argument("--k", type=int, default=5, help="number of queries per run")
 
 
 def build_specs(args: argparse.Namespace) -> list[RunSpec]:
+    """One RunSpec per configuration of this experiment, from the parsed arguments."""
     label = args.curated_label or args.dataset
     specs = []
     for mode in ("nocache", "cache"):
@@ -38,6 +40,7 @@ def build_specs(args: argparse.Namespace) -> list[RunSpec]:
 
 
 def main(argv=None) -> int:
+    """Command-line entry point; returns the process exit status."""
     return cli.run_main(EXP, TITLE, __doc__, add_args, build_specs, argv)
 
 
