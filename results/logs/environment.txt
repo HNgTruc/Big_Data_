@@ -1,0 +1,12 @@
+# Môi trường máy thí nghiệm (thu thập 2026-11-08, sau bộ đo chính thức 2026-11-07, cùng máy, không đổi phần cứng)
+# Lệnh: Get-CimInstance Win32_Processor / Win32_ComputerSystem / Win32_OperatingSystem, Get-PhysicalDisk,
+#       docker version, docker inspect, docker run --rm --entrypoint /usr/bin/minio <image> --version, ~/.wslconfig
+cpu: Intel(R) Core(TM) i5-14400F | cores=10 logical=16
+ram_total_gb: 15.76
+os: Microsoft Windows 11 Pro 10.0.26300
+physical_disk: MAXBY MAX3500 1TB, SSD, NVMe (một ổ vật lý duy nhất, chia phân vùng C: và D:)
+docker_engine: 29.9.2 (Docker Desktop, WSL2)
+wslconfig: [wsl2] memory=6GB processors=8
+minio_image: cgr.dev/chainguard/minio:latest, image id sha256:a692590bc9d7a33c1eb1e52454a02395165392adee65a8ebfa90810b5df0f5e5 (cùng image với container bigdata-minio-1)
+minio_version: RELEASE.2026-10-23T20-06-51Z (commit-id=76c06ff1d2cc844050fdeb1d54bf8fa70db72278), go1.27.3 linux/amd64
+spark_image: apache/spark:4.0.0-python3 (xem infra/.env.example)

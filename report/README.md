@@ -5,10 +5,16 @@ Agent phụ trách: `report-writer`; kiểm chứng: `source-verifier`.
 
 | Mục | Nội dung | Trạng thái |
 |---|---|---|
-| Bìa và thông tin nhóm | Tên đề tài, lớp, thành viên, phân công | Đã có tên đề tài; chưa có thành viên |
+| Bìa và thông tin nhóm | Tên đề tài, lớp, thành viên, phân công | Bản nháp (`sections/00-bia.md`); thiếu lớp, mã lớp, giảng viên, MSSV, ngày nộp |
 | Tóm tắt | 150–250 từ | Chưa viết |
-| 1–9 | Giới thiệu đến Kết luận | Chưa viết |
-| Tài liệu tham khảo | IEEE | Chưa viết |
+| 1–2 | Giới thiệu; Cơ sở và công nghệ liên quan | Chưa viết |
+| 3–7 | Dữ liệu và yêu cầu; Thiết kế; Cài đặt; Thực nghiệm; Kết quả demo | Bản nháp 1 (2026-11-08), chờ `source-verifier`; chương 4 thiếu sơ đồ kiến trúc |
+| 8–9 | Thảo luận; Kết luận | Chưa viết (ý chính đã ghi ở mục 6.11) |
+| Tài liệu tham khảo | IEEE | Bản nháp, mới có nguồn của chương 3–7 |
 | Phụ lục | Hướng dẫn chạy, cấu hình, schema, bảng phân công, ghi chú dùng AI | Chưa viết |
 
-Nội dung từng mục sẽ nằm trong `sections/` khi bắt đầu viết.
+| Thư mục | Nội dung |
+|---|---|
+| [`sections/`](sections/README.md) | Nội dung từng chương (Markdown) và quy ước định dạng |
+| [`build/`](build/README.md) | Script `build_docx.py` sinh `bao-cao.docx` từ `sections/*.md` (python-docx) |
+| `bao-cao.docx` | Báo cáo Word sinh tự động; không sửa tay cho tới khi nội dung đã chốt (sửa ở `sections/` rồi sinh lại) |

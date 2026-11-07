@@ -9,4 +9,6 @@ Số đo dạng CSV nhỏ; ghi giá trị từng lần chạy, không chỉ trun
 
 - `skew/partition_stats*.csv`: kích thước phân vùng băm theo `product_id` (bằng chứng chọn tham số của thí nghiệm `skew`, không phải số đo thời gian).
 
-Trạng thái thí nghiệm: chưa chạy.
+- `datasets/`: số dòng, dung lượng tệp thô và số lỗi đã chèn của 5 bộ dữ liệu mô phỏng (chép từ manifest).
+
+Trạng thái thí nghiệm: đã chạy bộ đo chính thức ngày 2026-11-07 (69 lần, commit 8164042).
