@@ -1,0 +1,90 @@
+{
+  "config": {
+    "dataset": "orders_5m",
+    "storage_root": "s3a://bigdata",
+    "run_label": "skew_balanced_shuffle_aqe",
+    "join_strategy": "shuffle",
+    "metrics_dir": "/opt/spark/work-dir/results/metrics/skew/runs/balanced_shuffle_aqe/r1"
+  },
+  "spark_version": "4.0.0",
+  "app_id": "app-20261107153716-0030",
+  "default_parallelism": 4,
+  "conf": {
+    "spark.sql.shuffle.partitions": "64",
+    "spark.sql.adaptive.enabled": "true",
+    "spark.sql.autoBroadcastJoinThreshold": "-1",
+    "spark.sql.adaptive.skewJoin.enabled": "true",
+    "spark.sql.adaptive.skewJoin.skewedPartitionFactor": "5.0",
+    "spark.sql.adaptive.skewJoin.skewedPartitionThresholdInBytes": "4194304",
+    "spark.sql.adaptive.advisoryPartitionSizeInBytes": "2097152"
+  },
+  "resources": {
+    "spark.executor.memory": null,
+    "spark.executor.cores": null,
+    "spark.driver.memory": null,
+    "spark.cores.max": null,
+    "executor_count": 2
+  },
+  "stage_seconds": {
+    "dimensions": 6.628,
+    "orders": 26.142,
+    "order_items": 33.758,
+    "web_events": 29.823,
+    "aggregates": 12.774
+  },
+  "processing_seconds_total": 109.125,
+  "stats_seconds": 5.664,
+  "tables": {
+    "customers": {
+      "raw_rows": 510000,
+      "clean_rows": 500000,
+      "quarantined_rows": 0,
+      "quarantine_by_reason": {},
+      "duplicates_removed": 10000
+    },
+    "products": {
+      "raw_rows": 20000,
+      "clean_rows": 20000,
+      "quarantined_rows": 0,
+      "quarantine_by_reason": {},
+      "duplicates_removed": 0
+    },
+    "orders": {
+      "raw_rows": 5100000,
+      "clean_rows": 4800044,
+      "quarantined_rows": 199956,
+      "quarantine_by_reason": {
+        "null_customer_id": 99579,
+        "orphan_customer_id": 100377
+      },
+      "duplicates_removed": 100000
+    },
+    "order_items": {
+      "raw_rows": 10201505,
+      "clean_rows": 9024635,
+      "quarantined_rows": 976840,
+      "quarantine_by_reason": {
+        "non_positive_price": 99817,
+        "orphan_product_id": 200490,
+        "non_positive_quantity": 99603,
+        "null_unit_price": 200700,
+        "no_clean_order": 376230
+      },
+      "duplicates_removed": 200030
+    },
+    "web_events": {
+      "raw_rows": 5100000,
+      "clean_rows": 4900063,
+      "quarantined_rows": 99937,
+      "quarantine_by_reason": {
+        "null_customer_id": 99937
+      },
+      "duplicates_removed": 100000
+    }
+  },
+  "aggregate_rows": {
+    "agg_daily_revenue": 731,
+    "agg_revenue_by_region_category": 56,
+    "agg_events_daily": 2193
+  }
+}

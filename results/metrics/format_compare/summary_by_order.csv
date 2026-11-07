@@ -1,0 +1,13 @@
+dataset,order,query,format,metric,unit,n,mean,std,min,max,n_failed,n_excluded,git_commits,dirty_any,homogeneous,counts_consistent,flags_seen,ratio_raw_over_curated
+orders_5m,curated-raw,q1_filter_count,curated,seconds,s,3,0.829,0.182329,0.711,1.039,0,0,8164042ded,True,True,,,
+orders_5m,curated-raw,q1_filter_count,raw,seconds,s,3,1.666,0.372839,1.394,2.091,0,0,8164042ded,True,True,,,2.00965
+orders_5m,curated-raw,q2_events_by_type,curated,seconds,s,3,1.277,1.042117,0.651,2.48,0,0,8164042ded,True,True,,,
+orders_5m,curated-raw,q2_events_by_type,raw,seconds,s,3,2.234667,0.033546,2.196,2.256,0,0,8164042ded,True,True,,,1.749935
+orders_5m,curated-raw,q3_daily_revenue_join,curated,seconds,s,3,3.907667,0.608705,3.497,4.607,0,0,8164042ded,True,True,,,
+orders_5m,curated-raw,q3_daily_revenue_join,raw,seconds,s,3,7.062,0.436327,6.611,7.482,0,0,8164042ded,True,True,,,1.807217
+orders_5m,raw-curated,q1_filter_count,raw,seconds,s,3,1.563333,0.202219,1.412,1.793,0,0,8164042ded,True,True,,,2.263514
+orders_5m,raw-curated,q1_filter_count,curated,seconds,s,3,0.690667,0.08617,0.636,0.79,0,0,8164042ded,True,True,,,
+orders_5m,raw-curated,q2_events_by_type,raw,seconds,s,3,2.529,0.042,2.481,2.559,0,0,8164042ded,True,True,,,5.458273
+orders_5m,raw-curated,q2_events_by_type,curated,seconds,s,3,0.463333,0.024826,0.443,0.491,0,0,8164042ded,True,True,,,
+orders_5m,raw-curated,q3_daily_revenue_join,raw,seconds,s,3,7.962667,0.337707,7.575,8.193,0,0,8164042ded,True,True,,,2.777351
+orders_5m,raw-curated,q3_daily_revenue_join,curated,seconds,s,3,2.867,0.276697,2.692,3.186,0,0,8164042ded,True,True,,,

@@ -1,0 +1,7 @@
+dataset,query,format,metric,unit,n,mean,std,min,max,n_failed,n_excluded,git_commits,dirty_any,homogeneous,counts_consistent,flags_seen,ratio_raw_over_curated
+orders_5m,q1_filter_count,curated,seconds,s,6,0.759833,0.148353,0.636,1.039,0,0,8164042ded,True,False,,,
+orders_5m,q1_filter_count,raw,seconds,s,6,1.614667,0.274085,1.394,2.091,0,0,8164042ded,True,False,,,2.125027
+orders_5m,q2_events_by_type,curated,seconds,s,6,0.870167,0.79578,0.443,2.48,0,0,8164042ded,True,False,,,
+orders_5m,q2_events_by_type,raw,seconds,s,6,2.381833,0.164759,2.196,2.559,0,0,8164042ded,True,False,,,2.737215
+orders_5m,q3_daily_revenue_join,curated,seconds,s,6,3.387333,0.709739,2.692,4.607,0,0,8164042ded,True,False,,,
+orders_5m,q3_daily_revenue_join,raw,seconds,s,6,7.512333,0.604261,6.611,8.193,0,0,8164042ded,True,False,,,2.217772

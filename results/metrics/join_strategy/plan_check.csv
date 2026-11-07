@@ -1,0 +1,10 @@
+config,rep,status,event_log,SortMergeJoin,BroadcastHashJoin,ShuffledHashJoin,BroadcastNestedLoopJoin,CartesianProduct,SortMergeJoin(skew=true),ShuffledHashJoin(skew=true),AQEShuffleRead(skewed),executions
+auto,1,ok,results/logs/join_strategy/eventlogs/app-20261107151421-0017,4,6,0,0,0,0,0,0,27
+auto,2,ok,results/logs/join_strategy/eventlogs/app-20261107151929-0020,4,6,0,0,0,0,0,0,27
+auto,3,ok,results/logs/join_strategy/eventlogs/app-20261107152509-0023,4,6,0,0,0,0,0,0,27
+broadcast,1,ok,results/logs/join_strategy/eventlogs/app-20261107151602-0018,4,6,0,0,0,0,0,0,27
+broadcast,2,ok,results/logs/join_strategy/eventlogs/app-20261107152121-0021,4,6,0,0,0,0,0,0,27
+broadcast,3,ok,results/logs/join_strategy/eventlogs/app-20261107152650-0024,4,6,0,0,0,0,0,0,27
+shuffle_noauto,1,ok,results/logs/join_strategy/eventlogs/app-20261107151742-0019,10,0,0,0,0,0,0,0,27
+shuffle_noauto,2,ok,results/logs/join_strategy/eventlogs/app-20261107152315-0022,10,0,0,0,0,0,0,0,27
+shuffle_noauto,3,ok,results/logs/join_strategy/eventlogs/app-20261107152830-0025,10,0,0,0,0,0,0,0,27

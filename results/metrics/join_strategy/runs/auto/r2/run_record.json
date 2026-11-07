@@ -1,0 +1,282 @@
+{
+  "schema_version": 1,
+  "exp": "join_strategy",
+  "config": "auto",
+  "rep": 2,
+  "label": "join_strategy_auto",
+  "kind": "etl",
+  "dataset": "orders_5m",
+  "params": {
+    "join_strategy": "auto",
+    "auto_broadcast": true,
+    "aqe": true,
+    "workers": 2,
+    "shuffle_partitions": 8
+  },
+  "job_args": [
+    "--join-strategy",
+    "auto"
+  ],
+  "spark_conf": [],
+  "status": "ok",
+  "exit_code": 0,
+  "error": null,
+  "error_lines": [],
+  "started_at": "2026-11-07T22:19:23+07:00",
+  "ended_at": "2026-11-07T22:21:14+07:00",
+  "wall_seconds": 110.76,
+  "command": [
+    "docker",
+    "compose",
+    "run",
+    "--rm",
+    "--no-deps",
+    "--name",
+    "etl-driver",
+    "spark-master",
+    "/opt/spark/bin/spark-submit",
+    "--master",
+    "spark://spark-master:7077",
+    "--conf",
+    "spark.driver.host=etl-driver",
+    "--conf",
+    "spark.jars.ivy=/opt/spark/work-dir/data/ivy_cache",
+    "--conf",
+    "spark.eventLog.enabled=true",
+    "--conf",
+    "spark.eventLog.dir=file:///opt/spark/work-dir/results/logs/join_strategy/eventlogs",
+    "--conf",
+    "spark.eventLog.compress=false",
+    "--conf",
+    "spark.eventLog.rolling.enabled=false",
+    "--packages",
+    "org.apache.hadoop:hadoop-aws:3.4.1",
+    "/opt/spark/work-dir/src/etl/etl_job.py",
+    "--dataset",
+    "orders_5m",
+    "--run-label",
+    "join_strategy_auto",
+    "--metrics-dir",
+    "/opt/spark/work-dir/results/metrics/join_strategy/runs/auto/r2",
+    "--join-strategy",
+    "auto"
+  ],
+  "command_display": "docker compose run --rm --no-deps --name etl-driver spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --conf spark.driver.host=etl-driver --conf spark.jars.ivy=/opt/spark/work-dir/data/ivy_cache --conf spark.eventLog.enabled=true --conf spark.eventLog.dir=file:///opt/spark/work-dir/results/logs/join_strategy/eventlogs --conf spark.eventLog.compress=false --conf spark.eventLog.rolling.enabled=false --packages org.apache.hadoop:hadoop-aws:3.4.1 /opt/spark/work-dir/src/etl/etl_job.py --dataset orders_5m --run-label join_strategy_auto --metrics-dir /opt/spark/work-dir/results/metrics/join_strategy/runs/auto/r2 --join-strategy auto",
+  "cwd": "infra",
+  "git": {
+    "commit": "8164042ded6a8b4bba79af8ca45424f424388f7c",
+    "dirty": true,
+    "dirty_paths": [
+      ".claude/agent-memory/benchmark-analyst/MEMORY.md",
+      ".claude/agent-memory/benchmark-analyst/env_limits.md"
+    ]
+  },
+  "host": {
+    "platform": "Windows-11-10.0.26300-SP0",
+    "python": "3.12.10",
+    "machine": "AMD64"
+  },
+  "workers_expected": 2,
+  "cluster_before": {
+    "alive_workers": 2,
+    "total_alive_cores": 4,
+    "active_apps": 0,
+    "master_status": "ALIVE",
+    "workers": [
+      {
+        "id": "worker-20261107125247-172.19.0.5-35719",
+        "host": "172.19.0.5",
+        "cores": 2,
+        "memory_mb": 2048,
+        "state": "ALIVE"
+      },
+      {
+        "id": "worker-20261107125247-172.19.0.4-43589",
+        "host": "172.19.0.4",
+        "cores": 2,
+        "memory_mb": 2048,
+        "state": "ALIVE"
+      }
+    ]
+  },
+  "cluster_after": {
+    "alive_workers": 2,
+    "total_alive_cores": 4,
+    "active_apps": 0,
+    "master_status": "ALIVE",
+    "workers": [
+      {
+        "id": "worker-20261107125247-172.19.0.5-35719",
+        "host": "172.19.0.5",
+        "cores": 2,
+        "memory_mb": 2048,
+        "state": "ALIVE"
+      },
+      {
+        "id": "worker-20261107125247-172.19.0.4-43589",
+        "host": "172.19.0.4",
+        "cores": 2,
+        "memory_mb": 2048,
+        "state": "ALIVE"
+      }
+    ]
+  },
+  "host_before": {
+    "memory": {
+      "total_bytes": 16924459008,
+      "available_bytes": 1174728704,
+      "memory_load_pct": 93,
+      "method": "GlobalMemoryStatusEx"
+    },
+    "foreign_containers": []
+  },
+  "host_after": {
+    "memory": {
+      "total_bytes": 16924459008,
+      "available_bytes": 1102311424,
+      "memory_load_pct": 93,
+      "method": "GlobalMemoryStatusEx"
+    }
+  },
+  "pre_cleanup": {
+    "command": "docker compose run --rm --no-deps minio-init rm --recursive --force local/bigdata/curated/join_strategy_auto/ local/bigdata/quarantine/join_strategy_auto/",
+    "exit_code": 0,
+    "seconds": 0.635
+  },
+  "seed": 42,
+  "dataset_skew": false,
+  "raw_rows_manifest": {
+    "products": 20000,
+    "customers": 510000,
+    "orders": 5100000,
+    "order_items": 10201505,
+    "web_events": 5100000
+  },
+  "raw_rows_total_manifest": 20931505,
+  "runner_options": {
+    "reps": 3,
+    "dry_run": false,
+    "order": "interleaved",
+    "overwrite": false,
+    "resume": false,
+    "timeout_s": 3600.0,
+    "master_url": "http://localhost:8090/json/",
+    "cores_per_worker": 2,
+    "ivy_cache": true,
+    "bucket": "bigdata",
+    "hadoop_aws_version": "3.4.1",
+    "stop_on_failure": false,
+    "cleanup_curated": false
+  },
+  "metrics_path": "results/metrics/join_strategy/runs/auto/r2/join_strategy_auto.json",
+  "log_path": "results/logs/join_strategy/auto_r2.log",
+  "event_logs": [
+    "results/logs/join_strategy/eventlogs/app-20261107151929-0020"
+  ],
+  "archived_previous": [],
+  "ivy": {
+    "resolve_ms": 290,
+    "download_ms": 48
+  },
+  "processing_seconds_total": 86.178,
+  "stage_seconds": {
+    "dimensions": 6.355,
+    "orders": 15.935,
+    "order_items": 31.292,
+    "web_events": 22.315,
+    "aggregates": 10.281
+  },
+  "stats_seconds": 4.847,
+  "spark_version": "4.0.0",
+  "app_id": "app-20261107151929-0020",
+  "metrics": {
+    "config": {
+      "dataset": "orders_5m",
+      "storage_root": "s3a://bigdata",
+      "run_label": "join_strategy_auto",
+      "join_strategy": "auto",
+      "metrics_dir": "/opt/spark/work-dir/results/metrics/join_strategy/runs/auto/r2"
+    },
+    "spark_version": "4.0.0",
+    "app_id": "app-20261107151929-0020",
+    "default_parallelism": 4,
+    "conf": {
+      "spark.sql.shuffle.partitions": "8",
+      "spark.sql.adaptive.enabled": "true",
+      "spark.sql.autoBroadcastJoinThreshold": "10485760b",
+      "spark.sql.adaptive.skewJoin.enabled": "true",
+      "spark.sql.adaptive.skewJoin.skewedPartitionFactor": "5.0",
+      "spark.sql.adaptive.skewJoin.skewedPartitionThresholdInBytes": "268435456b",
+      "spark.sql.adaptive.advisoryPartitionSizeInBytes": "67108864b"
+    },
+    "resources": {
+      "spark.executor.memory": null,
+      "spark.executor.cores": null,
+      "spark.driver.memory": null,
+      "spark.cores.max": null,
+      "executor_count": 2
+    },
+    "stage_seconds": {
+      "dimensions": 6.355,
+      "orders": 15.935,
+      "order_items": 31.292,
+      "web_events": 22.315,
+      "aggregates": 10.281
+    },
+    "processing_seconds_total": 86.178,
+    "stats_seconds": 4.847,
+    "tables": {
+      "customers": {
+        "raw_rows": 510000,
+        "clean_rows": 500000,
+        "quarantined_rows": 0,
+        "quarantine_by_reason": {},
+        "duplicates_removed": 10000
+      },
+      "products": {
+        "raw_rows": 20000,
+        "clean_rows": 20000,
+        "quarantined_rows": 0,
+        "quarantine_by_reason": {},
+        "duplicates_removed": 0
+      },
+      "orders": {
+        "raw_rows": 5100000,
+        "clean_rows": 4800044,
+        "quarantined_rows": 199956,
+        "quarantine_by_reason": {
+          "orphan_customer_id": 100377,
+          "null_customer_id": 99579
+        },
+        "duplicates_removed": 100000
+      },
+      "order_items": {
+        "raw_rows": 10201505,
+        "clean_rows": 9024635,
+        "quarantined_rows": 976840,
+        "quarantine_by_reason": {
+          "non_positive_price": 99817,
+          "orphan_product_id": 200490,
+          "null_unit_price": 200700,
+          "no_clean_order": 376230,
+          "non_positive_quantity": 99603
+        },
+        "duplicates_removed": 200030
+      },
+      "web_events": {
+        "raw_rows": 5100000,
+        "clean_rows": 4900063,
+        "quarantined_rows": 99937,
+        "quarantine_by_reason": {
+          "null_customer_id": 99937
+        },
+        "duplicates_removed": 100000
+      }
+    },
+    "aggregate_rows": {
+      "agg_daily_revenue": 731,
+      "agg_revenue_by_region_category": 56,
+      "agg_events_daily": 2193
+    }
+  }
+}

@@ -1,0 +1,14 @@
+[2026-11-07T23:41:01+07:00] [pandas_baseline] start: 6 run(s), reps=3, order=interleaved, git=8164042ded6a8b4bba79af8ca45424f424388f7c dirty=True
+[2026-11-07T23:41:01+07:00] [pandas_baseline] run orders_500k r1: D:\Data\GitHub\Big_Data_\.venv-exp\Scripts\python.exe -m src.experiments.pandas_baseline.baseline --dataset orders_500k --metrics-out D:\Data\GitHub\Big_Data_\results\metrics\pandas_baseline\runs\orders_500k\r1\pandas_baseline.json
+[2026-11-07T23:41:06+07:00] [pandas_baseline] orders_500k r1: ok wall=4.945s processing=3.934
+[2026-11-07T23:41:06+07:00] [pandas_baseline] run orders_1m r1: D:\Data\GitHub\Big_Data_\.venv-exp\Scripts\python.exe -m src.experiments.pandas_baseline.baseline --dataset orders_1m --metrics-out D:\Data\GitHub\Big_Data_\results\metrics\pandas_baseline\runs\orders_1m\r1\pandas_baseline.json
+[2026-11-07T23:41:14+07:00] [pandas_baseline] orders_1m r1: ok wall=8.015s processing=7.452
+[2026-11-07T23:41:14+07:00] [pandas_baseline] run orders_500k r2: D:\Data\GitHub\Big_Data_\.venv-exp\Scripts\python.exe -m src.experiments.pandas_baseline.baseline --dataset orders_500k --metrics-out D:\Data\GitHub\Big_Data_\results\metrics\pandas_baseline\runs\orders_500k\r2\pandas_baseline.json
+[2026-11-07T23:41:18+07:00] [pandas_baseline] orders_500k r2: ok wall=4.044s processing=3.483
+[2026-11-07T23:41:18+07:00] [pandas_baseline] run orders_1m r2: D:\Data\GitHub\Big_Data_\.venv-exp\Scripts\python.exe -m src.experiments.pandas_baseline.baseline --dataset orders_1m --metrics-out D:\Data\GitHub\Big_Data_\results\metrics\pandas_baseline\runs\orders_1m\r2\pandas_baseline.json
+[2026-11-07T23:41:26+07:00] [pandas_baseline] orders_1m r2: ok wall=7.35s processing=6.944
+[2026-11-07T23:41:26+07:00] [pandas_baseline] run orders_500k r3: D:\Data\GitHub\Big_Data_\.venv-exp\Scripts\python.exe -m src.experiments.pandas_baseline.baseline --dataset orders_500k --metrics-out D:\Data\GitHub\Big_Data_\results\metrics\pandas_baseline\runs\orders_500k\r3\pandas_baseline.json
+[2026-11-07T23:41:30+07:00] [pandas_baseline] orders_500k r3: ok wall=3.816s processing=3.439
+[2026-11-07T23:41:30+07:00] [pandas_baseline] run orders_1m r3: D:\Data\GitHub\Big_Data_\.venv-exp\Scripts\python.exe -m src.experiments.pandas_baseline.baseline --dataset orders_1m --metrics-out D:\Data\GitHub\Big_Data_\results\metrics\pandas_baseline\runs\orders_1m\r3\pandas_baseline.json
+[2026-11-07T23:41:37+07:00] [pandas_baseline] orders_1m r3: ok wall=7.199s processing=6.797
+[2026-11-07T23:41:37+07:00] [pandas_baseline] done: failures=0 status=0

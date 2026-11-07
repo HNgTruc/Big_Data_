@@ -1,0 +1,571 @@
+{
+  "schema_version": 1,
+  "exp": "pandas_baseline",
+  "config": "orders_1m",
+  "rep": 2,
+  "label": "pandas_baseline_orders_1m",
+  "kind": "pandas",
+  "dataset": "orders_1m",
+  "params": {
+    "engine": "pandas",
+    "reader": "read_csv (C engine) / read_json",
+    "host": "local"
+  },
+  "job_args": [],
+  "spark_conf": [],
+  "status": "ok",
+  "exit_code": 0,
+  "error": null,
+  "error_lines": [],
+  "started_at": "2026-11-07T23:41:18+07:00",
+  "ended_at": "2026-11-07T23:41:26+07:00",
+  "wall_seconds": 7.35,
+  "command": [
+    "D:\\Data\\GitHub\\Big_Data_\\.venv-exp\\Scripts\\python.exe",
+    "-m",
+    "src.experiments.pandas_baseline.baseline",
+    "--dataset",
+    "orders_1m",
+    "--metrics-out",
+    "D:\\Data\\GitHub\\Big_Data_\\results\\metrics\\pandas_baseline\\runs\\orders_1m\\r2\\pandas_baseline.json"
+  ],
+  "command_display": "D:\\Data\\GitHub\\Big_Data_\\.venv-exp\\Scripts\\python.exe -m src.experiments.pandas_baseline.baseline --dataset orders_1m --metrics-out D:\\Data\\GitHub\\Big_Data_\\results\\metrics\\pandas_baseline\\runs\\orders_1m\\r2\\pandas_baseline.json",
+  "cwd": ".",
+  "git": {
+    "commit": "8164042ded6a8b4bba79af8ca45424f424388f7c",
+    "dirty": true,
+    "dirty_paths": [
+      ".claude/agent-memory/benchmark-analyst/MEMORY.md",
+      ".claude/agent-memory/benchmark-analyst/env_limits.md"
+    ]
+  },
+  "host": {
+    "platform": "Windows-11-10.0.26300-SP0",
+    "python": "3.12.10",
+    "machine": "AMD64"
+  },
+  "workers_expected": null,
+  "cluster_before": null,
+  "cluster_after": null,
+  "host_before": {
+    "memory": {
+      "total_bytes": 16924459008,
+      "available_bytes": 2456231936,
+      "memory_load_pct": 85,
+      "method": "GlobalMemoryStatusEx"
+    },
+    "foreign_containers": []
+  },
+  "host_after": {
+    "memory": {
+      "total_bytes": 16924459008,
+      "available_bytes": 2776166400,
+      "memory_load_pct": 83,
+      "method": "GlobalMemoryStatusEx"
+    }
+  },
+  "pre_cleanup": null,
+  "seed": 42,
+  "dataset_skew": false,
+  "raw_rows_manifest": {
+    "products": 4000,
+    "customers": 102000,
+    "orders": 1020000,
+    "order_items": 2038974,
+    "web_events": 1020000
+  },
+  "raw_rows_total_manifest": 4184974,
+  "runner_options": {
+    "reps": 3,
+    "dry_run": false,
+    "order": "interleaved",
+    "overwrite": false,
+    "resume": false,
+    "timeout_s": 3600.0,
+    "master_url": "http://localhost:8090/json/",
+    "cores_per_worker": 2,
+    "ivy_cache": true,
+    "bucket": "bigdata",
+    "hadoop_aws_version": "3.4.1",
+    "stop_on_failure": false,
+    "cleanup_curated": false
+  },
+  "metrics_path": "results/metrics/pandas_baseline/runs/orders_1m/r2/pandas_baseline.json",
+  "log_path": "results/logs/pandas_baseline/orders_1m_r2.log",
+  "event_logs": [],
+  "archived_previous": [],
+  "ivy": {},
+  "processing_seconds_total": 6.944,
+  "stage_seconds": {
+    "dimensions": 0.18,
+    "orders": 1.705,
+    "order_items": 0.744,
+    "web_events": 3.582,
+    "aggregates": 0.733
+  },
+  "stats_seconds": null,
+  "spark_version": null,
+  "app_id": null,
+  "metrics": {
+    "stage_seconds": {
+      "dimensions": 0.18,
+      "orders": 1.705,
+      "order_items": 0.744,
+      "web_events": 3.582,
+      "aggregates": 0.733
+    },
+    "substep_seconds": {
+      "dimensions": {
+        "read": 0.042,
+        "transform": 0.118,
+        "write": 0.02
+      },
+      "orders": {
+        "read": 0.278,
+        "transform": 1.24,
+        "write": 0.186
+      },
+      "order_items": {
+        "read": 0.13,
+        "transform": 0.383,
+        "write": 0.231
+      },
+      "web_events": {
+        "read": 2.2,
+        "transform": 1.213,
+        "write": 0.17
+      },
+      "aggregates": {
+        "transform": 0.727,
+        "write": 0.005
+      }
+    },
+    "processing_seconds_total": 6.944,
+    "tables": {
+      "customers": {
+        "raw_rows": 102000,
+        "clean_rows": 100000,
+        "quarantined_rows": 0,
+        "quarantine_by_reason": {},
+        "duplicates_removed": 2000
+      },
+      "products": {
+        "raw_rows": 4000,
+        "clean_rows": 4000,
+        "quarantined_rows": 0,
+        "quarantine_by_reason": {},
+        "duplicates_removed": 0
+      },
+      "orders": {
+        "raw_rows": 1020000,
+        "clean_rows": 959882,
+        "quarantined_rows": 40118,
+        "quarantine_by_reason": {
+          "null_customer_id": 20103,
+          "orphan_customer_id": 20015
+        },
+        "duplicates_removed": 20000
+      },
+      "order_items": {
+        "raw_rows": 2038974,
+        "clean_rows": 1804269,
+        "quarantined_rows": 194725,
+        "quarantine_by_reason": {
+          "no_clean_order": 75509,
+          "orphan_product_id": 39696,
+          "null_unit_price": 39534,
+          "non_positive_price": 20100,
+          "non_positive_quantity": 19886
+        },
+        "duplicates_removed": 39980
+      },
+      "web_events": {
+        "raw_rows": 1020000,
+        "clean_rows": 979960,
+        "quarantined_rows": 20040,
+        "quarantine_by_reason": {
+          "null_customer_id": 20040
+        },
+        "duplicates_removed": 20000
+      }
+    },
+    "aggregate_rows": {
+      "agg_daily_revenue": 731,
+      "agg_revenue_by_region_category": 56,
+      "agg_events_daily": 2193
+    },
+    "peak_rss_bytes": 1780043776,
+    "peak_rss_method": "win32 GetProcessMemoryInfo.PeakWorkingSetSize",
+    "peak_rss_after_stage": {
+      "dimensions": 126136320,
+      "orders": 404738048,
+      "order_items": 593330176,
+      "web_events": 1780043776,
+      "aggregates": 1780043776
+    },
+    "dataset": "orders_1m",
+    "started_at": "2026-11-07T23:41:19+0700",
+    "raw_dir": "D:\\Data\\GitHub\\Big_Data_\\data\\raw\\orders_1m",
+    "output_dir": "C:\\Users\\hntruc\\AppData\\Local\\Temp\\pandas_baseline_tc71bmwe",
+    "output_kept": false,
+    "seed": 42,
+    "spark_metrics_compared": "D:\\Data\\GitHub\\Big_Data_\\results\\metrics\\orders_1m.json",
+    "checks": [
+      {
+        "source": "manifest",
+        "check": "products.raw_rows",
+        "expected": 4000,
+        "actual": 4000,
+        "ok": true
+      },
+      {
+        "source": "manifest",
+        "check": "customers.raw_rows",
+        "expected": 102000,
+        "actual": 102000,
+        "ok": true
+      },
+      {
+        "source": "manifest",
+        "check": "orders.raw_rows",
+        "expected": 1020000,
+        "actual": 1020000,
+        "ok": true
+      },
+      {
+        "source": "manifest",
+        "check": "order_items.raw_rows",
+        "expected": 2038974,
+        "actual": 2038974,
+        "ok": true
+      },
+      {
+        "source": "manifest",
+        "check": "web_events.raw_rows",
+        "expected": 1020000,
+        "actual": 1020000,
+        "ok": true
+      },
+      {
+        "source": "manifest",
+        "check": "customers.duplicates_removed",
+        "expected": 2000,
+        "actual": 2000,
+        "ok": true
+      },
+      {
+        "source": "manifest",
+        "check": "orders.duplicates_removed",
+        "expected": 20000,
+        "actual": 20000,
+        "ok": true
+      },
+      {
+        "source": "manifest",
+        "check": "order_items.duplicates_removed",
+        "expected": 39980,
+        "actual": 39980,
+        "ok": true
+      },
+      {
+        "source": "manifest",
+        "check": "web_events.duplicates_removed",
+        "expected": 20000,
+        "actual": 20000,
+        "ok": true
+      },
+      {
+        "source": "manifest",
+        "check": "orders.null_customer_id",
+        "expected": 20103,
+        "actual": 20103,
+        "ok": true
+      },
+      {
+        "source": "manifest",
+        "check": "orders.orphan_customer_id",
+        "expected": 20015,
+        "actual": 20015,
+        "ok": true
+      },
+      {
+        "source": "manifest",
+        "check": "order_items.null_unit_price",
+        "expected": 39534,
+        "actual": 39534,
+        "ok": true
+      },
+      {
+        "source": "manifest",
+        "check": "order_items.non_positive_quantity",
+        "expected": 19886,
+        "actual": 19886,
+        "ok": true
+      },
+      {
+        "source": "manifest",
+        "check": "order_items.non_positive_price",
+        "expected": 20100,
+        "actual": 20100,
+        "ok": true
+      },
+      {
+        "source": "manifest",
+        "check": "order_items.orphan_product_id",
+        "expected": 39696,
+        "actual": 39696,
+        "ok": true
+      },
+      {
+        "source": "manifest",
+        "check": "web_events.null_customer_id",
+        "expected": 20040,
+        "actual": 20040,
+        "ok": true
+      },
+      {
+        "source": "manifest",
+        "check": "orders.invalid_order_date",
+        "expected": 0,
+        "actual": 0,
+        "ok": true
+      },
+      {
+        "source": "manifest",
+        "check": "web_events.invalid_event_time",
+        "expected": 0,
+        "actual": 0,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "customers.raw_rows",
+        "expected": 102000,
+        "actual": 102000,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "customers.clean_rows",
+        "expected": 100000,
+        "actual": 100000,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "customers.quarantined_rows",
+        "expected": 0,
+        "actual": 0,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "customers.duplicates_removed",
+        "expected": 2000,
+        "actual": 2000,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "products.raw_rows",
+        "expected": 4000,
+        "actual": 4000,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "products.clean_rows",
+        "expected": 4000,
+        "actual": 4000,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "products.quarantined_rows",
+        "expected": 0,
+        "actual": 0,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "products.duplicates_removed",
+        "expected": 0,
+        "actual": 0,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "orders.raw_rows",
+        "expected": 1020000,
+        "actual": 1020000,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "orders.clean_rows",
+        "expected": 959882,
+        "actual": 959882,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "orders.quarantined_rows",
+        "expected": 40118,
+        "actual": 40118,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "orders.duplicates_removed",
+        "expected": 20000,
+        "actual": 20000,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "orders.null_customer_id",
+        "expected": 20103,
+        "actual": 20103,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "orders.orphan_customer_id",
+        "expected": 20015,
+        "actual": 20015,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "order_items.raw_rows",
+        "expected": 2038974,
+        "actual": 2038974,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "order_items.clean_rows",
+        "expected": 1804269,
+        "actual": 1804269,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "order_items.quarantined_rows",
+        "expected": 194725,
+        "actual": 194725,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "order_items.duplicates_removed",
+        "expected": 39980,
+        "actual": 39980,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "order_items.no_clean_order",
+        "expected": 75509,
+        "actual": 75509,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "order_items.non_positive_price",
+        "expected": 20100,
+        "actual": 20100,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "order_items.non_positive_quantity",
+        "expected": 19886,
+        "actual": 19886,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "order_items.null_unit_price",
+        "expected": 39534,
+        "actual": 39534,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "order_items.orphan_product_id",
+        "expected": 39696,
+        "actual": 39696,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "web_events.raw_rows",
+        "expected": 1020000,
+        "actual": 1020000,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "web_events.clean_rows",
+        "expected": 979960,
+        "actual": 979960,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "web_events.quarantined_rows",
+        "expected": 20040,
+        "actual": 20040,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "web_events.duplicates_removed",
+        "expected": 20000,
+        "actual": 20000,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "web_events.null_customer_id",
+        "expected": 20040,
+        "actual": 20040,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "agg_daily_revenue.rows",
+        "expected": 731,
+        "actual": 731,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "agg_revenue_by_region_category.rows",
+        "expected": 56,
+        "actual": 56,
+        "ok": true
+      },
+      {
+        "source": "spark",
+        "check": "agg_events_daily.rows",
+        "expected": 2193,
+        "actual": 2193,
+        "ok": true
+      }
+    ],
+    "all_match": true,
+    "n_checks": 49,
+    "n_mismatch": 0,
+    "versions": {
+      "python": "3.12.10",
+      "pandas": "3.1.1",
+      "pyarrow": "26.0.1"
+    },
+    "host": {
+      "platform": "Windows-11-10.0.26300-SP0",
+      "machine": "AMD64"
+    }
+  }
+}

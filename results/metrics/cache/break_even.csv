@@ -1,0 +1,2 @@
+k,per_query_nocache_mean,per_query_cache_mean,materialize_mean,per_query_saving,break_even_queries,break_even_queries_ceil,saving_at_k,formula,note
+5,3.15,0.575067,8.025333,2.574933,3.116715,4,4.849333,"n* = M / (u - c); u, c = mean per-query time without/with cache; M = materialize",từ trung bình; None nếu cache không làm truy vấn nhanh hơn

@@ -1,0 +1,90 @@
+{
+  "config": {
+    "dataset": "orders_2500k",
+    "storage_root": "s3a://bigdata",
+    "run_label": "scale_data_orders_2500k",
+    "join_strategy": "auto",
+    "metrics_dir": "/opt/spark/work-dir/results/metrics/scale_data/runs/orders_2500k/r3"
+  },
+  "spark_version": "4.0.0",
+  "app_id": "app-20261107151121-0015",
+  "default_parallelism": 4,
+  "conf": {
+    "spark.sql.shuffle.partitions": "8",
+    "spark.sql.adaptive.enabled": "true",
+    "spark.sql.autoBroadcastJoinThreshold": "10485760b",
+    "spark.sql.adaptive.skewJoin.enabled": "true",
+    "spark.sql.adaptive.skewJoin.skewedPartitionFactor": "5.0",
+    "spark.sql.adaptive.skewJoin.skewedPartitionThresholdInBytes": "268435456b",
+    "spark.sql.adaptive.advisoryPartitionSizeInBytes": "67108864b"
+  },
+  "resources": {
+    "spark.executor.memory": null,
+    "spark.executor.cores": null,
+    "spark.driver.memory": null,
+    "spark.cores.max": null,
+    "executor_count": 2
+  },
+  "stage_seconds": {
+    "dimensions": 5.627,
+    "orders": 9.323,
+    "order_items": 11.565,
+    "web_events": 9.73,
+    "aggregates": 6.064
+  },
+  "processing_seconds_total": 42.309,
+  "stats_seconds": 3.613,
+  "tables": {
+    "customers": {
+      "raw_rows": 255000,
+      "clean_rows": 250000,
+      "quarantined_rows": 0,
+      "quarantine_by_reason": {},
+      "duplicates_removed": 5000
+    },
+    "products": {
+      "raw_rows": 10000,
+      "clean_rows": 10000,
+      "quarantined_rows": 0,
+      "quarantine_by_reason": {},
+      "duplicates_removed": 0
+    },
+    "orders": {
+      "raw_rows": 2550000,
+      "clean_rows": 2400028,
+      "quarantined_rows": 99972,
+      "quarantine_by_reason": {
+        "null_customer_id": 49748,
+        "orphan_customer_id": 50224
+      },
+      "duplicates_removed": 50000
+    },
+    "order_items": {
+      "raw_rows": 5099824,
+      "clean_rows": 4511618,
+      "quarantined_rows": 488209,
+      "quarantine_by_reason": {
+        "non_positive_price": 50188,
+        "orphan_product_id": 100342,
+        "null_unit_price": 99823,
+        "no_clean_order": 188148,
+        "non_positive_quantity": 49708
+      },
+      "duplicates_removed": 99997
+    },
+    "web_events": {
+      "raw_rows": 2550000,
+      "clean_rows": 2449950,
+      "quarantined_rows": 50050,
+      "quarantine_by_reason": {
+        "null_customer_id": 50050
+      },
+      "duplicates_removed": 50000
+    }
+  },
+  "aggregate_rows": {
+    "agg_daily_revenue": 731,
+    "agg_revenue_by_region_category": 56,
+    "agg_events_daily": 2193
+  }
+}

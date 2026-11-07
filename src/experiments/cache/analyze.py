@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import math
+import re
 import sys
 from pathlib import Path
 
@@ -77,7 +78,8 @@ def plot(summary: list[dict], fig_dir: Path) -> None:
     plt = plots.pyplot()
     if plt is None or not summary:
         return
-    steps = sorted({s["step"] for s in summary if s["step"].startswith("q")},
+    # Per-query steps only (q1_..., q2_...); excludes totals such as queries_seconds_total.
+    steps = sorted({s["step"] for s in summary if re.match(r"^q\d+_", s["step"])},
                    key=lambda x: int(x.split("_")[0][1:]))
     series = {}
     for config in ("nocache", "cache"):

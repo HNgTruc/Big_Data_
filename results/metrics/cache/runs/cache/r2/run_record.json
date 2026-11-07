@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "exp": "cache",
+  "config": "cache",
+  "rep": 2,
+  "label": "cache_cache",
+  "kind": "query_bench",
+  "dataset": "orders_5m",
+  "params": {
+    "mode": "cache",
+    "k": 5,
+    "curated_label": "orders_5m",
+    "workers": 2,
+    "shuffle_partitions": 8,
+    "aqe": true
+  },
+  "job_args": [
+    "cache",
+    "--dataset",
+    "orders_5m",
+    "--curated-label",
+    "orders_5m",
+    "--mode",
+    "cache",
+    "--k",
+    "5"
+  ],
+  "spark_conf": [],
+  "status": "ok",
+  "exit_code": 0,
+  "error": null,
+  "error_lines": [],
+  "started_at": "2026-11-07T23:27:07+07:00",
+  "ended_at": "2026-11-07T23:27:38+07:00",
+  "wall_seconds": 31.463,
+  "command": [
+    "docker",
+    "compose",
+    "run",
+    "--rm",
+    "--no-deps",
+    "--name",
+    "bench-driver",
+    "spark-master",
+    "/opt/spark/bin/spark-submit",
+    "--master",
+    "spark://spark-master:7077",
+    "--conf",
+    "spark.driver.host=bench-driver",
+    "--conf",
+    "spark.jars.ivy=/opt/spark/work-dir/data/ivy_cache",
+    "--packages",
+    "org.apache.hadoop:hadoop-aws:3.4.1",
+    "/opt/spark/work-dir/src/experiments/common/query_bench.py",
+    "cache",
+    "--dataset",
+    "orders_5m",
+    "--curated-label",
+    "orders_5m",
+    "--mode",
+    "cache",
+    "--k",
+    "5",
+    "--out",
+    "/opt/spark/work-dir/results/metrics/cache/runs/cache/r2/query_bench.json"
+  ],
+  "command_display": "docker compose run --rm --no-deps --name bench-driver spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --conf spark.driver.host=bench-driver --conf spark.jars.ivy=/opt/spark/work-dir/data/ivy_cache --packages org.apache.hadoop:hadoop-aws:3.4.1 /opt/spark/work-dir/src/experiments/common/query_bench.py cache --dataset orders_5m --curated-label orders_5m --mode cache --k 5 --out /opt/spark/work-dir/results/metrics/cache/runs/cache/r2/query_bench.json",
+  "cwd": "infra",
+  "git": {
+    "commit": "8164042ded6a8b4bba79af8ca45424f424388f7c",
+    "dirty": true,
+    "dirty_paths": [
+      ".claude/agent-memory/benchmark-analyst/MEMORY.md",
+      ".claude/agent-memory/benchmark-analyst/env_limits.md"
+    ]
+  },
+  "host": {
+    "platform": "Windows-11-10.0.26300-SP0",
+    "python": "3.12.10",
+    "machine": "AMD64"
+  },
+  "workers_expected": 2,
+  "cluster_before": {
+    "alive_workers": 2,
+    "total_alive_cores": 4,
+    "active_apps": 0,
+    "master_status": "ALIVE",
+    "workers": [
+      {
+        "id": "worker-20261107125247-172.19.0.5-35719",
+        "host": "172.19.0.5",
+        "cores": 2,
+        "memory_mb": 2048,
+        "state": "ALIVE"
+      },
+      {
+        "id": "worker-20261107125247-172.19.0.4-43589",
+        "host": "172.19.0.4",
+        "cores": 2,
+        "memory_mb": 2048,
+        "state": "ALIVE"
+      }
+    ]
+  },
+  "cluster_after": {
+    "alive_workers": 2,
+    "total_alive_cores": 4,
+    "active_apps": 0,
+    "master_status": "ALIVE",
+    "workers": [
+      {
+        "id": "worker-20261107125247-172.19.0.5-35719",
+        "host": "172.19.0.5",
+        "cores": 2,
+        "memory_mb": 2048,
+        "state": "ALIVE"
+      },
+      {
+        "id": "worker-20261107125247-172.19.0.4-43589",
+        "host": "172.19.0.4",
+        "cores": 2,
+        "memory_mb": 2048,
+        "state": "ALIVE"
+      }
+    ]
+  },
+  "host_before": {
+    "memory": {
+      "total_bytes": 16924459008,
+      "available_bytes": 942546944,
+      "memory_load_pct": 94,
+      "method": "GlobalMemoryStatusEx"
+    },
+    "foreign_containers": []
+  },
+  "host_after": {
+    "memory": {
+      "total_bytes": 16924459008,
+      "available_bytes": 926494720,
+      "memory_load_pct": 94,
+      "method": "GlobalMemoryStatusEx"
+    }
+  },
+  "pre_cleanup": null,
+  "seed": 42,
+  "dataset_skew": false,
+  "raw_rows_manifest": {
+    "products": 20000,
+    "customers": 510000,
+    "orders": 5100000,
+    "order_items": 10201505,
+    "web_events": 5100000
+  },
+  "raw_rows_total_manifest": 20931505,
+  "runner_options": {
+    "reps": 3,
+    "dry_run": false,
+    "order": "interleaved",
+    "overwrite": false,
+    "resume": false,
+    "timeout_s": 3600.0,
+    "master_url": "http://localhost:8090/json/",
+    "cores_per_worker": 2,
+    "ivy_cache": true,
+    "bucket": "bigdata",
+    "hadoop_aws_version": "3.4.1",
+    "stop_on_failure": false,
+    "cleanup_curated": false
+  },
+  "metrics_path": "results/metrics/cache/runs/cache/r2/query_bench.json",
+  "log_path": "results/logs/cache/cache_r2.log",
+  "event_logs": [],
+  "archived_previous": [],
+  "ivy": {
+    "resolve_ms": 292,
+    "download_ms": 47
+  },
+  "processing_seconds_total": null,
+  "stage_seconds": null,
+  "stats_seconds": null,
+  "spark_version": "4.0.0",
+  "app_id": "app-20261107162713-0059",
+  "metrics": {
+    "bench": "cache",
+    "dataset": "orders_5m",
+    "curated_label": "orders_5m",
+    "mode": "cache",
+    "k": 5,
+    "warmup_seconds": 8.664,
+    "materialize_seconds": 7.394,
+    "storage_level": "Disk Memory Deserialized 1x Replicated",
+    "storage_after_materialize": [
+      {
+        "name": "AdaptiveSparkPlan isFinalPlan=false\n+- Project [order_id#22L, line_no#23, product_id#24L, quantity#25, unit_price#26, order_date#18, status#19, payment_method#20, (cast(quantity#25 as double) * unit_p",
+        "mem_bytes": 264120760,
+        "disk_bytes": 21483065,
+        "cached_partitions": 8,
+        "partitions": 8,
+        "storage_level": "Disk Memory Deserialized 1x Replicated"
+      }
+    ],
+    "materialized_rows": 9024635,
+    "storage_after_unpersist": [],
+    "measurements": [
+      {
+        "index": 1,
+        "query": "revenue_by_date",
+        "seconds": 0.767,
+        "result_rows": 731,
+        "plan_after_run": "== Physical Plan ==\nAdaptiveSparkPlan (37)\n+- == Final Plan ==\n   ResultQueryStage (33)\n   +- * HashAggregate (32)\n      +- AQEShuffleRead (31)\n         +- ShuffleQueryStage (30), Statistics(sizeInBytes=137.1 KiB, rowCount=5.85E+3)\n            +- Exchange (29)\n               +- * HashAggregate (28)\n                  +- TableCacheQueryStage (27), Statistics(sizeInBytes=577.5 MiB, rowCount=9.02E+6)\n                     +- InMemoryTableScan (1)\n                           +- InMemoryRelation (2)\n                                 +- AdaptiveSparkPlan (26)\n                                 +- == Final Plan ==\n                                    ResultQueryStage (17)\n                                    +- * Project (16)\n                                       +- * SortMergeJoin Inner (15)\n                                          :- * Sort (8)\n                                          :  +- ShuffleQueryStage (7), Statistics(sizeInBytes=413.1 MiB, rowCount=9.02E+6)\n                                          :     +- Exchange (6)\n                                          :        +- * Filter (5)\n                                          :           +- * ColumnarToRow (4)\n                                          :              +- Scan parquet  (3)\n                                          +- * Sort (14)\n                                             +- ShuffleQueryStage (13), Statistics(sizeInBytes=291.1 MiB, rowCount=4.80E+6)\n                                                +- Exchange (12)\n                                                   +- * Filter (11)\n                                                      +- * ColumnarToRow (10)\n                                                         +- Scan parquet  (9)\n                                 +- == Initial Plan ==\n                                    Project (25)\n                                    +- SortMergeJoin Inner (24)\n                                       :- Sort (20)\n                                       :  +- Exchange (19)\n                                       :     +- Filter (18)\n                                       :        +- Scan parquet  (3)\n                                       +- Sort (23)\n                                          +- Exchange (22)\n                                             +- Filter (21)\n                                                +- Scan parquet  (9)\n+- == Initial Plan ==\n   HashAggregate (36)\n   +- Exchange (35)\n      +- HashAggregate (34)\n         +- InMemoryTableScan (1)\n               +- InMemoryRelation (2)\n                     +- AdaptiveSparkPlan (26)\n                     +- == Final Plan ==\n                        ResultQueryStage (17)\n                        +- * Project (16)\n                           +- * SortMergeJoin Inner (15)\n                              :- * Sort (8)\n                              :  +- ShuffleQueryStage (7), Statistics(sizeInBytes=413.1 MiB, rowCount=9.02E+6)\n                              :     +- Exchange (6)\n                              :        +- * Filter (5)\n                              :           +- * ColumnarToRow (4)\n                              :              +- Scan parquet  (3)\n                              +- * Sort (14)\n                                 +- ShuffleQueryStage (13), Statistics(sizeInBytes=291.1 MiB, rowCount=4.80E+6)\n                                    +- Exchange (12)\n                                       +- * Filter (11)\n                                          +- * ColumnarToRow (10)\n                                             +- Scan parquet  (9)\n                     +- == Initial Plan ==\n                        Project (25)\n                        +- SortMergeJoin Inner (24)\n                           :- Sort (20)\n                           :  +- Exchange (19)\n                           :     +- Filter (18)\n                           :        +- Scan parquet  (3)\n                           +- Sort (23)\n                              +- Exchange (22)\n                                 +- Filter (21)\n                                    +- Scan parquet  (9)\n\n\n(1) InMemoryTableScan\nOutput [2]: [order_date#18, line_amount#28]\nArguments: [order_date#18, line_amount#28]\n\n(2) InMemoryRelation\nArguments: [order_id#22L, line_no#23, product_id#24L, quantity#25, unit_price#26, order_date#18, status#19, payment_method#20, line_amount#28], StorageLevel(disk, memory, deserialized, 1 replicas)\n\n(3) Scan parquet \nOutput [5]: [order_id#22L, line_no#23, product_id#24L, quantity#25, unit_price#26]\nBatched: true\nLocation: InMemoryFileIndex [s3a://bigdata/curated/orders_5m/order_items]\nPushedFilters: [IsNotNull(order_id)]\nReadSchema: struct<order_id:bigint,line_no:int,product_id:bigint,quantity:int,unit_price:double>\n\n(4) ColumnarToRow [codegen id : 1]\nInput [5]: [order_id#22L, line_no#23, product_id#24L, quantity#25, unit_price#26]\n\n(5) Filter [codegen id : 1]\nInput [5]: [order_id#22L, line_no#23, product_id#24L, quantity#25, unit_price#26]\nCondition : isnotnull(order_id#22L)\n\n(6) Exchange\nInput [5]: [order_id#22L, line_no#23, product_id#24L, quantity#25, unit_price#26]\nArguments: hashpartitioning(order_id#22L, 8), ENSURE_REQUIREMENTS, [plan_id=130]\n\n(7) ShuffleQueryStage\nOutput [5]: [order_id#22L, line_no#23, product_id#24L, quantity#25, unit_price#26]\nArguments: 0\n\n(8) Sort [codegen id : 3]\nInput [5]: [order_id#22L, line_no#23, product_id#24L, quantity#25, unit_price#26]\nArguments: [order_id#22L ASC NULLS FIRST], false, 0\n\n(9) Scan parquet \nOutput [4]: [order_id#16L, order_date#18, status#19, payment_method#20]\nBatched: true\nLocation: InMemoryFileIndex [s3a://bigdata/curated/orders_5m/orders]\nPushedFilters: [IsNotNull(order_id)]\nReadSchema: struct<order_id:bigint,order_date:date,status:string,payment_method:string>\n\n(10) ColumnarToRow [codegen id : 2]\nInput [4]: [order_id#16L, order_date#18, status#19, payment_method#20]\n\n(11) Filter [codegen id : 2]\nInput [4]: [order_id#16L, order_date#18, status#19, payment_method#20]\nCondition : isnotnull(order_id#16L)\n\n(12) Exchange\nInput [4]: [order_id#16L, order_date#18, status#19, payment_method#20]\nArguments: hashpartitioning(order_id#16L, 8), ENSURE_REQUIREMENTS, [plan_id=152]\n\n(13) ShuffleQueryStage\nOutput [4]: [order_id#16L, order_date#18, status#19, payment_method#20]\nArguments: 1\n\n(14) Sort [codegen id : 4]\nInput [4]: [order_id#16L, order_date#18, status#19, payment_method#20]\nArguments: [order_id#16L ASC NULLS FIRST], false, 0\n\n(15) SortMergeJoin [codegen id : 5]\nLeft keys [1]: [order_id#22L]\nRight keys [1]: [order_id#16L]\nJoin type: Inner\nJoin condition: None\n\n(16) Project [codegen id : 5]\nOutput [9]: [order_id#22L, line_no#23, product_id#24L, quantity#25, unit_price#26, order_date#18, status#19, payment_method#20, (cast(quantity#25 as double) * unit_price#26) AS line_amount#28]\nInput [9]: [order_id#22L, line_no#23, product_id#24L, quantity#25, unit_price#26, order_id#16L, order_date#18, status#19, payment_method#20]\n\n(17) ResultQueryStage\nOutput [9]: [order_id#22L, line_no#23, product_id#24L, quantity#25, unit_price#26, order_date#18, status#19, payment_method#20, line_amount#28]\nArguments: 2\n\n(18) Filter\nInput [5]: [order_id#22L, line_no#23, product_id#24L, quantity#25, unit_price#26]\nCondition : isnotnull(order_id#22L)\n\n(19) Exchange\nInput [5]: [order_id#22L, line_no#23, product_id#24L, quantity#25, unit_price#26]\nArguments: hashpartitioning(order_id#22L, 8), ENSURE_REQUIREMENTS, [plan_id=91]\n\n(20) Sort\nInput [5]: [order_id#22L, line_no#23, product_id#24L, quantity#25, unit_price#26]\nArguments: [order_id#22L ASC NULLS FIRST], false, 0\n\n(21) Filter\nInput [4]: [order_id#16L, order_date#18, status#19, payment_method#20]\nCondition : isnotnull(order_id#16L)\n\n(22) Exchange\nInput [4]: [order_id#16L, order_date#18, status#19, payment_method#20]\nArguments: hashpartitioning(order_id#16L, 8), ENSURE_REQUIREMENTS, [plan_id=92]\n\n(23) Sort\nInput [4]: [order_id#16L, order_date#18, status#19, payment_method#20]\nArguments: [order_id#16L ASC NULLS FIRST], false, 0\n\n(24) SortMergeJoin\nLeft keys [1]: [order_id#22L]\nRight keys [1]: [order_id#16L]\nJoin type: Inner\nJoin condition: None\n\n(25) Project\nOutput [9]: [order_id#22L, line_no#23, product_id#24L, quantity#25, unit_price#26, order_date#18, status#19, payment_method#20, (cast(quantity#25 as double) * unit_price#26) AS line_amount#28]\nInput [9]: [order_id#22L, line_no#23, product_id#24L, quantity#25, unit_price#26, order_id#16L, order_date#18, status#19, payment_method#20]\n\n(26) AdaptiveSparkPlan\nOutput [9]: [order_id#22L, line_no#23, product_id#24L, quantity#25, unit_price#26, order_date#18, status#19, payment_method#20, line_amount#28]\nArguments: isFinalPlan=true\n\n(27) TableCacheQueryStage\nOutput [2]: [order_date#18, line_amount#28]\nArguments: 0\n\n(28) HashAggregate [codegen id : 1]\nInput [2]: [order_date#18, line_amount#28]\nKeys [1]: [order_date#18]\nFunctions [1]: [partial_sum(line_amount#28)]\nAggregate Attributes [1]: [sum#502]\nResults [2]: [order_date#18, sum#503]\n\n(29) Exchange\nInput [2]: [order_date#18, sum#503]\nArguments: hashpartitioning(order_date#18, 8), ENSURE_REQUIREMENTS, [plan_id=267]\n\n(30) ShuffleQueryStage\nOutput [2]: [order_date#18, sum#503]\nArguments: 1\n\n(31) AQEShuffleRead\nInput [2]: [order_date#18, sum#503]\nArguments: coalesced\n\n(32) HashAggregate [codegen id : 2]\nInput [2]: [order_date#18, sum#503]\nKeys [1]: [order_date#18]\nFunctions [1]: [sum(line_amount#28)]\nAggregate Attributes [1]: [sum(line_amount#28)#322]\nResults [2]: [order_date#18, sum(line_amount#28)#322 AS revenue#312]\n\n(33) ResultQueryStage\nOutput [2]: [order_date#18, revenue#312]\nArguments: 2\n\n(34) HashAggregate\nInput [2]: [order_date#18, line_amount#28]\nKeys [1]: [order_date#18]\nFunctions [1]: [partial_sum(line_amount#28)]\nAggregate Attributes [1]: [sum#502]\nResults [2]: [order_date#18, sum#503]\n\n(35) Exchange\nInput [2]: [order_date#18, sum#503]\nArguments: hashpartitioning(order_date#18, 8), ENSURE_REQUIREMENTS, [plan_id=241]\n\n(36) HashAggregate\nInput [2]: [order_date#18, sum#503]\nKeys [1]: [order_date#18]\nFunctions [1]: [sum(line_amount#28)]\nAggregate Attributes [1]: [sum(line_amount#28)#322]\nResults [2]: [order_date#18, sum(line_amount#28)#322 AS revenue#312]\n\n(37) AdaptiveSparkPlan\nOutput [2]: [order_date#18, revenue#312]\nArguments: isFinalPlan=true\n\n\n"
+      },
+      {
+        "index": 2,
+        "query": "revenue_by_status",
+        "seconds": 0.682,
+        "result_rows": 5
+      },
+      {
+        "index": 3,
+        "query": "top10_products_by_units",
+        "seconds": 0.701,
+        "result_rows": 10
+      },
+      {
+        "index": 4,
+        "query": "lines_by_payment_method",
+        "seconds": 0.462,
+        "result_rows": 4
+      },
+      {
+        "index": 5,
+        "query": "avg_amount_by_line_no",
+        "seconds": 0.364,
+        "result_rows": 10
+      }
+    ],
+    "queries_seconds_total": 2.976,
+    "total_seconds": 10.37,
+    "spark_version": "4.0.0",
+    "app_id": "app-20261107162713-0059",
+    "default_parallelism": 4,
+    "resources": {
+      "spark.executor.memory": null,
+      "spark.executor.cores": null,
+      "spark.driver.memory": null,
+      "spark.cores.max": null,
+      "executor_count": 2
+    },
+    "conf": {
+      "spark.sql.shuffle.partitions": "8",
+      "spark.sql.adaptive.enabled": "true",
+      "spark.sql.autoBroadcastJoinThreshold": "10485760b"
+    }
+  }
+}

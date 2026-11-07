@@ -1,0 +1,462 @@
+{
+  "stage_seconds": {
+    "dimensions": 0.211,
+    "orders": 0.939,
+    "order_items": 0.38,
+    "web_events": 1.991,
+    "aggregates": 0.413
+  },
+  "substep_seconds": {
+    "dimensions": {
+      "read": 0.117,
+      "transform": 0.076,
+      "write": 0.017
+    },
+    "orders": {
+      "read": 0.161,
+      "transform": 0.66,
+      "write": 0.117
+    },
+    "order_items": {
+      "read": 0.067,
+      "transform": 0.18,
+      "write": 0.133
+    },
+    "web_events": {
+      "read": 1.213,
+      "transform": 0.666,
+      "write": 0.112
+    },
+    "aggregates": {
+      "transform": 0.408,
+      "write": 0.006
+    }
+  },
+  "processing_seconds_total": 3.934,
+  "tables": {
+    "customers": {
+      "raw_rows": 51000,
+      "clean_rows": 50000,
+      "quarantined_rows": 0,
+      "quarantine_by_reason": {},
+      "duplicates_removed": 1000
+    },
+    "products": {
+      "raw_rows": 2000,
+      "clean_rows": 2000,
+      "quarantined_rows": 0,
+      "quarantine_by_reason": {},
+      "duplicates_removed": 0
+    },
+    "orders": {
+      "raw_rows": 510000,
+      "clean_rows": 479987,
+      "quarantined_rows": 20013,
+      "quarantine_by_reason": {
+        "orphan_customer_id": 10176,
+        "null_customer_id": 9837
+      },
+      "duplicates_removed": 10000
+    },
+    "order_items": {
+      "raw_rows": 1019960,
+      "clean_rows": 902634,
+      "quarantined_rows": 97327,
+      "quarantine_by_reason": {
+        "no_clean_order": 37789,
+        "null_unit_price": 19871,
+        "orphan_product_id": 19769,
+        "non_positive_price": 9967,
+        "non_positive_quantity": 9931
+      },
+      "duplicates_removed": 19999
+    },
+    "web_events": {
+      "raw_rows": 510000,
+      "clean_rows": 490034,
+      "quarantined_rows": 9966,
+      "quarantine_by_reason": {
+        "null_customer_id": 9966
+      },
+      "duplicates_removed": 10000
+    }
+  },
+  "aggregate_rows": {
+    "agg_daily_revenue": 731,
+    "agg_revenue_by_region_category": 56,
+    "agg_events_daily": 2193
+  },
+  "peak_rss_bytes": 943013888,
+  "peak_rss_method": "win32 GetProcessMemoryInfo.PeakWorkingSetSize",
+  "peak_rss_after_stage": {
+    "dimensions": 116301824,
+    "orders": 252948480,
+    "order_items": 320991232,
+    "web_events": 943013888,
+    "aggregates": 943013888
+  },
+  "dataset": "orders_500k",
+  "started_at": "2026-11-07T23:41:02+0700",
+  "raw_dir": "D:\\Data\\GitHub\\Big_Data_\\data\\raw\\orders_500k",
+  "output_dir": "C:\\Users\\hntruc\\AppData\\Local\\Temp\\pandas_baseline_ktt7guee",
+  "output_kept": false,
+  "seed": 42,
+  "spark_metrics_compared": "D:\\Data\\GitHub\\Big_Data_\\results\\metrics\\orders_500k.json",
+  "checks": [
+    {
+      "source": "manifest",
+      "check": "products.raw_rows",
+      "expected": 2000,
+      "actual": 2000,
+      "ok": true
+    },
+    {
+      "source": "manifest",
+      "check": "customers.raw_rows",
+      "expected": 51000,
+      "actual": 51000,
+      "ok": true
+    },
+    {
+      "source": "manifest",
+      "check": "orders.raw_rows",
+      "expected": 510000,
+      "actual": 510000,
+      "ok": true
+    },
+    {
+      "source": "manifest",
+      "check": "order_items.raw_rows",
+      "expected": 1019960,
+      "actual": 1019960,
+      "ok": true
+    },
+    {
+      "source": "manifest",
+      "check": "web_events.raw_rows",
+      "expected": 510000,
+      "actual": 510000,
+      "ok": true
+    },
+    {
+      "source": "manifest",
+      "check": "customers.duplicates_removed",
+      "expected": 1000,
+      "actual": 1000,
+      "ok": true
+    },
+    {
+      "source": "manifest",
+      "check": "orders.duplicates_removed",
+      "expected": 10000,
+      "actual": 10000,
+      "ok": true
+    },
+    {
+      "source": "manifest",
+      "check": "order_items.duplicates_removed",
+      "expected": 19999,
+      "actual": 19999,
+      "ok": true
+    },
+    {
+      "source": "manifest",
+      "check": "web_events.duplicates_removed",
+      "expected": 10000,
+      "actual": 10000,
+      "ok": true
+    },
+    {
+      "source": "manifest",
+      "check": "orders.null_customer_id",
+      "expected": 9837,
+      "actual": 9837,
+      "ok": true
+    },
+    {
+      "source": "manifest",
+      "check": "orders.orphan_customer_id",
+      "expected": 10176,
+      "actual": 10176,
+      "ok": true
+    },
+    {
+      "source": "manifest",
+      "check": "order_items.null_unit_price",
+      "expected": 19871,
+      "actual": 19871,
+      "ok": true
+    },
+    {
+      "source": "manifest",
+      "check": "order_items.non_positive_quantity",
+      "expected": 9931,
+      "actual": 9931,
+      "ok": true
+    },
+    {
+      "source": "manifest",
+      "check": "order_items.non_positive_price",
+      "expected": 9967,
+      "actual": 9967,
+      "ok": true
+    },
+    {
+      "source": "manifest",
+      "check": "order_items.orphan_product_id",
+      "expected": 19769,
+      "actual": 19769,
+      "ok": true
+    },
+    {
+      "source": "manifest",
+      "check": "web_events.null_customer_id",
+      "expected": 9966,
+      "actual": 9966,
+      "ok": true
+    },
+    {
+      "source": "manifest",
+      "check": "orders.invalid_order_date",
+      "expected": 0,
+      "actual": 0,
+      "ok": true
+    },
+    {
+      "source": "manifest",
+      "check": "web_events.invalid_event_time",
+      "expected": 0,
+      "actual": 0,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "customers.raw_rows",
+      "expected": 51000,
+      "actual": 51000,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "customers.clean_rows",
+      "expected": 50000,
+      "actual": 50000,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "customers.quarantined_rows",
+      "expected": 0,
+      "actual": 0,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "customers.duplicates_removed",
+      "expected": 1000,
+      "actual": 1000,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "products.raw_rows",
+      "expected": 2000,
+      "actual": 2000,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "products.clean_rows",
+      "expected": 2000,
+      "actual": 2000,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "products.quarantined_rows",
+      "expected": 0,
+      "actual": 0,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "products.duplicates_removed",
+      "expected": 0,
+      "actual": 0,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "orders.raw_rows",
+      "expected": 510000,
+      "actual": 510000,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "orders.clean_rows",
+      "expected": 479987,
+      "actual": 479987,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "orders.quarantined_rows",
+      "expected": 20013,
+      "actual": 20013,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "orders.duplicates_removed",
+      "expected": 10000,
+      "actual": 10000,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "orders.null_customer_id",
+      "expected": 9837,
+      "actual": 9837,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "orders.orphan_customer_id",
+      "expected": 10176,
+      "actual": 10176,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "order_items.raw_rows",
+      "expected": 1019960,
+      "actual": 1019960,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "order_items.clean_rows",
+      "expected": 902634,
+      "actual": 902634,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "order_items.quarantined_rows",
+      "expected": 97327,
+      "actual": 97327,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "order_items.duplicates_removed",
+      "expected": 19999,
+      "actual": 19999,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "order_items.no_clean_order",
+      "expected": 37789,
+      "actual": 37789,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "order_items.non_positive_price",
+      "expected": 9967,
+      "actual": 9967,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "order_items.non_positive_quantity",
+      "expected": 9931,
+      "actual": 9931,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "order_items.null_unit_price",
+      "expected": 19871,
+      "actual": 19871,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "order_items.orphan_product_id",
+      "expected": 19769,
+      "actual": 19769,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "web_events.raw_rows",
+      "expected": 510000,
+      "actual": 510000,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "web_events.clean_rows",
+      "expected": 490034,
+      "actual": 490034,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "web_events.quarantined_rows",
+      "expected": 9966,
+      "actual": 9966,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "web_events.duplicates_removed",
+      "expected": 10000,
+      "actual": 10000,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "web_events.null_customer_id",
+      "expected": 9966,
+      "actual": 9966,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "agg_daily_revenue.rows",
+      "expected": 731,
+      "actual": 731,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "agg_revenue_by_region_category.rows",
+      "expected": 56,
+      "actual": 56,
+      "ok": true
+    },
+    {
+      "source": "spark",
+      "check": "agg_events_daily.rows",
+      "expected": 2193,
+      "actual": 2193,
+      "ok": true
+    }
+  ],
+  "all_match": true,
+  "n_checks": 49,
+  "n_mismatch": 0,
+  "versions": {
+    "python": "3.12.10",
+    "pandas": "3.1.1",
+    "pyarrow": "26.0.1"
+  },
+  "host": {
+    "platform": "Windows-11-10.0.26300-SP0",
+    "machine": "AMD64"
+  }
+}

@@ -1,0 +1,263 @@
+{
+  "schema_version": 1,
+  "exp": "scale_data",
+  "config": "orders_500k",
+  "rep": 3,
+  "label": "scale_data_orders_500k",
+  "kind": "etl",
+  "dataset": "orders_500k",
+  "params": {
+    "join_strategy": "auto",
+    "aqe": true,
+    "workers": 2,
+    "shuffle_partitions": 8
+  },
+  "job_args": [],
+  "spark_conf": [],
+  "status": "ok",
+  "exit_code": 0,
+  "error": null,
+  "error_lines": [],
+  "started_at": "2026-11-07T22:09:40+07:00",
+  "ended_at": "2026-11-07T22:10:24+07:00",
+  "wall_seconds": 44.245,
+  "command": [
+    "docker",
+    "compose",
+    "run",
+    "--rm",
+    "--no-deps",
+    "--name",
+    "etl-driver",
+    "spark-master",
+    "/opt/spark/bin/spark-submit",
+    "--master",
+    "spark://spark-master:7077",
+    "--conf",
+    "spark.driver.host=etl-driver",
+    "--conf",
+    "spark.jars.ivy=/opt/spark/work-dir/data/ivy_cache",
+    "--packages",
+    "org.apache.hadoop:hadoop-aws:3.4.1",
+    "/opt/spark/work-dir/src/etl/etl_job.py",
+    "--dataset",
+    "orders_500k",
+    "--run-label",
+    "scale_data_orders_500k",
+    "--metrics-dir",
+    "/opt/spark/work-dir/results/metrics/scale_data/runs/orders_500k/r3"
+  ],
+  "command_display": "docker compose run --rm --no-deps --name etl-driver spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --conf spark.driver.host=etl-driver --conf spark.jars.ivy=/opt/spark/work-dir/data/ivy_cache --packages org.apache.hadoop:hadoop-aws:3.4.1 /opt/spark/work-dir/src/etl/etl_job.py --dataset orders_500k --run-label scale_data_orders_500k --metrics-dir /opt/spark/work-dir/results/metrics/scale_data/runs/orders_500k/r3",
+  "cwd": "infra",
+  "git": {
+    "commit": "8164042ded6a8b4bba79af8ca45424f424388f7c",
+    "dirty": false,
+    "dirty_paths": []
+  },
+  "host": {
+    "platform": "Windows-11-10.0.26300-SP0",
+    "python": "3.12.10",
+    "machine": "AMD64"
+  },
+  "workers_expected": 2,
+  "cluster_before": {
+    "alive_workers": 2,
+    "total_alive_cores": 4,
+    "active_apps": 0,
+    "master_status": "ALIVE",
+    "workers": [
+      {
+        "id": "worker-20261107125247-172.19.0.5-35719",
+        "host": "172.19.0.5",
+        "cores": 2,
+        "memory_mb": 2048,
+        "state": "ALIVE"
+      },
+      {
+        "id": "worker-20261107125247-172.19.0.4-43589",
+        "host": "172.19.0.4",
+        "cores": 2,
+        "memory_mb": 2048,
+        "state": "ALIVE"
+      }
+    ]
+  },
+  "cluster_after": {
+    "alive_workers": 2,
+    "total_alive_cores": 4,
+    "active_apps": 0,
+    "master_status": "ALIVE",
+    "workers": [
+      {
+        "id": "worker-20261107125247-172.19.0.5-35719",
+        "host": "172.19.0.5",
+        "cores": 2,
+        "memory_mb": 2048,
+        "state": "ALIVE"
+      },
+      {
+        "id": "worker-20261107125247-172.19.0.4-43589",
+        "host": "172.19.0.4",
+        "cores": 2,
+        "memory_mb": 2048,
+        "state": "ALIVE"
+      }
+    ]
+  },
+  "host_before": {
+    "memory": {
+      "total_bytes": 16924459008,
+      "available_bytes": 996966400,
+      "memory_load_pct": 94,
+      "method": "GlobalMemoryStatusEx"
+    },
+    "foreign_containers": []
+  },
+  "host_after": {
+    "memory": {
+      "total_bytes": 16924459008,
+      "available_bytes": 912965632,
+      "memory_load_pct": 94,
+      "method": "GlobalMemoryStatusEx"
+    }
+  },
+  "pre_cleanup": {
+    "command": "docker compose run --rm --no-deps minio-init rm --recursive --force local/bigdata/curated/scale_data_orders_500k/ local/bigdata/quarantine/scale_data_orders_500k/",
+    "exit_code": 0,
+    "seconds": 0.537
+  },
+  "seed": 42,
+  "dataset_skew": false,
+  "raw_rows_manifest": {
+    "products": 2000,
+    "customers": 51000,
+    "orders": 510000,
+    "order_items": 1019960,
+    "web_events": 510000
+  },
+  "raw_rows_total_manifest": 2092960,
+  "runner_options": {
+    "reps": 3,
+    "dry_run": false,
+    "order": "interleaved",
+    "overwrite": false,
+    "resume": false,
+    "timeout_s": 3600.0,
+    "master_url": "http://localhost:8090/json/",
+    "cores_per_worker": 2,
+    "ivy_cache": true,
+    "bucket": "bigdata",
+    "hadoop_aws_version": "3.4.1",
+    "stop_on_failure": false,
+    "cleanup_curated": false
+  },
+  "metrics_path": "results/metrics/scale_data/runs/orders_500k/r3/scale_data_orders_500k.json",
+  "log_path": "results/logs/scale_data/orders_500k_r3.log",
+  "event_logs": [],
+  "archived_previous": [],
+  "ivy": {
+    "resolve_ms": 275,
+    "download_ms": 46
+  },
+  "processing_seconds_total": 21.91,
+  "stage_seconds": {
+    "dimensions": 4.537,
+    "orders": 5.381,
+    "order_items": 4.191,
+    "web_events": 3.998,
+    "aggregates": 3.803
+  },
+  "stats_seconds": 2.986,
+  "spark_version": "4.0.0",
+  "app_id": "app-20261107150946-0013",
+  "metrics": {
+    "config": {
+      "dataset": "orders_500k",
+      "storage_root": "s3a://bigdata",
+      "run_label": "scale_data_orders_500k",
+      "join_strategy": "auto",
+      "metrics_dir": "/opt/spark/work-dir/results/metrics/scale_data/runs/orders_500k/r3"
+    },
+    "spark_version": "4.0.0",
+    "app_id": "app-20261107150946-0013",
+    "default_parallelism": 4,
+    "conf": {
+      "spark.sql.shuffle.partitions": "8",
+      "spark.sql.adaptive.enabled": "true",
+      "spark.sql.autoBroadcastJoinThreshold": "10485760b",
+      "spark.sql.adaptive.skewJoin.enabled": "true",
+      "spark.sql.adaptive.skewJoin.skewedPartitionFactor": "5.0",
+      "spark.sql.adaptive.skewJoin.skewedPartitionThresholdInBytes": "268435456b",
+      "spark.sql.adaptive.advisoryPartitionSizeInBytes": "67108864b"
+    },
+    "resources": {
+      "spark.executor.memory": null,
+      "spark.executor.cores": null,
+      "spark.driver.memory": null,
+      "spark.cores.max": null,
+      "executor_count": 2
+    },
+    "stage_seconds": {
+      "dimensions": 4.537,
+      "orders": 5.381,
+      "order_items": 4.191,
+      "web_events": 3.998,
+      "aggregates": 3.803
+    },
+    "processing_seconds_total": 21.91,
+    "stats_seconds": 2.986,
+    "tables": {
+      "customers": {
+        "raw_rows": 51000,
+        "clean_rows": 50000,
+        "quarantined_rows": 0,
+        "quarantine_by_reason": {},
+        "duplicates_removed": 1000
+      },
+      "products": {
+        "raw_rows": 2000,
+        "clean_rows": 2000,
+        "quarantined_rows": 0,
+        "quarantine_by_reason": {},
+        "duplicates_removed": 0
+      },
+      "orders": {
+        "raw_rows": 510000,
+        "clean_rows": 479987,
+        "quarantined_rows": 20013,
+        "quarantine_by_reason": {
+          "null_customer_id": 9837,
+          "orphan_customer_id": 10176
+        },
+        "duplicates_removed": 10000
+      },
+      "order_items": {
+        "raw_rows": 1019960,
+        "clean_rows": 902634,
+        "quarantined_rows": 97327,
+        "quarantine_by_reason": {
+          "non_positive_price": 9967,
+          "orphan_product_id": 19769,
+          "no_clean_order": 37789,
+          "null_unit_price": 19871,
+          "non_positive_quantity": 9931
+        },
+        "duplicates_removed": 19999
+      },
+      "web_events": {
+        "raw_rows": 510000,
+        "clean_rows": 490034,
+        "quarantined_rows": 9966,
+        "quarantine_by_reason": {
+          "null_customer_id": 9966
+        },
+        "duplicates_removed": 10000
+      }
+    },
+    "aggregate_rows": {
+      "agg_daily_revenue": 731,
+      "agg_revenue_by_region_category": 56,
+      "agg_events_daily": 2193
+    }
+  }
+}

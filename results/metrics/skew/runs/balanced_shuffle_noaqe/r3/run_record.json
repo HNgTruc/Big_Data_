@@ -1,0 +1,300 @@
+{
+  "schema_version": 1,
+  "exp": "skew",
+  "config": "balanced_shuffle_noaqe",
+  "rep": 3,
+  "label": "skew_balanced_shuffle_noaqe",
+  "kind": "etl",
+  "dataset": "orders_5m",
+  "params": {
+    "data": "balanced",
+    "join_variant": "shuffle",
+    "aqe": false,
+    "workers": 2,
+    "shuffle_partitions": 64,
+    "auto_broadcast": false,
+    "skew_threshold_bytes": 4194304,
+    "advisory_bytes": 2097152
+  },
+  "job_args": [
+    "--join-strategy",
+    "shuffle",
+    "--no-auto-broadcast",
+    "--shuffle-partitions",
+    "64",
+    "--no-aqe"
+  ],
+  "spark_conf": [
+    "spark.sql.adaptive.skewJoin.skewedPartitionThresholdInBytes=4194304",
+    "spark.sql.adaptive.advisoryPartitionSizeInBytes=2097152"
+  ],
+  "status": "ok",
+  "exit_code": 0,
+  "error": null,
+  "error_lines": [],
+  "started_at": "2026-11-07T23:13:28+07:00",
+  "ended_at": "2026-11-07T23:16:09+07:00",
+  "wall_seconds": 161.316,
+  "command": [
+    "docker",
+    "compose",
+    "run",
+    "--rm",
+    "--no-deps",
+    "--name",
+    "etl-driver",
+    "spark-master",
+    "/opt/spark/bin/spark-submit",
+    "--master",
+    "spark://spark-master:7077",
+    "--conf",
+    "spark.driver.host=etl-driver",
+    "--conf",
+    "spark.jars.ivy=/opt/spark/work-dir/data/ivy_cache",
+    "--conf",
+    "spark.eventLog.enabled=true",
+    "--conf",
+    "spark.eventLog.dir=file:///opt/spark/work-dir/results/logs/skew/eventlogs",
+    "--conf",
+    "spark.eventLog.compress=false",
+    "--conf",
+    "spark.eventLog.rolling.enabled=false",
+    "--conf",
+    "spark.sql.adaptive.skewJoin.skewedPartitionThresholdInBytes=4194304",
+    "--conf",
+    "spark.sql.adaptive.advisoryPartitionSizeInBytes=2097152",
+    "--packages",
+    "org.apache.hadoop:hadoop-aws:3.4.1",
+    "/opt/spark/work-dir/src/etl/etl_job.py",
+    "--dataset",
+    "orders_5m",
+    "--run-label",
+    "skew_balanced_shuffle_noaqe",
+    "--metrics-dir",
+    "/opt/spark/work-dir/results/metrics/skew/runs/balanced_shuffle_noaqe/r3",
+    "--join-strategy",
+    "shuffle",
+    "--no-auto-broadcast",
+    "--shuffle-partitions",
+    "64",
+    "--no-aqe"
+  ],
+  "command_display": "docker compose run --rm --no-deps --name etl-driver spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --conf spark.driver.host=etl-driver --conf spark.jars.ivy=/opt/spark/work-dir/data/ivy_cache --conf spark.eventLog.enabled=true --conf spark.eventLog.dir=file:///opt/spark/work-dir/results/logs/skew/eventlogs --conf spark.eventLog.compress=false --conf spark.eventLog.rolling.enabled=false --conf spark.sql.adaptive.skewJoin.skewedPartitionThresholdInBytes=4194304 --conf spark.sql.adaptive.advisoryPartitionSizeInBytes=2097152 --packages org.apache.hadoop:hadoop-aws:3.4.1 /opt/spark/work-dir/src/etl/etl_job.py --dataset orders_5m --run-label skew_balanced_shuffle_noaqe --metrics-dir /opt/spark/work-dir/results/metrics/skew/runs/balanced_shuffle_noaqe/r3 --join-strategy shuffle --no-auto-broadcast --shuffle-partitions 64 --no-aqe",
+  "cwd": "infra",
+  "git": {
+    "commit": "8164042ded6a8b4bba79af8ca45424f424388f7c",
+    "dirty": true,
+    "dirty_paths": [
+      ".claude/agent-memory/benchmark-analyst/MEMORY.md",
+      ".claude/agent-memory/benchmark-analyst/env_limits.md"
+    ]
+  },
+  "host": {
+    "platform": "Windows-11-10.0.26300-SP0",
+    "python": "3.12.10",
+    "machine": "AMD64"
+  },
+  "workers_expected": 2,
+  "cluster_before": {
+    "alive_workers": 2,
+    "total_alive_cores": 4,
+    "active_apps": 0,
+    "master_status": "ALIVE",
+    "workers": [
+      {
+        "id": "worker-20261107125247-172.19.0.5-35719",
+        "host": "172.19.0.5",
+        "cores": 2,
+        "memory_mb": 2048,
+        "state": "ALIVE"
+      },
+      {
+        "id": "worker-20261107125247-172.19.0.4-43589",
+        "host": "172.19.0.4",
+        "cores": 2,
+        "memory_mb": 2048,
+        "state": "ALIVE"
+      }
+    ]
+  },
+  "cluster_after": {
+    "alive_workers": 2,
+    "total_alive_cores": 4,
+    "active_apps": 0,
+    "master_status": "ALIVE",
+    "workers": [
+      {
+        "id": "worker-20261107125247-172.19.0.5-35719",
+        "host": "172.19.0.5",
+        "cores": 2,
+        "memory_mb": 2048,
+        "state": "ALIVE"
+      },
+      {
+        "id": "worker-20261107125247-172.19.0.4-43589",
+        "host": "172.19.0.4",
+        "cores": 2,
+        "memory_mb": 2048,
+        "state": "ALIVE"
+      }
+    ]
+  },
+  "host_before": {
+    "memory": {
+      "total_bytes": 16924459008,
+      "available_bytes": 883732480,
+      "memory_load_pct": 94,
+      "method": "GlobalMemoryStatusEx"
+    },
+    "foreign_containers": []
+  },
+  "host_after": {
+    "memory": {
+      "total_bytes": 16924459008,
+      "available_bytes": 950980608,
+      "memory_load_pct": 94,
+      "method": "GlobalMemoryStatusEx"
+    }
+  },
+  "pre_cleanup": {
+    "command": "docker compose run --rm --no-deps minio-init rm --recursive --force local/bigdata/curated/skew_balanced_shuffle_noaqe/ local/bigdata/quarantine/skew_balanced_shuffle_noaqe/",
+    "exit_code": 0,
+    "seconds": 1.05
+  },
+  "seed": 42,
+  "dataset_skew": false,
+  "raw_rows_manifest": {
+    "products": 20000,
+    "customers": 510000,
+    "orders": 5100000,
+    "order_items": 10201505,
+    "web_events": 5100000
+  },
+  "raw_rows_total_manifest": 20931505,
+  "runner_options": {
+    "reps": 3,
+    "dry_run": false,
+    "order": "interleaved",
+    "overwrite": false,
+    "resume": false,
+    "timeout_s": 3600.0,
+    "master_url": "http://localhost:8090/json/",
+    "cores_per_worker": 2,
+    "ivy_cache": true,
+    "bucket": "bigdata",
+    "hadoop_aws_version": "3.4.1",
+    "stop_on_failure": false,
+    "cleanup_curated": false
+  },
+  "metrics_path": "results/metrics/skew/runs/balanced_shuffle_noaqe/r3/skew_balanced_shuffle_noaqe.json",
+  "log_path": "results/logs/skew/balanced_shuffle_noaqe_r3.log",
+  "event_logs": [
+    "results/logs/skew/eventlogs/app-20261107161336-0047"
+  ],
+  "archived_previous": [],
+  "ivy": {
+    "resolve_ms": 282,
+    "download_ms": 47
+  },
+  "processing_seconds_total": 127.467,
+  "stage_seconds": {
+    "dimensions": 11.062,
+    "orders": 26.732,
+    "order_items": 37.295,
+    "web_events": 28.841,
+    "aggregates": 23.537
+  },
+  "stats_seconds": 6.213,
+  "spark_version": "4.0.0",
+  "app_id": "app-20261107161336-0047",
+  "metrics": {
+    "config": {
+      "dataset": "orders_5m",
+      "storage_root": "s3a://bigdata",
+      "run_label": "skew_balanced_shuffle_noaqe",
+      "join_strategy": "shuffle",
+      "metrics_dir": "/opt/spark/work-dir/results/metrics/skew/runs/balanced_shuffle_noaqe/r3"
+    },
+    "spark_version": "4.0.0",
+    "app_id": "app-20261107161336-0047",
+    "default_parallelism": 4,
+    "conf": {
+      "spark.sql.shuffle.partitions": "64",
+      "spark.sql.adaptive.enabled": "false",
+      "spark.sql.autoBroadcastJoinThreshold": "-1",
+      "spark.sql.adaptive.skewJoin.enabled": "true",
+      "spark.sql.adaptive.skewJoin.skewedPartitionFactor": "5.0",
+      "spark.sql.adaptive.skewJoin.skewedPartitionThresholdInBytes": "4194304",
+      "spark.sql.adaptive.advisoryPartitionSizeInBytes": "2097152"
+    },
+    "resources": {
+      "spark.executor.memory": null,
+      "spark.executor.cores": null,
+      "spark.driver.memory": null,
+      "spark.cores.max": null,
+      "executor_count": 2
+    },
+    "stage_seconds": {
+      "dimensions": 11.062,
+      "orders": 26.732,
+      "order_items": 37.295,
+      "web_events": 28.841,
+      "aggregates": 23.537
+    },
+    "processing_seconds_total": 127.467,
+    "stats_seconds": 6.213,
+    "tables": {
+      "customers": {
+        "raw_rows": 510000,
+        "clean_rows": 500000,
+        "quarantined_rows": 0,
+        "quarantine_by_reason": {},
+        "duplicates_removed": 10000
+      },
+      "products": {
+        "raw_rows": 20000,
+        "clean_rows": 20000,
+        "quarantined_rows": 0,
+        "quarantine_by_reason": {},
+        "duplicates_removed": 0
+      },
+      "orders": {
+        "raw_rows": 5100000,
+        "clean_rows": 4800044,
+        "quarantined_rows": 199956,
+        "quarantine_by_reason": {
+          "null_customer_id": 99579,
+          "orphan_customer_id": 100377
+        },
+        "duplicates_removed": 100000
+      },
+      "order_items": {
+        "raw_rows": 10201505,
+        "clean_rows": 9024635,
+        "quarantined_rows": 976840,
+        "quarantine_by_reason": {
+          "non_positive_price": 99817,
+          "orphan_product_id": 200490,
+          "non_positive_quantity": 99603,
+          "null_unit_price": 200700,
+          "no_clean_order": 376230
+        },
+        "duplicates_removed": 200030
+      },
+      "web_events": {
+        "raw_rows": 5100000,
+        "clean_rows": 4900063,
+        "quarantined_rows": 99937,
+        "quarantine_by_reason": {
+          "null_customer_id": 99937
+        },
+        "duplicates_removed": 100000
+      }
+    },
+    "aggregate_rows": {
+      "agg_daily_revenue": 731,
+      "agg_revenue_by_region_category": 56,
+      "agg_events_daily": 2193
+    }
+  }
+}

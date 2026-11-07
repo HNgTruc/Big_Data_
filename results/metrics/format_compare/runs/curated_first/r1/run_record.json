@@ -1,0 +1,326 @@
+{
+  "schema_version": 1,
+  "exp": "format_compare",
+  "config": "curated_first",
+  "rep": 1,
+  "label": "format_compare_curated_first",
+  "kind": "query_bench",
+  "dataset": "orders_5m",
+  "params": {
+    "curated_label": "orders_5m",
+    "order": "curated-first",
+    "workers": 2,
+    "shuffle_partitions": 8,
+    "aqe": true
+  },
+  "job_args": [
+    "format",
+    "--dataset",
+    "orders_5m",
+    "--curated-label",
+    "orders_5m",
+    "--order",
+    "curated-first"
+  ],
+  "spark_conf": [],
+  "status": "ok",
+  "exit_code": 0,
+  "error": null,
+  "error_lines": [],
+  "started_at": "2026-11-07T23:21:39+07:00",
+  "ended_at": "2026-11-07T23:22:24+07:00",
+  "wall_seconds": 45.17,
+  "command": [
+    "docker",
+    "compose",
+    "run",
+    "--rm",
+    "--no-deps",
+    "--name",
+    "bench-driver",
+    "spark-master",
+    "/opt/spark/bin/spark-submit",
+    "--master",
+    "spark://spark-master:7077",
+    "--conf",
+    "spark.driver.host=bench-driver",
+    "--conf",
+    "spark.jars.ivy=/opt/spark/work-dir/data/ivy_cache",
+    "--packages",
+    "org.apache.hadoop:hadoop-aws:3.4.1",
+    "/opt/spark/work-dir/src/experiments/common/query_bench.py",
+    "format",
+    "--dataset",
+    "orders_5m",
+    "--curated-label",
+    "orders_5m",
+    "--order",
+    "curated-first",
+    "--out",
+    "/opt/spark/work-dir/results/metrics/format_compare/runs/curated_first/r1/query_bench.json"
+  ],
+  "command_display": "docker compose run --rm --no-deps --name bench-driver spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --conf spark.driver.host=bench-driver --conf spark.jars.ivy=/opt/spark/work-dir/data/ivy_cache --packages org.apache.hadoop:hadoop-aws:3.4.1 /opt/spark/work-dir/src/experiments/common/query_bench.py format --dataset orders_5m --curated-label orders_5m --order curated-first --out /opt/spark/work-dir/results/metrics/format_compare/runs/curated_first/r1/query_bench.json",
+  "cwd": "infra",
+  "git": {
+    "commit": "8164042ded6a8b4bba79af8ca45424f424388f7c",
+    "dirty": true,
+    "dirty_paths": [
+      ".claude/agent-memory/benchmark-analyst/MEMORY.md",
+      ".claude/agent-memory/benchmark-analyst/env_limits.md"
+    ]
+  },
+  "host": {
+    "platform": "Windows-11-10.0.26300-SP0",
+    "python": "3.12.10",
+    "machine": "AMD64"
+  },
+  "workers_expected": 2,
+  "cluster_before": {
+    "alive_workers": 2,
+    "total_alive_cores": 4,
+    "active_apps": 0,
+    "master_status": "ALIVE",
+    "workers": [
+      {
+        "id": "worker-20261107125247-172.19.0.5-35719",
+        "host": "172.19.0.5",
+        "cores": 2,
+        "memory_mb": 2048,
+        "state": "ALIVE"
+      },
+      {
+        "id": "worker-20261107125247-172.19.0.4-43589",
+        "host": "172.19.0.4",
+        "cores": 2,
+        "memory_mb": 2048,
+        "state": "ALIVE"
+      }
+    ]
+  },
+  "cluster_after": {
+    "alive_workers": 2,
+    "total_alive_cores": 4,
+    "active_apps": 0,
+    "master_status": "ALIVE",
+    "workers": [
+      {
+        "id": "worker-20261107125247-172.19.0.5-35719",
+        "host": "172.19.0.5",
+        "cores": 2,
+        "memory_mb": 2048,
+        "state": "ALIVE"
+      },
+      {
+        "id": "worker-20261107125247-172.19.0.4-43589",
+        "host": "172.19.0.4",
+        "cores": 2,
+        "memory_mb": 2048,
+        "state": "ALIVE"
+      }
+    ]
+  },
+  "host_before": {
+    "memory": {
+      "total_bytes": 16924459008,
+      "available_bytes": 955699200,
+      "memory_load_pct": 94,
+      "method": "GlobalMemoryStatusEx"
+    },
+    "foreign_containers": []
+  },
+  "host_after": {
+    "memory": {
+      "total_bytes": 16924459008,
+      "available_bytes": 900747264,
+      "memory_load_pct": 94,
+      "method": "GlobalMemoryStatusEx"
+    }
+  },
+  "pre_cleanup": null,
+  "seed": 42,
+  "dataset_skew": false,
+  "raw_rows_manifest": {
+    "products": 20000,
+    "customers": 510000,
+    "orders": 5100000,
+    "order_items": 10201505,
+    "web_events": 5100000
+  },
+  "raw_rows_total_manifest": 20931505,
+  "runner_options": {
+    "reps": 3,
+    "dry_run": false,
+    "order": "interleaved",
+    "overwrite": false,
+    "resume": false,
+    "timeout_s": 3600.0,
+    "master_url": "http://localhost:8090/json/",
+    "cores_per_worker": 2,
+    "ivy_cache": true,
+    "bucket": "bigdata",
+    "hadoop_aws_version": "3.4.1",
+    "stop_on_failure": false,
+    "cleanup_curated": false
+  },
+  "metrics_path": "results/metrics/format_compare/runs/curated_first/r1/query_bench.json",
+  "log_path": "results/logs/format_compare/curated_first_r1.log",
+  "event_logs": [],
+  "archived_previous": [],
+  "ivy": {
+    "resolve_ms": 289,
+    "download_ms": 108
+  },
+  "processing_seconds_total": null,
+  "stage_seconds": null,
+  "stats_seconds": null,
+  "spark_version": "4.0.0",
+  "app_id": "app-20261107162146-0051",
+  "metrics": {
+    "bench": "format",
+    "dataset": "orders_5m",
+    "curated_label": "orders_5m",
+    "format_order": [
+      "curated",
+      "raw"
+    ],
+    "warmup_seconds": 14.072,
+    "sizes": {
+      "raw": {
+        "customers.csv": {
+          "bytes": 12900318,
+          "files": 1
+        },
+        "orders.csv": {
+          "bytes": 216900022,
+          "files": 1
+        },
+        "order_items.csv": {
+          "bytes": 235521902,
+          "files": 1
+        },
+        "products.parquet": {
+          "bytes": 203748,
+          "files": 1
+        },
+        "web_events.jsonl": {
+          "bytes": 624169274,
+          "files": 1
+        }
+      },
+      "curated": {
+        "customers": {
+          "bytes": 2928012,
+          "files": 6
+        },
+        "products": {
+          "bytes": 165869,
+          "files": 2
+        },
+        "orders": {
+          "bytes": 51783572,
+          "files": 5
+        },
+        "order_items": {
+          "bytes": 65629485,
+          "files": 5
+        },
+        "web_events": {
+          "bytes": 105731092,
+          "files": 5
+        }
+      }
+    },
+    "curated_rows": {
+      "orders": 4800044,
+      "order_items": 9024635,
+      "web_events": 4900063
+    },
+    "measurements": [
+      {
+        "query": "q1_filter_count",
+        "format": "curated",
+        "seq": 0,
+        "seconds": 1.039,
+        "result": {
+          "count": 2880698
+        },
+        "plan_after_run": "== Physical Plan ==\nAdaptiveSparkPlan (15)\n+- == Final Plan ==\n   ResultQueryStage (9)\n   +- * HashAggregate (8)\n      +- ShuffleQueryStage (7), Statistics(sizeInBytes=64.0 B, rowCount=4)\n         +- Exchange (6)\n            +- * HashAggregate (5)\n               +- * Project (4)\n                  +- * Filter (3)\n                     +- * ColumnarToRow (2)\n                        +- Scan parquet  (1)\n+- == Initial Plan ==\n   HashAggregate (14)\n   +- Exchange (13)\n      +- HashAggregate (12)\n         +- Project (11)\n            +- Filter (10)\n               +- Scan parquet  (1)\n\n\n(1) Scan parquet \nOutput [1]: [status#42]\nBatched: true\nLocation: InMemoryFileIndex [s3a://bigdata/curated/orders_5m/orders]\nPushedFilters: [IsNotNull(status), EqualTo(status,delivered)]\nReadSchema: struct<status:string>\n\n(2) ColumnarToRow [codegen id : 1]\nInput [1]: [status#42]\n\n(3) Filter [codegen id : 1]\nInput [1]: [status#42]\nCondition : (isnotnull(status#42) AND (status#42 = delivered))\n\n(4) Project [codegen id : 1]\nOutput: []\nInput [1]: [status#42]\n\n(5) HashAggregate [codegen id : 1]\nInput: []\nKeys: []\nFunctions [1]: [partial_count(1)]\nAggregate Attributes [1]: [count#103L]\nResults [1]: [count#104L]\n\n(6) Exchange\nInput [1]: [count#104L]\nArguments: SinglePartition, ENSURE_REQUIREMENTS, [plan_id=99]\n\n(7) ShuffleQueryStage\nOutput [1]: [count#104L]\nArguments: 0\n\n(8) HashAggregate [codegen id : 2]\nInput [1]: [count#104L]\nKeys: []\nFunctions [1]: [count(1)]\nAggregate Attributes [1]: [count(1)#85L]\nResults [1]: [count(1)#85L AS count#79L]\n\n(9) ResultQueryStage\nOutput [1]: [count#79L]\nArguments: 1\n\n(10) Filter\nInput [1]: [status#42]\nCondition : (isnotnull(status#42) AND (status#42 = delivered))\n\n(11) Project\nOutput: []\nInput [1]: [status#42]\n\n(12) HashAggregate\nInput: []\nKeys: []\nFunctions [1]: [partial_count(1)]\nAggregate Attributes [1]: [count#103L]\nResults [1]: [count#104L]\n\n(13) Exchange\nInput [1]: [count#104L]\nArguments: SinglePartition, ENSURE_REQUIREMENTS, [plan_id=79]\n\n(14) HashAggregate\nInput [1]: [count#104L]\nKeys: []\nFunctions [1]: [count(1)]\nAggregate Attributes [1]: [count(1)#85L]\nResults [1]: [count(1)#85L AS count#79L]\n\n(15) AdaptiveSparkPlan\nOutput [1]: [count#79L]\nArguments: isFinalPlan=true\n\n\n"
+      },
+      {
+        "query": "q1_filter_count",
+        "format": "raw",
+        "seq": 1,
+        "seconds": 1.513,
+        "result": {
+          "count": 3060980
+        },
+        "plan_after_run": "== Physical Plan ==\nAdaptiveSparkPlan (14)\n+- == Final Plan ==\n   ResultQueryStage (8)\n   +- * HashAggregate (7)\n      +- ShuffleQueryStage (6), Statistics(sizeInBytes=64.0 B, rowCount=4)\n         +- Exchange (5)\n            +- * HashAggregate (4)\n               +- * Project (3)\n                  +- * Filter (2)\n                     +- Scan csv  (1)\n+- == Initial Plan ==\n   HashAggregate (13)\n   +- Exchange (12)\n      +- HashAggregate (11)\n         +- Project (10)\n            +- Filter (9)\n               +- Scan csv  (1)\n\n\n(1) Scan csv \nOutput [1]: [status#22]\nBatched: false\nLocation: InMemoryFileIndex [s3a://bigdata/raw/orders_5m/orders.csv]\nPushedFilters: [IsNotNull(status), EqualTo(status,delivered)]\nReadSchema: struct<status:string>\n\n(2) Filter [codegen id : 1]\nInput [1]: [status#22]\nCondition : (isnotnull(status#22) AND (status#22 = delivered))\n\n(3) Project [codegen id : 1]\nOutput: []\nInput [1]: [status#22]\n\n(4) HashAggregate [codegen id : 1]\nInput: []\nKeys: []\nFunctions [1]: [partial_count(1)]\nAggregate Attributes [1]: [count#105L]\nResults [1]: [count#106L]\n\n(5) Exchange\nInput [1]: [count#106L]\nArguments: SinglePartition, ENSURE_REQUIREMENTS, [plan_id=145]\n\n(6) ShuffleQueryStage\nOutput [1]: [count#106L]\nArguments: 0\n\n(7) HashAggregate [codegen id : 2]\nInput [1]: [count#106L]\nKeys: []\nFunctions [1]: [count(1)]\nAggregate Attributes [1]: [count(1)#60L]\nResults [1]: [count(1)#60L AS count#54L]\n\n(8) ResultQueryStage\nOutput [1]: [count#54L]\nArguments: 1\n\n(9) Filter\nInput [1]: [status#22]\nCondition : (isnotnull(status#22) AND (status#22 = delivered))\n\n(10) Project\nOutput: []\nInput [1]: [status#22]\n\n(11) HashAggregate\nInput: []\nKeys: []\nFunctions [1]: [partial_count(1)]\nAggregate Attributes [1]: [count#105L]\nResults [1]: [count#106L]\n\n(12) Exchange\nInput [1]: [count#106L]\nArguments: SinglePartition, ENSURE_REQUIREMENTS, [plan_id=131]\n\n(13) HashAggregate\nInput [1]: [count#106L]\nKeys: []\nFunctions [1]: [count(1)]\nAggregate Attributes [1]: [count(1)#60L]\nResults [1]: [count(1)#60L AS count#54L]\n\n(14) AdaptiveSparkPlan\nOutput [1]: [count#54L]\nArguments: isFinalPlan=true\n\n\n"
+      },
+      {
+        "query": "q2_events_by_type",
+        "format": "curated",
+        "seq": 2,
+        "seconds": 0.651,
+        "result": {
+          "groups": {
+            "purchase": 245244,
+            "add_to_cart": 734465,
+            "view": 3920354
+          }
+        },
+        "plan_after_run": "== Physical Plan ==\nAdaptiveSparkPlan (12)\n+- == Final Plan ==\n   ResultQueryStage (8)\n   +- * HashAggregate (7)\n      +- AQEShuffleRead (6)\n         +- ShuffleQueryStage (5), Statistics(sizeInBytes=416.0 B, rowCount=12)\n            +- Exchange (4)\n               +- * HashAggregate (3)\n                  +- * ColumnarToRow (2)\n                     +- Scan parquet  (1)\n+- == Initial Plan ==\n   HashAggregate (11)\n   +- Exchange (10)\n      +- HashAggregate (9)\n         +- Scan parquet  (1)\n\n\n(1) Scan parquet \nOutput [1]: [event_type#53]\nBatched: true\nLocation: InMemoryFileIndex [s3a://bigdata/curated/orders_5m/web_events]\nReadSchema: struct<event_type:string>\n\n(2) ColumnarToRow [codegen id : 1]\nInput [1]: [event_type#53]\n\n(3) HashAggregate [codegen id : 1]\nInput [1]: [event_type#53]\nKeys [1]: [event_type#53]\nFunctions [1]: [partial_count(1)]\nAggregate Attributes [1]: [count#108L]\nResults [2]: [event_type#53, count#109L]\n\n(4) Exchange\nInput [2]: [event_type#53, count#109L]\nArguments: hashpartitioning(event_type#53, 8), ENSURE_REQUIREMENTS, [plan_id=186]\n\n(5) ShuffleQueryStage\nOutput [2]: [event_type#53, count#109L]\nArguments: 0\n\n(6) AQEShuffleRead\nInput [2]: [event_type#53, count#109L]\nArguments: coalesced\n\n(7) HashAggregate [codegen id : 2]\nInput [2]: [event_type#53, count#109L]\nKeys [1]: [event_type#53]\nFunctions [1]: [count(1)]\nAggregate Attributes [1]: [count(1)#92L]\nResults [2]: [event_type#53, count(1)#92L AS count#86L]\n\n(8) ResultQueryStage\nOutput [2]: [event_type#53, count#86L]\nArguments: 1\n\n(9) HashAggregate\nInput [1]: [event_type#53]\nKeys [1]: [event_type#53]\nFunctions [1]: [partial_count(1)]\nAggregate Attributes [1]: [count#108L]\nResults [2]: [event_type#53, count#109L]\n\n(10) Exchange\nInput [2]: [event_type#53, count#109L]\nArguments: hashpartitioning(event_type#53, 8), ENSURE_REQUIREMENTS, [plan_id=172]\n\n(11) HashAggregate\nInput [2]: [event_type#53, count#109L]\nKeys [1]: [event_type#53]\nFunctions [1]: [count(1)]\nAggregate Attributes [1]: [count(1)#92L]\nResults [2]: [event_type#53, count(1)#92L AS count#86L]\n\n(12) AdaptiveSparkPlan\nOutput [2]: [event_type#53, count#86L]\nArguments: isFinalPlan=true\n\n\n"
+      },
+      {
+        "query": "q2_events_by_type",
+        "format": "raw",
+        "seq": 3,
+        "seconds": 2.256,
+        "result": {
+          "groups": {
+            "purchase": 255141,
+            "add_to_cart": 764431,
+            "view": 4080428
+          }
+        },
+        "plan_after_run": "== Physical Plan ==\nAdaptiveSparkPlan (11)\n+- == Final Plan ==\n   ResultQueryStage (7)\n   +- * HashAggregate (6)\n      +- AQEShuffleRead (5)\n         +- ShuffleQueryStage (4), Statistics(sizeInBytes=520.0 B, rowCount=15)\n            +- Exchange (3)\n               +- * HashAggregate (2)\n                  +- Scan json  (1)\n+- == Initial Plan ==\n   HashAggregate (10)\n   +- Exchange (9)\n      +- HashAggregate (8)\n         +- Scan json  (1)\n\n\n(1) Scan json \nOutput [1]: [event_type#36]\nBatched: false\nLocation: InMemoryFileIndex [s3a://bigdata/raw/orders_5m/web_events.jsonl]\nReadSchema: struct<event_type:string>\n\n(2) HashAggregate [codegen id : 1]\nInput [1]: [event_type#36]\nKeys [1]: [event_type#36]\nFunctions [1]: [partial_count(1)]\nAggregate Attributes [1]: [count#110L]\nResults [2]: [event_type#36, count#111L]\n\n(3) Exchange\nInput [2]: [event_type#36, count#111L]\nArguments: hashpartitioning(event_type#36, 8), ENSURE_REQUIREMENTS, [plan_id=224]\n\n(4) ShuffleQueryStage\nOutput [2]: [event_type#36, count#111L]\nArguments: 0\n\n(5) AQEShuffleRead\nInput [2]: [event_type#36, count#111L]\nArguments: coalesced\n\n(6) HashAggregate [codegen id : 2]\nInput [2]: [event_type#36, count#111L]\nKeys [1]: [event_type#36]\nFunctions [1]: [count(1)]\nAggregate Attributes [1]: [count(1)#67L]\nResults [2]: [event_type#36, count(1)#67L AS count#61L]\n\n(7) ResultQueryStage\nOutput [2]: [event_type#36, count#61L]\nArguments: 1\n\n(8) HashAggregate\nInput [1]: [event_type#36]\nKeys [1]: [event_type#36]\nFunctions [1]: [partial_count(1)]\nAggregate Attributes [1]: [count#110L]\nResults [2]: [event_type#36, count#111L]\n\n(9) Exchange\nInput [2]: [event_type#36, count#111L]\nArguments: hashpartitioning(event_type#36, 8), ENSURE_REQUIREMENTS, [plan_id=214]\n\n(10) HashAggregate\nInput [2]: [event_type#36, count#111L]\nKeys [1]: [event_type#36]\nFunctions [1]: [count(1)]\nAggregate Attributes [1]: [count(1)#67L]\nResults [2]: [event_type#36, count(1)#67L AS count#61L]\n\n(11) AdaptiveSparkPlan\nOutput [2]: [event_type#36, count#61L]\nArguments: isFinalPlan=true\n\n\n"
+      },
+      {
+        "query": "q3_daily_revenue_join",
+        "format": "curated",
+        "seq": 4,
+        "seconds": 3.619,
+        "result": {
+          "rows": 731,
+          "revenue_total": 700264598.73
+        },
+        "plan_after_run": "== Physical Plan ==\nAdaptiveSparkPlan (36)\n+- == Final Plan ==\n   ResultQueryStage (23)\n   +- * HashAggregate (22)\n      +- AQEShuffleRead (21)\n         +- ShuffleQueryStage (20), Statistics(sizeInBytes=68.5 KiB, rowCount=2.92E+3)\n            +- Exchange (19)\n               +- * HashAggregate (18)\n                  +- * Project (17)\n                     +- * SortMergeJoin Inner (16)\n                        :- * Sort (7)\n                        :  +- AQEShuffleRead (6)\n                        :     +- ShuffleQueryStage (5), Statistics(sizeInBytes=275.4 MiB, rowCount=9.02E+6)\n                        :        +- Exchange (4)\n                        :           +- * Filter (3)\n                        :              +- * ColumnarToRow (2)\n                        :                 +- Scan parquet  (1)\n                        +- * Sort (15)\n                           +- AQEShuffleRead (14)\n                              +- ShuffleQueryStage (13), Statistics(sizeInBytes=93.4 MiB, rowCount=4.08E+6)\n                                 +- Exchange (12)\n                                    +- * Project (11)\n                                       +- * Filter (10)\n                                          +- * ColumnarToRow (9)\n                                             +- Scan parquet  (8)\n+- == Initial Plan ==\n   HashAggregate (35)\n   +- Exchange (34)\n      +- HashAggregate (33)\n         +- Project (32)\n            +- SortMergeJoin Inner (31)\n               :- Sort (26)\n               :  +- Exchange (25)\n               :     +- Filter (24)\n               :        +- Scan parquet  (1)\n               +- Sort (30)\n                  +- Exchange (29)\n                     +- Project (28)\n                        +- Filter (27)\n                           +- Scan parquet  (8)\n\n\n(1) Scan parquet \nOutput [3]: [order_id#44L, quantity#47, unit_price#48]\nBatched: true\nLocation: InMemoryFileIndex [s3a://bigdata/curated/orders_5m/order_items]\nPushedFilters: [IsNotNull(order_id)]\nReadSchema: struct<order_id:bigint,quantity:int,unit_price:double>\n\n(2) ColumnarToRow [codegen id : 1]\nInput [3]: [order_id#44L, quantity#47, unit_price#48]\n\n(3) Filter [codegen id : 1]\nInput [3]: [order_id#44L, quantity#47, unit_price#48]\nCondition : isnotnull(order_id#44L)\n\n(4) Exchange\nInput [3]: [order_id#44L, quantity#47, unit_price#48]\nArguments: hashpartitioning(order_id#44L, 8), ENSURE_REQUIREMENTS, [plan_id=317]\n\n(5) ShuffleQueryStage\nOutput [3]: [order_id#44L, quantity#47, unit_price#48]\nArguments: 0\n\n(6) AQEShuffleRead\nInput [3]: [order_id#44L, quantity#47, unit_price#48]\nArguments: coalesced\n\n(7) Sort [codegen id : 3]\nInput [3]: [order_id#44L, quantity#47, unit_price#48]\nArguments: [order_id#44L ASC NULLS FIRST], false, 0\n\n(8) Scan parquet \nOutput [3]: [order_id#39L, order_date#41, status#42]\nBatched: true\nLocation: InMemoryFileIndex [s3a://bigdata/curated/orders_5m/orders]\nPushedFilters: [In(status, [delivered,paid,shipped]), IsNotNull(order_id)]\nReadSchema: struct<order_id:bigint,order_date:date,status:string>\n\n(9) ColumnarToRow [codegen id : 2]\nInput [3]: [order_id#39L, order_date#41, status#42]\n\n(10) Filter [codegen id : 2]\nInput [3]: [order_id#39L, order_date#41, status#42]\nCondition : (status#42 IN (paid,shipped,delivered) AND isnotnull(order_id#39L))\n\n(11) Project [codegen id : 2]\nOutput [2]: [order_id#39L, order_date#41]\nInput [3]: [order_id#39L, order_date#41, status#42]\n\n(12) Exchange\nInput [2]: [order_id#39L, order_date#41]\nArguments: hashpartitioning(order_id#39L, 8), ENSURE_REQUIREMENTS, [plan_id=336]\n\n(13) ShuffleQueryStage\nOutput [2]: [order_id#39L, order_date#41]\nArguments: 1\n\n(14) AQEShuffleRead\nInput [2]: [order_id#39L, order_date#41]\nArguments: coalesced\n\n(15) Sort [codegen id : 4]\nInput [2]: [order_id#39L, order_date#41]\nArguments: [order_id#39L ASC NULLS FIRST], false, 0\n\n(16) SortMergeJoin [codegen id : 5]\nLeft keys [1]: [order_id#44L]\nRight keys [1]: [order_id#39L]\nJoin type: Inner\nJoin condition: None\n\n(17) Project [codegen id : 5]\nOutput [3]: [quantity#47, unit_price#48, order_date#41]\nInput [5]: [order_id#44L, quantity#47, unit_price#48, order_id#39L, order_date#41]\n\n(18) HashAggregate [codegen id : 5]\nInput [3]: [quantity#47, unit_price#48, order_date#41]\nKeys [1]: [order_date#41]\nFunctions [1]: [partial_sum((cast(quantity#47 as double) * unit_price#48))]\nAggregate Attributes [1]: [sum#113]\nResults [2]: [order_date#41, sum#114]\n\n(19) Exchange\nInput [2]: [order_date#41, sum#114]\nArguments: hashpartitioning(order_date#41, 8), ENSURE_REQUIREMENTS, [plan_id=431]\n\n(20) ShuffleQueryStage\nOutput [2]: [order_date#41, sum#114]\nArguments: 2\n\n(21) AQEShuffleRead\nInput [2]: [order_date#41, sum#114]\nArguments: coalesced\n\n(22) HashAggregate [codegen id : 6]\nInput [2]: [order_date#41, sum#114]\nKeys [1]: [order_date#41]\nFunctions [1]: [sum((cast(quantity#47 as double) * unit_price#48))]\nAggregate Attributes [1]: [sum((cast(quantity#47 as double) * unit_price#48))#102]\nResults [2]: [order_date#41, sum((cast(quantity#47 as double) * unit_price#48))#102 AS revenue#95]\n\n(23) ResultQueryStage\nOutput [2]: [order_date#41, revenue#95]\nArguments: 3\n\n(24) Filter\nInput [3]: [order_id#44L, quantity#47, unit_price#48]\nCondition : isnotnull(order_id#44L)\n\n(25) Exchange\nInput [3]: [order_id#44L, quantity#47, unit_price#48]\nArguments: hashpartitioning(order_id#44L, 8), ENSURE_REQUIREMENTS, [plan_id=276]\n\n(26) Sort\nInput [3]: [order_id#44L, quantity#47, unit_price#48]\nArguments: [order_id#44L ASC NULLS FIRST], false, 0\n\n(27) Filter\nInput [3]: [order_id#39L, order_date#41, status#42]\nCondition : (status#42 IN (paid,shipped,delivered) AND isnotnull(order_id#39L))\n\n(28) Project\nOutput [2]: [order_id#39L, order_date#41]\nInput [3]: [order_id#39L, order_date#41, status#42]\n\n(29) Exchange\nInput [2]: [order_id#39L, order_date#41]\nArguments: hashpartitioning(order_id#39L, 8), ENSURE_REQUIREMENTS, [plan_id=277]\n\n(30) Sort\nInput [2]: [order_id#39L, order_date#41]\nArguments: [order_id#39L ASC NULLS FIRST], false, 0\n\n(31) SortMergeJoin\nLeft keys [1]: [order_id#44L]\nRight keys [1]: [order_id#39L]\nJoin type: Inner\nJoin condition: None\n\n(32) Project\nOutput [3]: [quantity#47, unit_price#48, order_date#41]\nInput [5]: [order_id#44L, quantity#47, unit_price#48, order_id#39L, order_date#41]\n\n(33) HashAggregate\nInput [3]: [quantity#47, unit_price#48, order_date#41]\nKeys [1]: [order_date#41]\nFunctions [1]: [partial_sum((cast(quantity#47 as double) * unit_price#48))]\nAggregate Attributes [1]: [sum#113]\nResults [2]: [order_date#41, sum#114]\n\n(34) Exchange\nInput [2]: [order_date#41, sum#114]\nArguments: hashpartitioning(order_date#41, 8), ENSURE_REQUIREMENTS, [plan_id=284]\n\n(35) HashAggregate\nInput [2]: [order_date#41, sum#114]\nKeys [1]: [order_date#41]\nFunctions [1]: [sum((cast(quantity#47 as double) * unit_price#48))]\nAggregate Attributes [1]: [sum((cast(quantity#47 as double) * unit_price#48))#102]\nResults [2]: [order_date#41, sum((cast(quantity#47 as double) * unit_price#48))#102 AS revenue#95]\n\n(36) AdaptiveSparkPlan\nOutput [2]: [order_date#41, revenue#95]\nArguments: isFinalPlan=true\n\n\n"
+      },
+      {
+        "query": "q3_daily_revenue_join",
+        "format": "raw",
+        "seq": 5,
+        "seconds": 7.093,
+        "result": {
+          "rows": 731,
+          "revenue_total": 767333901.89
+        },
+        "plan_after_run": "== Physical Plan ==\nAdaptiveSparkPlan (34)\n+- == Final Plan ==\n   ResultQueryStage (21)\n   +- * HashAggregate (20)\n      +- AQEShuffleRead (19)\n         +- ShuffleQueryStage (18), Statistics(sizeInBytes=68.5 KiB, rowCount=2.92E+3)\n            +- Exchange (17)\n               +- * HashAggregate (16)\n                  +- * Project (15)\n                     +- * SortMergeJoin Inner (14)\n                        :- * Sort (6)\n                        :  +- AQEShuffleRead (5)\n                        :     +- ShuffleQueryStage (4), Statistics(sizeInBytes=311.3 MiB, rowCount=1.02E+7)\n                        :        +- Exchange (3)\n                        :           +- * Filter (2)\n                        :              +- Scan csv  (1)\n                        +- * Sort (13)\n                           +- AQEShuffleRead (12)\n                              +- ShuffleQueryStage (11), Statistics(sizeInBytes=99.3 MiB, rowCount=4.34E+6)\n                                 +- Exchange (10)\n                                    +- * Project (9)\n                                       +- * Filter (8)\n                                          +- Scan csv  (7)\n+- == Initial Plan ==\n   HashAggregate (33)\n   +- Exchange (32)\n      +- HashAggregate (31)\n         +- Project (30)\n            +- SortMergeJoin Inner (29)\n               :- Sort (24)\n               :  +- Exchange (23)\n               :     +- Filter (22)\n               :        +- Scan csv  (1)\n               +- Sort (28)\n                  +- Exchange (27)\n                     +- Project (26)\n                        +- Filter (25)\n                           +- Scan csv  (7)\n\n\n(1) Scan csv \nOutput [3]: [order_id#24L, quantity#27, unit_price#28]\nBatched: false\nLocation: InMemoryFileIndex [s3a://bigdata/raw/orders_5m/order_items.csv]\nPushedFilters: [IsNotNull(order_id)]\nReadSchema: struct<order_id:bigint,quantity:int,unit_price:double>\n\n(2) Filter [codegen id : 1]\nInput [3]: [order_id#24L, quantity#27, unit_price#28]\nCondition : isnotnull(order_id#24L)\n\n(3) Exchange\nInput [3]: [order_id#24L, quantity#27, unit_price#28]\nArguments: hashpartitioning(order_id#24L, 8), ENSURE_REQUIREMENTS, [plan_id=535]\n\n(4) ShuffleQueryStage\nOutput [3]: [order_id#24L, quantity#27, unit_price#28]\nArguments: 0\n\n(5) AQEShuffleRead\nInput [3]: [order_id#24L, quantity#27, unit_price#28]\nArguments: coalesced\n\n(6) Sort [codegen id : 3]\nInput [3]: [order_id#24L, quantity#27, unit_price#28]\nArguments: [order_id#24L ASC NULLS FIRST], false, 0\n\n(7) Scan csv \nOutput [3]: [order_id#19L, order_date#21, status#22]\nBatched: false\nLocation: InMemoryFileIndex [s3a://bigdata/raw/orders_5m/orders.csv]\nPushedFilters: [In(status, [delivered,paid,shipped]), IsNotNull(order_id)]\nReadSchema: struct<order_id:bigint,order_date:string,status:string>\n\n(8) Filter [codegen id : 2]\nInput [3]: [order_id#19L, order_date#21, status#22]\nCondition : (status#22 IN (paid,shipped,delivered) AND isnotnull(order_id#19L))\n\n(9) Project [codegen id : 2]\nOutput [2]: [order_id#19L, CASE WHEN RLIKE(order_date#21, ^\\d{4}-\\d{2}-\\d{2}$) THEN cast(gettimestamp(order_date#21, yyyy-MM-dd, TimestampType, try_to_date, Some(Etc/UTC), false) as date) WHEN RLIKE(order_date#21, ^\\d{2}/\\d{2}/\\d{4}$) THEN cast(gettimestamp(order_date#21, dd/MM/yyyy, TimestampType, try_to_date, Some(Etc/UTC), false) as date) WHEN RLIKE(order_date#21, ^\\d{8}$) THEN cast(gettimestamp(order_date#21, yyyyMMdd, TimestampType, try_to_date, Some(Etc/UTC), false) as date) WHEN RLIKE(order_date#21, ^\\d{2}-\\d{2}-\\d{4}$) THEN cast(gettimestamp(order_date#21, dd-MM-yyyy, TimestampType, try_to_date, Some(Etc/UTC), false) as date) END AS order_date#38]\nInput [3]: [order_id#19L, order_date#21, status#22]\n\n(10) Exchange\nInput [2]: [order_id#19L, order_date#38]\nArguments: hashpartitioning(order_id#19L, 8), ENSURE_REQUIREMENTS, [plan_id=548]\n\n(11) ShuffleQueryStage\nOutput [2]: [order_id#19L, order_date#38]\nArguments: 1\n\n(12) AQEShuffleRead\nInput [2]: [order_id#19L, order_date#38]\nArguments: coalesced\n\n(13) Sort [codegen id : 4]\nInput [2]: [order_id#19L, order_date#38]\nArguments: [order_id#19L ASC NULLS FIRST], false, 0\n\n(14) SortMergeJoin [codegen id : 5]\nLeft keys [1]: [order_id#24L]\nRight keys [1]: [order_id#19L]\nJoin type: Inner\nJoin condition: None\n\n(15) Project [codegen id : 5]\nOutput [3]: [quantity#27, unit_price#28, order_date#38]\nInput [5]: [order_id#24L, quantity#27, unit_price#28, order_id#19L, order_date#38]\n\n(16) HashAggregate [codegen id : 5]\nInput [3]: [quantity#27, unit_price#28, order_date#38]\nKeys [1]: [order_date#38]\nFunctions [1]: [partial_sum((cast(quantity#27 as double) * unit_price#28))]\nAggregate Attributes [1]: [sum#118]\nResults [2]: [order_date#38, sum#119]\n\n(17) Exchange\nInput [2]: [order_date#38, sum#119]\nArguments: hashpartitioning(order_date#38, 8), ENSURE_REQUIREMENTS, [plan_id=642]\n\n(18) ShuffleQueryStage\nOutput [2]: [order_date#38, sum#119]\nArguments: 2\n\n(19) AQEShuffleRead\nInput [2]: [order_date#38, sum#119]\nArguments: coalesced\n\n(20) HashAggregate [codegen id : 6]\nInput [2]: [order_date#38, sum#119]\nKeys [1]: [order_date#38]\nFunctions [1]: [sum((cast(quantity#27 as double) * unit_price#28))]\nAggregate Attributes [1]: [sum((cast(quantity#27 as double) * unit_price#28))#77]\nResults [2]: [order_date#38, sum((cast(quantity#27 as double) * unit_price#28))#77 AS revenue#70]\n\n(21) ResultQueryStage\nOutput [2]: [order_date#38, revenue#70]\nArguments: 3\n\n(22) Filter\nInput [3]: [order_id#24L, quantity#27, unit_price#28]\nCondition : isnotnull(order_id#24L)\n\n(23) Exchange\nInput [3]: [order_id#24L, quantity#27, unit_price#28]\nArguments: hashpartitioning(order_id#24L, 8), ENSURE_REQUIREMENTS, [plan_id=498]\n\n(24) Sort\nInput [3]: [order_id#24L, quantity#27, unit_price#28]\nArguments: [order_id#24L ASC NULLS FIRST], false, 0\n\n(25) Filter\nInput [3]: [order_id#19L, order_date#21, status#22]\nCondition : (status#22 IN (paid,shipped,delivered) AND isnotnull(order_id#19L))\n\n(26) Project\nOutput [2]: [order_id#19L, CASE WHEN RLIKE(order_date#21, ^\\d{4}-\\d{2}-\\d{2}$) THEN cast(gettimestamp(order_date#21, yyyy-MM-dd, TimestampType, try_to_date, Some(Etc/UTC), false) as date) WHEN RLIKE(order_date#21, ^\\d{2}/\\d{2}/\\d{4}$) THEN cast(gettimestamp(order_date#21, dd/MM/yyyy, TimestampType, try_to_date, Some(Etc/UTC), false) as date) WHEN RLIKE(order_date#21, ^\\d{8}$) THEN cast(gettimestamp(order_date#21, yyyyMMdd, TimestampType, try_to_date, Some(Etc/UTC), false) as date) WHEN RLIKE(order_date#21, ^\\d{2}-\\d{2}-\\d{4}$) THEN cast(gettimestamp(order_date#21, dd-MM-yyyy, TimestampType, try_to_date, Some(Etc/UTC), false) as date) END AS order_date#38]\nInput [3]: [order_id#19L, order_date#21, status#22]\n\n(27) Exchange\nInput [2]: [order_id#19L, order_date#38]\nArguments: hashpartitioning(order_id#19L, 8), ENSURE_REQUIREMENTS, [plan_id=499]\n\n(28) Sort\nInput [2]: [order_id#19L, order_date#38]\nArguments: [order_id#19L ASC NULLS FIRST], false, 0\n\n(29) SortMergeJoin\nLeft keys [1]: [order_id#24L]\nRight keys [1]: [order_id#19L]\nJoin type: Inner\nJoin condition: None\n\n(30) Project\nOutput [3]: [quantity#27, unit_price#28, order_date#38]\nInput [5]: [order_id#24L, quantity#27, unit_price#28, order_id#19L, order_date#38]\n\n(31) HashAggregate\nInput [3]: [quantity#27, unit_price#28, order_date#38]\nKeys [1]: [order_date#38]\nFunctions [1]: [partial_sum((cast(quantity#27 as double) * unit_price#28))]\nAggregate Attributes [1]: [sum#118]\nResults [2]: [order_date#38, sum#119]\n\n(32) Exchange\nInput [2]: [order_date#38, sum#119]\nArguments: hashpartitioning(order_date#38, 8), ENSURE_REQUIREMENTS, [plan_id=506]\n\n(33) HashAggregate\nInput [2]: [order_date#38, sum#119]\nKeys [1]: [order_date#38]\nFunctions [1]: [sum((cast(quantity#27 as double) * unit_price#28))]\nAggregate Attributes [1]: [sum((cast(quantity#27 as double) * unit_price#28))#77]\nResults [2]: [order_date#38, sum((cast(quantity#27 as double) * unit_price#28))#77 AS revenue#70]\n\n(34) AdaptiveSparkPlan\nOutput [2]: [order_date#38, revenue#70]\nArguments: isFinalPlan=true\n\n\n"
+      }
+    ],
+    "spark_version": "4.0.0",
+    "app_id": "app-20261107162146-0051",
+    "default_parallelism": 4,
+    "resources": {
+      "spark.executor.memory": null,
+      "spark.executor.cores": null,
+      "spark.driver.memory": null,
+      "spark.cores.max": null,
+      "executor_count": 2
+    },
+    "conf": {
+      "spark.sql.shuffle.partitions": "8",
+      "spark.sql.adaptive.enabled": "true",
+      "spark.sql.autoBroadcastJoinThreshold": "10485760b"
+    }
+  }
+}
