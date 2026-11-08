@@ -20,6 +20,7 @@ Phạm vi: giai đoạn **Storage → Processing** trong pipeline Big Data, dùn
 | `results/` | Log, số đo, hình — bằng chứng thực nghiệm | [results/README.md](results/README.md) |
 | `report/` | Báo cáo theo đúng cấu trúc đề yêu cầu | [report/README.md](report/README.md) |
 | `report/build/` | Script sinh file Word báo cáo từ Markdown | [report/build/README.md](report/build/README.md) |
+| `report/review/` | Kết quả các vòng kiểm chứng báo cáo | [report/review/README.md](report/review/README.md) |
 | `report/sections/` | Nội dung từng chương báo cáo (Markdown, nguồn để sinh file Word) | [report/sections/README.md](report/sections/README.md) |
 | `tests/` | Kiểm thử cho các job | [tests/README.md](tests/README.md) |
 

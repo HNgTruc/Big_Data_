@@ -31,3 +31,6 @@ Thumbs.db
 
 # Local secrets/config
 .env
+
+# Lecturer slides: local copies for verification only, not redistributed
+docs/references/slides/

@@ -10,12 +10,15 @@ https://drive.google.com/drive/folders/1C1XIeoK9iBAX2bO2sCNdRCTyi_r5Pyx_
 | 2 | Tính toán song song và phân tán, partitioning, skew, Amdahl, speedup/efficiency, CAP | 2, 6, 8 |
 | 3 | MapReduce, Hadoop, combiner, partitioner | 2 |
 | 4 | Hệ thống lưu trữ: HDFS, GFS, Lustre, object storage, Parquet/ORC, Iceberg/Delta | 2, 3, 4 |
-| 5 | Spark: RDD, DAG, DataFrame, Spark SQL, shuffle, cache, broadcast join | 2, 4, 5, 6 |
+| 5 | Spark và Data Analytics (tên tệp: "Chương 5 — Spark và Data Analytics.pdf"): RDD, DAG, DataFrame, Spark SQL, shuffle, cache, broadcast join | 2, 4, 5, 6 |
 | 6 | Streaming (Kafka, window, watermark) | tham khảo giai đoạn Ingestion |
 | 7 | Clustering và Classification | tham khảo giai đoạn Analytics |
 | 8 | Graph computing | tham khảo giai đoạn Analytics |
 
 Chương 9 (trực quan hóa) có trong đề cương nhưng chưa có slide trên Drive.
+
+Bản sao cục bộ để kiểm chứng: đặt các PDF slide vào `docs/references/slides/` (thư mục bị `.gitignore` loại, không đưa slide của giảng viên lên git).
+Tên file gợi ý: `chuong-1.pdf`, `chuong-2.pdf`, `chuong-4.pdf`, `chuong-5.pdf`.
 
 ## Tài liệu khác
 - `Đề cương_Nhập môn dữ liệu lớn.pdf` — đề cương chi tiết học phần (mã học phần 841150, 4 tín chỉ).
