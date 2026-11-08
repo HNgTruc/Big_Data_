@@ -6,19 +6,14 @@ Chương này trình bày kiến trúc tổng thể, cách tổ chức vùng lư
 
 Hệ thống gồm hai lớp chạy trong Docker Compose trên cùng một máy:
 
-- **Lớp lưu trữ:** MinIO, một hệ lưu trữ đối tượng tương thích giao thức S3, giữ dữ liệu thô, dữ liệu sạch và dữ liệu cách ly trong bucket `bigdata`. Lưu trữ đối tượng tách rời lưu trữ khỏi tính toán, khác với HDFS nơi dữ liệu nằm trên chính các nút tính toán (slide chương 4 [@slide-c4]).
+- **Lớp lưu trữ:** MinIO, một hệ lưu trữ đối tượng tương thích giao thức S3 [CHƯA CÓ: nguồn MinIO], giữ dữ liệu thô, dữ liệu sạch và dữ liệu cách ly trong bucket `bigdata`. Lưu trữ đối tượng tách rời lưu trữ khỏi tính toán, khác với HDFS nơi dữ liệu nằm trên chính các nút tính toán (slide chương 4 [@slide-c4]).
 - **Lớp xử lý:** cụm Apache Spark ở chế độ standalone gồm 1 master và 2 worker; mỗi worker cấp 2 lõi và tối đa 2 GB RAM. Job PySpark được nộp bằng `spark-submit` từ một container driver riêng và đọc ghi MinIO qua connector S3A của Hadoop (`hadoop-aws`) [@hadoop-s3a].
 
-[CHƯA CÓ: sơ đồ kiến trúc, cần vẽ theo mô tả dưới đây rồi chèn hình vào vị trí này.]
+![Kiến trúc hệ thống](report/figures/kien-truc.png){#fig:kien-truc}
 
-Mô tả sơ đồ cần vẽ (dùng để dựng hình):
+Nguồn: nhóm tự vẽ từ infra/docker-compose.yml và src/etl/pipeline.py (script report/build/draw_architecture.py)
 
-1. Máy host Windows: bộ sinh dữ liệu ghi `data/raw/<bộ>/` (CSV, Parquet, JSON lines, `manifest.json`).
-2. Container `minio-init` (lệnh `mc cp`) chép dữ liệu thô lên `s3a://bigdata/raw/<bộ>/` (giao thức S3, cổng 9000).
-3. Container driver (`etl-driver` hoặc `bench-driver`) chạy `spark-submit`, kết nối master qua `spark://spark-master:7077`.
-4. Master phân task cho `spark-worker-1` và `spark-worker-2`; mỗi worker chạy một executor (2 lõi, heap 1 GB).
-5. Executor đọc `raw/`, ghi `curated/<nhãn>/` và `quarantine/<nhãn>/` dưới dạng Parquet qua S3A.
-6. Driver ghi metrics JSON và log vào thư mục `results/` được gắn (bind mount) từ máy host.
+@fig:kien-truc thể hiện luồng dữ liệu và luồng điều khiển của hệ thống. Bộ sinh dữ liệu (`src/data_generation`, seed 42) chạy trên máy host và ghi `data/raw/<bộ>/` (CSV, Parquet, JSON lines, `manifest.json`). Container `minio-init` chép dữ liệu này lên vùng `raw/` của MinIO (`s3a://bigdata/raw/<bộ>/`, giao thức S3, cổng 9000) bằng lệnh `mc cp`. Driver chạy trong một container riêng (`etl-driver` hoặc `bench-driver`) do `docker compose run` tạo, gọi `spark-submit src/etl/etl_job.py` và nộp ứng dụng tới master qua `spark://spark-master:7077`. Master cấp executor trên các worker `spark-worker-1` và `spark-worker-2`, còn driver mới là bên gửi task cho executor [@spark-cluster]; mỗi worker chạy một executor (2 lõi, heap 1 GB). Executor đọc `raw/`, làm sạch, join, tổng hợp, rồi ghi `curated/<nhãn>/` và `quarantine/<nhãn>/` dạng Parquet qua S3A. Metrics và log về thư mục `results/` trên host: metrics JSON do driver ghi qua thư mục gắn bind mount, còn log là stdout và stderr của driver do bộ điều khiển trên host ghi lại.
 
 Bảng: Thành phần hệ thống và vai trò {#tbl:thanh-phan}
 
@@ -26,9 +21,9 @@ Bảng: Thành phần hệ thống và vai trò {#tbl:thanh-phan}
 |---|---|---|
 | `minio` | Lưu trữ đối tượng, API S3 và giao diện console | Cổng 9000 (S3), 9001 (console) |
 | `minio-init` | Tạo bucket; dùng lại để chép dữ liệu thô bằng `mc` | S3 tới `minio:9000` |
-| `spark-master` | Quản lý cụm, giao diện Master UI | 7077 (cụm), 8090 trên host (UI) |
+| `spark-master` | Quản lý cụm, cấp executor cho ứng dụng, giao diện Master UI | 7077 (cụm), 8090 trên host (UI) |
 | `spark-worker-1`, `spark-worker-2` | Chạy executor | Đăng ký với master |
-| Container driver | Chạy chương trình driver của job PySpark | `spark.driver.host` = tên container |
+| Container driver | Chạy chương trình driver của job PySpark: nộp ứng dụng tới master, gửi task cho executor | `spark.driver.host` = tên container |
 
 Nguồn: infra/docker-compose.yml, infra/README.md
 
@@ -93,7 +88,7 @@ Nguồn: docs/design/etl.md
 
 **Ghi rồi đọc lại giữa các giai đoạn.** Ngoài việc đo được từng giai đoạn, cách này cắt chuỗi phụ thuộc (lineage) của DataFrame, tránh việc Spark tính lại toàn bộ chuỗi biến đổi từ dữ liệu thô ở giai đoạn sau. Đây là nhận định của người viết; đổi lại, mỗi giai đoạn phải trả thêm chi phí ghi và đọc Parquet trên MinIO.
 
-**Cấu hình Spark mặc định của job.** `spark.sql.shuffle.partitions` = 8, AQE bật, ngưỡng broadcast tự động 10 MB (giá trị ghi trong metrics). Lệnh nộp job không đặt `spark.executor.memory`, nên executor dùng heap mặc định 1 GB [@spark-config]; giá trị này được giữ vì Docker Desktop từng sập dưới giới hạn 6 GB (mục 5.6).
+**Cấu hình Spark mặc định của job.** `spark.sql.shuffle.partitions` = 8, AQE bật, ngưỡng broadcast tự động 10 MB (giá trị ghi trong metrics). Lệnh nộp job không đặt `spark.executor.memory`, nên executor dùng heap mặc định 1 GB [@spark-config]; giá trị này được giữ vì Docker Desktop từng sập dưới giới hạn 6 GB (mục 5.5).
 
 ## 4.6 Thiết kế thí nghiệm
 
@@ -117,7 +112,7 @@ Tổng cộng 69 lần chạy: 63 lần chạy Spark và 6 lần chạy Pandas. 
 
 **Chỉ số.** So sánh hiệu năng dùng `processing_seconds_total`: tổng thời gian năm giai đoạn do job tự đo, không gồm khởi động container, JVM, đăng ký executor và bước thống kê. Thời gian cả lệnh Docker (`wall_seconds`) được ghi để tham khảo. Các chỉ số suy ra:
 
-- Thông lượng = tổng số dòng thô năm bảng / `processing_seconds_total` (dòng/giây).
+- Thông lượng = tổng số dòng thô năm bảng / `processing_seconds_total` (dòng/giây), tính cho từng lần chạy rồi lấy trung bình.
 - Speedup S = T(1 worker) / T(2 worker); efficiency E = S / 2 (công thức ở slide chương 2 [@slide-c2]).
 - Số truy vấn hoà vốn của cache n* = M / (u − c), với M là thời gian materialize, u và c là thời gian trung bình một truy vấn khi không cache và có cache.
 
@@ -128,27 +123,30 @@ Tổng cộng 69 lần chạy: 63 lần chạy Spark và 6 lần chạy Pandas. 
 - Job truy vấn của (c) và (f) có một bước khởi động không tính giờ trước khi đo.
 - Trước mỗi lần chạy, bộ điều khiển kiểm tra cụm có đúng số worker ALIVE, đúng tổng số lõi, không có ứng dụng nào khác đang chạy; sai thì dừng thí nghiệm.
 
-**Kiểm tra tính hợp lệ của từng lần chạy.** Mỗi lần chạy có một bản ghi `run_record.json` (lệnh đầy đủ, commit, cờ cây mã bẩn, số worker trước và sau, RAM trống của host, số đo). Một lần chạy bị loại khỏi thống kê nếu: trạng thái khác `ok`, số worker thay đổi trong lúc chạy (`workers_changed`), số dòng thô đọc được khác manifest (`raw_rows_mismatch`), Pandas cho số đếm lệch (`pandas_mismatch`), hoặc không xoá được đầu ra cũ (`pre_cleanup_failed`). Bảng tổng hợp còn kiểm tra tính đồng nhất (một commit, một bộ tham số) và tính nhất quán của số đếm (số dòng sạch, cách ly, trùng giống nhau giữa các lần của cùng bộ dữ liệu).
+**Kiểm tra tính hợp lệ của từng lần chạy.** Mỗi lần chạy có một bản ghi `run_record.json`. Thống kê chỉ dùng các lần có trạng thái `ok` và không mang cờ loại trừ; bảng tổng hợp còn kiểm tra tính đồng nhất và tính nhất quán của số đếm giữa các lần chạy. Nội dung bản ghi và ý nghĩa từng cờ ở @tbl:co-hop-le (Phụ lục B).
 
 **Xác minh kế hoạch thực thi.** Với (d) và (e), mỗi lần chạy ghi event log của Spark. Bộ phân tích đọc kế hoạch cuối cùng (sau lần cập nhật AQE sau cùng) của từng truy vấn SQL và đếm các toán tử `SortMergeJoin`, `BroadcastHashJoin`, `SortMergeJoin(skew=true)`, để biết chiến lược join nào thực sự đã chạy thay vì chỉ dựa vào cấu hình [@spark-monitoring].
 
-**Tham số của biến thể ép shuffle trong (e).** Theo tài liệu Spark, AQE chỉ tách một phân vùng của sort-merge join khi phân vùng đó lớn hơn cả `skewedPartitionFactor` × trung vị (mặc định 5) và `skewedPartitionThresholdInBytes` (mặc định 256 MB) [@spark-sql-tuning]. Với 8 phân vùng mặc định, phân vùng lớn nhất của bộ lệch chỉ khoảng 34,7 MB và không phân vùng nào vượt 5 lần trung vị, nên AQE không thể tách. Vì vậy biến thể ép shuffle được **chủ động** đặt 64 phân vùng, ngưỡng lệch 4 MiB và kích thước phân vùng tư vấn 2 MiB. Ngưỡng 4 MiB được chọn dựa trên phép đo kích thước phân vùng thật: ở 64 phân vùng, 9 phân vùng chứa khoá nóng có kích thước 8,07 đến 16,2 MB, các phân vùng còn lại không quá 1,71 MB, và ở bộ cân bằng phân vùng lớn nhất là 3,47 MB (@tbl:partition-stats ở mục 6.8). Như vậy ngưỡng nằm giữa hai nhóm: chỉ phân vùng nóng của bộ lệch đạt ngưỡng.
+**Tham số của biến thể ép shuffle trong (e).** Theo tài liệu Spark, AQE chỉ tách một phân vùng của sort-merge join khi phân vùng đó lớn hơn cả `skewedPartitionFactor` × trung vị (mặc định 5) và `skewedPartitionThresholdInBytes` (mặc định 256 MB) [@spark-sql-tuning]. Với 8 phân vùng mặc định, phân vùng lớn nhất của bộ lệch chỉ khoảng 34,7 MB và không phân vùng nào vượt 5 lần trung vị, nên AQE không thể tách. Vì vậy biến thể ép shuffle được **chủ động** đặt 64 phân vùng, ngưỡng lệch 4 MiB và kích thước phân vùng tư vấn 2 MiB. Ngưỡng 4 MiB được chọn dựa trên phép đo kích thước phân vùng thật: ở 64 phân vùng, 9 phân vùng chứa khoá nóng có kích thước 8,07 đến 16,2 MB, các phân vùng còn lại không quá 1,71 MB, và ở bộ cân bằng phân vùng lớn nhất là 3,47 MB (@tbl:partition-stats, Phụ lục D). Như vậy ngưỡng nằm giữa hai nhóm: chỉ phân vùng nóng của bộ lệch đạt ngưỡng.
 
 <!-- VERIFY
-- MinIO tương thích S3; HDFS đặt dữ liệu trên nút tính toán: cần đối chiếu slide chương 4 (docs/references/README.md chỉ ghi chương 4 có HDFS, object storage).
-- Data Lake ở slide chương 1: docs/references/README.md (chương 1 có Data Warehouse/Lake/Lakehouse).
+- MinIO tương thích S3: chưa có URL MinIO đã kiểm, để [CHƯA CÓ: nguồn MinIO] (verify-round1 mục B).
+- HDFS đặt dữ liệu trên nút tính toán, Data Lake, Parquet, speedup: slide chương 1, 2, 4, 5; CHƯA đối chiếu slide thật (verify-round1 mục E).
+- Master cấp executor, driver gửi task: Spark Cluster Mode Overview 4.0.0 (điều phối viên đã mở trang 2026-11-08: "allocate resources across applications"; "SparkContext sends tasks to the executors to run").
+- @fig:kien-truc: report/figures/kien-truc.png, report/build/draw_architecture.py; đối chiếu infra/docker-compose.yml, src/etl/pipeline.py.
+- Metrics JSON do driver ghi qua bind mount (results/ mount vào /opt/spark/work-dir/results): infra/docker-compose.yml; log do bộ điều khiển trên host ghi: docstring và hàm của src/experiments/common/runner.py (stdout/stderr vào results/logs/<exp>/<config>_r<k>.log).
 - Cổng 9000/9001/7077/8090: infra/docker-compose.yml, infra/README.md.
 - Năm giai đoạn và thứ tự: src/etl/pipeline.py hàm run.
 - Luật làm sạch, luật đầu tiên thắng, bốn định dạng ngày / ba định dạng thời gian: docs/design/etl.md.
-- Spark 4 bật ANSI mặc định: tài liệu Spark ANSI compliance (cần mở URL bản 4.0.0).
-- 255.378 / 200.008 / 55.370 và ~100 dòng ở bộ cân bằng (112, 113, 103, 99): docs/design/etl.md; commit 993d30b (cần git show để xác nhận commit tồn tại và chứa metrics cũ).
+- Spark 4 bật ANSI mặc định: tài liệu Spark ANSI compliance 4.0.0.
+- 255.378 / 200.008 / 55.370 và ~100 dòng ở bộ cân bằng (112, 113, 103, 99): docs/design/etl.md; commit 993d30b.
 - Doanh thu chỉ tính paid/shipped/delivered: docs/design/etl.md mục Tổng hợp.
 - spark.executor.memory mặc định 1g: Spark Configuration 4.0.0.
 - autoBroadcastJoinThreshold 10485760b, shuffle.partitions 8: results/metrics/scale_data/runs/orders_5m/r3/run_record.json trường metrics.conf.
+- Thông lượng trung bình theo từng lần: verify-round1 mục C; results/metrics/scale_data/summary.csv.
 - Số lần chạy từng thí nghiệm (12, 6, 6, 9, 24, 6, 6 = 69): src/experiments/README.md mục "Ước tính"; khớp số dòng runs.csv.
 - Thứ tự xen kẽ / scale_workers blocked: src/experiments/common/README.md, src/experiments/scale_workers/README.md, run_record runner_options.order.
-- Cờ loại trừ: src/experiments/common/README.md bảng cờ chất lượng.
-- skewedPartitionFactor 5, threshold 256 MB, điều kiện "cả hai": Spark SQL Performance Tuning 4.0.0 mục Optimizing Skew Join (src/experiments/skew/README.md đã yêu cầu đối chiếu).
-- 34,7 MB, 8,07–16,2 MB, ≤1,71 MB, 3,47 MB: src/experiments/skew/README.md và results/metrics/skew/partition_stats_summary.csv (8,07 và 1,71 chỉ có trong partition_stats.csv chi tiết, cần kiểm).
-- Lineage bị cắt khi ghi rồi đọc lại: nhận định của người viết, cần đối chiếu slide chương 5 nếu muốn trích.
+- skewedPartitionFactor 5, threshold 256 MB, điều kiện "cả hai": Spark SQL Performance Tuning 4.0.0 mục Optimizing Skew Join.
+- 34,7 MB, 8,07–16,2 MB, ≤1,71 MB, 3,47 MB: src/experiments/skew/README.md và results/metrics/skew/partition_stats_summary.csv (8,07 và 1,71 chỉ có trong partition_stats.csv chi tiết).
+- Lineage bị cắt khi ghi rồi đọc lại: nhận định của người viết.
 -->

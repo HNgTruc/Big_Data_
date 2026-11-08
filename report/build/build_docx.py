@@ -63,7 +63,7 @@ LIST_INDENT_CM = 1.5
 LIST_LEVEL_STEP_CM = 0.75
 LIST_HANGING_CM = 0.6
 
-DEFAULT_AUTHOR = "Huỳnh Ngọc Trúc"
+DEFAULT_AUTHOR = "Huỳnh Ngọc Trúc; Phạm Trần Minh Khang; Tạ Quang Trung; Ngô Nguyễn Thành Nhân"
 FIGURE_WORD = "Hình"
 TABLE_WORD = "Bảng"
 TOC_HINT = "Nhấn chuột phải → Update Field để cập nhật mục lục"

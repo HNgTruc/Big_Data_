@@ -234,7 +234,54 @@ def test_cover_is_separate_and_not_a_chapter(built):
     assert "PAGE" in footer_xml
     assert document.sections[1]._sectPr.find(qn("w:pgNumType")).get(qn("w:start")) == "1"
     assert document.core_properties.title == result.title
-    assert document.core_properties.author == "Huỳnh Ngọc Trúc"
+    assert document.core_properties.author == build_docx.DEFAULT_AUTHOR
+    assert document.core_properties.author.count(";") == 3  # all four team members
+
+
+def test_abstract_and_appendices_keep_their_own_numbering(tmp_path: Path):
+    sections = tmp_path / "report" / "sections"
+    sections.mkdir(parents=True)
+    files = {
+        "00-bia.md": COVER,
+        "00-tom-tat.md": "# Tóm tắt\n\nNội dung tóm tắt [@alpha].\n",
+        "01-gioi-thieu.md": "# Chương 1. Giới thiệu\n\nXem @tbl:luoc-do, @fig:minh-chung và @tbl:cau-hinh.\n",
+        "90-tai-lieu-tham-khao.md": "# Tài liệu tham khảo\n\n[@alpha]: A. Author, *Alpha book*, 2020.\n",
+        "95-phu-luc-a-du-lieu.md": (
+            "# Phụ lục A. Dữ liệu\n\nBảng: Lược đồ {#tbl:luoc-do}\n\n| a | b |\n|---|---|\n| x | y |\n\n"
+            "![Minh chứng](figs/ok.png){#fig:minh-chung}\n\nNguồn: results/fake.csv\n"
+        ),
+        "95-phu-luc-b-cai-dat.md": (
+            "# Phụ lục B. Cài đặt\n\nBảng: Cấu hình {#tbl:cau-hinh}\n\n| a | b |\n|---|---|\n| x | y |\n"
+        ),
+    }
+    for name, content in files.items():
+        (sections / name).write_text(content, encoding="utf-8")
+    write_png(tmp_path / "figs" / "ok.png")
+    output = tmp_path / "report" / "bao-cao.docx"
+
+    result = build_docx.build_report(sections, output, tmp_path)
+    document = docx.Document(str(output))
+
+    assert result.warnings == []
+    captions = [p.text for p in document.paragraphs if p.style.name == "Caption"]
+    assert captions == ["Bảng 1. Phân công", "Bảng A.1. Lược đồ", "Hình A.1. Minh chứng", "Bảng B.1. Cấu hình"]
+    assert "Xem Bảng A.1, Hình A.1 và Bảng B.1." in texts(document)
+    # Appendices are level-1 parts, not chapters, and each one starts on a new page.
+    assert result.chapters == 1 and result.other_level1 == 4
+    assert document.styles["Heading 1"].paragraph_format.page_break_before is True
+    headings1 = [p.text for p in document.paragraphs if p.style.name == "Heading 1"]
+    assert headings1 == [
+        "Tóm tắt",
+        "Chương 1. Giới thiệu",
+        "Tài liệu tham khảo",
+        "Phụ lục A. Dữ liệu",
+        "Phụ lục B. Cài đặt",
+    ]
+    # The abstract sits after the table of contents and is listed in it; its citation counts as first use.
+    order = texts(document)
+    abstract = next(i for i, p in enumerate(document.paragraphs) if p.style.name == "Heading 1")
+    assert order.index("MỤC LỤC") < abstract
+    assert "Nội dung tóm tắt [1]." in order
 
 
 def test_toc_and_caption_fields(built):

@@ -7,6 +7,7 @@ tham chiếu chéo và trích dẫn kiểu IEEE. File `.docx` là bản trung gi
 | File | Nội dung |
 |---|---|
 | `build_docx.py` | Script dựng `.docx` (hai lượt: đánh số rồi dựng); hằng số trình bày ở đầu file |
+| `draw_architecture.py` | Vẽ sơ đồ kiến trúc chương 4 bằng matplotlib; mặc định ghi `report/figures/kien-truc.png`, đổi bằng `--output` |
 | `requirements.txt` | Phụ thuộc: `python-docx` (kéo theo `lxml`); `pytest` cho kiểm thử |
 
 Kiểm thử: `tests/test_build_docx.py` (xem `tests/README.md`).
@@ -35,7 +36,7 @@ Tham số (đều có mặc định tương đối gốc repo):
 | `--sections` | `<root>/report/sections` | Thư mục chứa các file `.md` |
 | `--output` | `<root>/report/bao-cao.docx` | File Word đầu ra |
 | `--title` | lấy từ bìa | Thuộc tính Title của tài liệu |
-| `--author` | `Huỳnh Ngọc Trúc` | Thuộc tính Author |
+| `--author` | Tên 4 thành viên, cách nhau bằng `; ` (`DEFAULT_AUTHOR`) | Thuộc tính Author |
 | `--no-update-on-open` | tắt | Không yêu cầu Word cập nhật trường (mục lục, danh mục) khi mở |
 | `--strict` | tắt | Thoát mã 1 nếu có cảnh báo |
 

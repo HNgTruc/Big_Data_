@@ -2,7 +2,7 @@
 
 **TRƯỜNG ĐẠI HỌC SÀI GÒN**
 
-**Khoa:** [CHƯA CÓ: tên khoa quản lý học phần]
+**Khoa:** Công nghệ Thông tin
 
 **HỌC PHẦN: NHẬP MÔN DỮ LIỆU LỚN**
 
@@ -18,9 +18,11 @@
 
 **Giảng viên hướng dẫn:** [CHƯA CÓ: họ tên giảng viên]
 
-**Sinh viên thực hiện:** Huỳnh Ngọc Trúc (thực hiện một mình)
-
-**Mã số sinh viên:** [CHƯA CÓ: MSSV]
+**Sinh viên thực hiện:**
+Huỳnh Ngọc Trúc (3123411312)
+Phạm Trần Minh Khang (3123411143)
+Tạ Quang Trung (3123411318)
+Ngô Nguyễn Thành Nhân (3123411205)
 
 **Ngày nộp:** [CHƯA CÓ: ngày nộp]
 
@@ -32,14 +34,17 @@ Bảng: Phân công và đóng góp {#tbl:phan-cong}
 
 | Thành viên | Công việc | Đóng góp |
 |---|---|---|
-| Huỳnh Ngọc Trúc | Toàn bộ: thiết kế, sinh dữ liệu mô phỏng, hạ tầng, job ETL, thí nghiệm, báo cáo | 100% |
+| Huỳnh Ngọc Trúc | [CHƯA CÓ: công việc] | [CHƯA CÓ: tỉ lệ] |
+| Phạm Trần Minh Khang | [CHƯA CÓ: công việc] | [CHƯA CÓ: tỉ lệ] |
+| Tạ Quang Trung | [CHƯA CÓ: công việc] | [CHƯA CÓ: tỉ lệ] |
+| Ngô Nguyễn Thành Nhân | [CHƯA CÓ: công việc] | [CHƯA CÓ: tỉ lệ] |
 
-Nguồn: thông tin do người thực hiện cung cấp (đồ án làm một mình).
+Nguồn: thông tin do nhóm cung cấp.
 
 <!-- VERIFY
 - Tên đề tài khớp README.md gốc và .claude/CLAUDE.md.
 - Tên học phần "Nhập môn dữ liệu lớn", Trường Đại học Sài Gòn: khớp docs/requirements/yeu-cau-do-an.md và docs/references/README.md.
 - "Thành phố Hồ Chí Minh": địa danh của trường, người dùng cần xác nhận có muốn ghi trên bìa.
-- Dòng "Khoa" là đề xuất thêm của người viết; bỏ nếu mẫu bìa của khoa không có.
-- Bảng phân công: người dùng xác nhận tỉ lệ 100% và cách ghi.
+- Dòng "Khoa": người dùng xác nhận Khoa Công nghệ Thông tin (2026-11-08), khớp trang 1 slide chương 5.
+- Tên và MSSV bốn thành viên: người dùng cung cấp (2026-11-08). Phân công thực tế và tỉ lệ đóng góp: chờ nhóm cung cấp.
 -->

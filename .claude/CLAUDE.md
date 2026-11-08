@@ -11,12 +11,12 @@
 - Lớp lưu trữ nguồn: **MinIO**. Chạy Spark bằng **Docker Compose nhiều worker**.
 - Máy thí nghiệm có **16 GB RAM** (15,8 GB khả dụng); Docker Desktop/WSL2 giới hạn **6 GB** qua `.wslconfig`: giới hạn thí nghiệm khoảng 5–10 triệu dòng, tối đa 2 worker. Phải nêu giới hạn này trong báo cáo.
 - Ngôn ngữ: tài liệu tiếng Việt, mã nguồn (tên biến, hàm, commit) tiếng Anh.
-- Hiện chỉ có một người làm; thông tin thành viên bổ sung sau.
+- Nhóm 4 thành viên: Huỳnh Ngọc Trúc (3123411312), Phạm Trần Minh Khang (3123411143), Tạ Quang Trung (3123411318), Ngô Nguyễn Thành Nhân (3123411205). Phân công thực tế: chưa có.
 - Tên đề tài (đã chọn): Đánh giá hiệu năng xử lý phân tán dữ liệu giao dịch thương mại điện tử với PySpark và MinIO.
 - Schema: 5 bảng `orders`, `order_items`, `customers` (CSV), `products` (Parquet), `web_events` (JSON lines) — chi tiết ở `docs/design/schema.md`.
 - Dữ liệu bẩn sẽ chèn: bản ghi trùng, giá trị thiếu, giá trị không hợp lệ, sai định dạng ngày; **2% mỗi loại**.
 - Kích thước `orders`: 0.5M, 1M, 2.5M, 5M dòng. `order_items` khoảng 2 dòng/đơn. Có tham số bật/tắt độ lệch key.
-- Lớp học phần cụ thể, thành viên (sẽ bổ sung sau), hạn nộp (chưa cần): **chưa có** — không tự điền.
+- Lớp học phần cụ thể, phân công thực tế, hạn nộp (chưa cần): **chưa có** — không tự điền.
 
 ## Nguồn sự thật (đọc trước khi làm)
 1. `docs/requirements/yeu-cau-do-an.md` — tóm tắt file `Yêu cầu đồ án.docx` (đề gốc nằm trên Google Drive của người dùng).
