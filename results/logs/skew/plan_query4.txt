@@ -1,0 +1,102 @@
+# Cay ke hoach da chay cua truy van SQL so 4 (buoc ghi order_items sach), trich tu event log Spark ngay 2026-11-09.
+# Nguon: results/logs/skew/eventlogs/<app> (khong dua len git). Ke hoach cuoi cung sau cap nhat AQE; da luoc cac nut WholeStageCodegen, InputAdapter, ColumnarToRow.
+# 0032 = skew_shuffle_aqe r1, 0033 = skew_shuffle_noaqe r1, 0028 = skew_auto_aqe r1.
+==================== app-20261107154233-0032 executions [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
+--- execution 4
+AdaptiveSparkPlan :: AdaptiveSparkPlan isFinalPlan=true
+  ResultQueryStage :: ResultQueryStage 5
+    Execute InsertIntoHadoopFsRelationCommand :: Execute InsertIntoHadoopFsRelationCommand s3a://bigdata/curated/skew_skew_shuffle_aqe/order_items, false, Parquet, [path=s3a://bigdata/curated/skew_skew_shuffle_aqe/order
+      WriteFiles :: WriteFiles
+        Project :: Project [order_id#8L, line_no#9, product_id#189L, quantity#191, unit_price#193]
+          Filter :: Filter CASE WHEN isnull(unit_price#193) THEN false WHEN (isnull(quantity#191) OR (quantity#191 <= 0)) THEN false WHEN (unit_price#193 <= 0.0) THEN false WHEN isnull(_p#18
+            SortMergeJoin :: SortMergeJoin [order_id#8L], [order_id#177L], LeftOuter
+              Sort :: Sort [order_id#8L ASC NULLS FIRST], false, 0
+                ShuffleQueryStage :: ShuffleQueryStage 4
+                  Exchange :: Exchange hashpartitioning(order_id#8L, 64), ENSURE_REQUIREMENTS, [plan_id=1052]
+                    Project :: Project [product_id#189L, order_id#8L, line_no#9, quantity#191, unit_price#193, _p#183]
+                      SortMergeJoin(skew=true) :: SortMergeJoin(skew=true) [product_id#189L], [product_id#46L], LeftOuter
+                        Sort :: Sort [product_id#189L ASC NULLS FIRST], false, 0
+                          AQEShuffleRead :: AQEShuffleRead skewed
+                            ShuffleQueryStage :: ShuffleQueryStage 3
+                              Exchange :: Exchange hashpartitioning(product_id#189L, 64), ENSURE_REQUIREMENTS, [plan_id=944]
+                                HashAggregate :: HashAggregate(keys=[order_id#8L, line_no#9], functions=[first(product_id#10L, false), first(quantity#11, false), first(unit_price#12, false)])
+                                  ShuffleQueryStage :: ShuffleQueryStage 0
+                                    Exchange :: Exchange hashpartitioning(order_id#8L, line_no#9, 64), ENSURE_REQUIREMENTS, [plan_id=732]
+                                      HashAggregate :: HashAggregate(keys=[order_id#8L, line_no#9], functions=[partial_first(product_id#10L, false), partial_first(quantity#11, false), partial_first(unit_price#12, false)])
+                                        Scan csv  :: FileScan csv [order_id#8L,line_no#9,product_id#10L,quantity#11,unit_price#12] Batched: false, DataFilters: [], Format: CSV, Location: InMemoryFileIndex(1 paths)[s3a://big
+                        Sort :: Sort [product_id#46L ASC NULLS FIRST], false, 0
+                          AQEShuffleRead :: AQEShuffleRead
+                            ShuffleQueryStage :: ShuffleQueryStage 1
+                              Exchange :: Exchange hashpartitioning(product_id#46L, 64), ENSURE_REQUIREMENTS, [plan_id=752]
+                                Project :: Project [product_id#46L, true AS _p#183]
+                                  Filter :: Filter isnotnull(product_id#46L)
+                                    Scan parquet  :: FileScan parquet [product_id#46L] Batched: true, DataFilters: [isnotnull(product_id#46L)], Format: Parquet, Location: InMemoryFileIndex(1 paths)[s3a://bigdata/curated/ske
+              Sort :: Sort [order_id#177L ASC NULLS FIRST], false, 0
+                ShuffleQueryStage :: ShuffleQueryStage 2
+                  Exchange :: Exchange hashpartitioning(order_id#177L, 64), ENSURE_REQUIREMENTS, [plan_id=784]
+                    Project :: Project [order_id#177L, true AS _o#185]
+                      Filter :: Filter isnotnull(order_id#177L)
+                        Scan parquet  :: FileScan parquet [order_id#177L] Batched: true, DataFilters: [isnotnull(order_id#177L)], Format: Parquet, Location: InMemoryFileIndex(1 paths)[s3a://bigdata/curated/skew_
+description: parquet at NativeMethodAccessorImpl.java:0
+==================== app-20261107154442-0033 executions [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
+--- execution 4
+Execute InsertIntoHadoopFsRelationCommand :: Execute InsertIntoHadoopFsRelationCommand s3a://bigdata/curated/skew_skew_shuffle_noaqe/order_items, false, Parquet, [path=s3a://bigdata/curated/skew_skew_shuffle_noaqe/o
+  WriteFiles :: WriteFiles
+    Project :: Project [order_id#8L, line_no#9, product_id#173L, quantity#175, unit_price#177]
+      Filter :: Filter CASE WHEN isnull(unit_price#177) THEN false WHEN (isnull(quantity#175) OR (quantity#175 <= 0)) THEN false WHEN (unit_price#177 <= 0.0) THEN false WHEN isnull(_p#16
+        SortMergeJoin :: SortMergeJoin [order_id#8L], [order_id#161L], LeftOuter
+          Sort :: Sort [order_id#8L ASC NULLS FIRST], false, 0
+            Exchange :: Exchange hashpartitioning(order_id#8L, 64), ENSURE_REQUIREMENTS, [plan_id=464]
+              Project :: Project [product_id#173L, order_id#8L, line_no#9, quantity#175, unit_price#177, _p#167]
+                SortMergeJoin :: SortMergeJoin [product_id#173L], [product_id#46L], LeftOuter
+                  Sort :: Sort [product_id#173L ASC NULLS FIRST], false, 0
+                    Exchange :: Exchange hashpartitioning(product_id#173L, 64), ENSURE_REQUIREMENTS, [plan_id=446]
+                      HashAggregate :: HashAggregate(keys=[order_id#8L, line_no#9], functions=[first(product_id#10L, false), first(quantity#11, false), first(unit_price#12, false)])
+                        Exchange :: Exchange hashpartitioning(order_id#8L, line_no#9, 64), ENSURE_REQUIREMENTS, [plan_id=442]
+                          HashAggregate :: HashAggregate(keys=[order_id#8L, line_no#9], functions=[partial_first(product_id#10L, false), partial_first(quantity#11, false), partial_first(unit_price#12, false)])
+                            Scan csv  :: FileScan csv [order_id#8L,line_no#9,product_id#10L,quantity#11,unit_price#12] Batched: false, DataFilters: [], Format: CSV, Location: InMemoryFileIndex(1 paths)[s3a://big
+                  Sort :: Sort [product_id#46L ASC NULLS FIRST], false, 0
+                    Exchange :: Exchange hashpartitioning(product_id#46L, 64), ENSURE_REQUIREMENTS, [plan_id=456]
+                      Project :: Project [product_id#46L, true AS _p#167]
+                        Filter :: Filter isnotnull(product_id#46L)
+                          Scan parquet  :: FileScan parquet [product_id#46L] Batched: true, DataFilters: [isnotnull(product_id#46L)], Format: Parquet, Location: InMemoryFileIndex(1 paths)[s3a://bigdata/curated/ske
+          Sort :: Sort [order_id#161L ASC NULLS FIRST], false, 0
+            Exchange :: Exchange hashpartitioning(order_id#161L, 64), ENSURE_REQUIREMENTS, [plan_id=474]
+              Project :: Project [order_id#161L, true AS _o#169]
+                Filter :: Filter isnotnull(order_id#161L)
+                  Scan parquet  :: FileScan parquet [order_id#161L] Batched: true, DataFilters: [isnotnull(order_id#161L)], Format: Parquet, Location: InMemoryFileIndex(1 paths)[s3a://bigdata/curated/skew_
+description: parquet at NativeMethodAccessorImpl.java:0
+==================== app-20261107153343-0028 executions [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
+--- execution 4
+AdaptiveSparkPlan :: AdaptiveSparkPlan isFinalPlan=true
+  ResultQueryStage :: ResultQueryStage 4
+    Execute InsertIntoHadoopFsRelationCommand :: Execute InsertIntoHadoopFsRelationCommand s3a://bigdata/curated/skew_skew_auto_aqe/order_items, false, Parquet, [path=s3a://bigdata/curated/skew_skew_auto_aqe/order_items
+      WriteFiles :: WriteFiles
+        Project :: Project [order_id#8L, line_no#9, product_id#157L, quantity#159, unit_price#161]
+          Filter :: Filter CASE WHEN isnull(unit_price#161) THEN false WHEN (isnull(quantity#159) OR (quantity#159 <= 0)) THEN false WHEN (unit_price#161 <= 0.0) THEN false WHEN isnull(_p#15
+            SortMergeJoin :: SortMergeJoin [order_id#8L], [order_id#145L], LeftOuter
+              Sort :: Sort [order_id#8L ASC NULLS FIRST], false, 0
+                AQEShuffleRead :: AQEShuffleRead coalesced
+                  ShuffleQueryStage :: ShuffleQueryStage 3
+                    Exchange :: Exchange hashpartitioning(order_id#8L, 8), ENSURE_REQUIREMENTS, [plan_id=742]
+                      Project :: Project [product_id#157L, order_id#8L, line_no#9, quantity#159, unit_price#161, _p#151]
+                        BroadcastHashJoin :: BroadcastHashJoin [product_id#157L], [product_id#46L], LeftOuter, BuildRight, false
+                          HashAggregate :: HashAggregate(keys=[order_id#8L, line_no#9], functions=[first(product_id#10L, false), first(quantity#11, false), first(unit_price#12, false)])
+                            AQEShuffleRead :: AQEShuffleRead coalesced
+                              ShuffleQueryStage :: ShuffleQueryStage 0
+                                Exchange :: Exchange hashpartitioning(order_id#8L, line_no#9, 8), ENSURE_REQUIREMENTS, [plan_id=553]
+                                  HashAggregate :: HashAggregate(keys=[order_id#8L, line_no#9], functions=[partial_first(product_id#10L, false), partial_first(quantity#11, false), partial_first(unit_price#12, false)])
+                                    Scan csv  :: FileScan csv [order_id#8L,line_no#9,product_id#10L,quantity#11,unit_price#12] Batched: false, DataFilters: [], Format: CSV, Location: InMemoryFileIndex(1 paths)[s3a://big
+                          BroadcastQueryStage :: BroadcastQueryStage 1
+                            BroadcastExchange :: BroadcastExchange HashedRelationBroadcastMode(List(input[0, bigint, true]),false), [plan_id=571]
+                              Project :: Project [product_id#46L, true AS _p#151]
+                                Filter :: Filter isnotnull(product_id#46L)
+                                  Scan parquet  :: FileScan parquet [product_id#46L] Batched: true, DataFilters: [isnotnull(product_id#46L)], Format: Parquet, Location: InMemoryFileIndex(1 paths)[s3a://bigdata/curated/ske
+              Sort :: Sort [order_id#145L ASC NULLS FIRST], false, 0
+                AQEShuffleRead :: AQEShuffleRead coalesced
+                  ShuffleQueryStage :: ShuffleQueryStage 2
+                    Exchange :: Exchange hashpartitioning(order_id#145L, 8), ENSURE_REQUIREMENTS, [plan_id=601]
+                      Project :: Project [order_id#145L, true AS _o#153]
+                        Filter :: Filter isnotnull(order_id#145L)
+                          Scan parquet  :: FileScan parquet [order_id#145L] Batched: true, DataFilters: [isnotnull(order_id#145L)], Format: Parquet, Location: InMemoryFileIndex(1 paths)[s3a://bigdata/curated/skew_
+description: parquet at NativeMethodAccessorImpl.java:0

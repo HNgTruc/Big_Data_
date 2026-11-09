@@ -5,13 +5,13 @@ Agent phụ trách: `report-writer`; kiểm chứng: `source-verifier`.
 
 | Mục | Nội dung | Trạng thái |
 |---|---|---|
-| Bìa và thông tin nhóm | Tên đề tài, khoa, lớp, thành viên, phân công | Bản nháp (`sections/00-bia.md`); thiếu mã lớp, ngày nộp, phân công thực tế |
-| Tóm tắt | 150–250 từ | Bản nháp (235 từ), chờ kiểm vòng 2 |
-| 1–2 | Giới thiệu; Cơ sở và công nghệ liên quan | Bản nháp, chờ kiểm vòng 2 |
-| 3–7 | Dữ liệu và yêu cầu; Thiết kế; Cài đặt; Thực nghiệm; Kết quả demo | Bản nháp 2 (2026-11-08): đã sửa theo `review/verify-round1.md`, đã chèn sơ đồ kiến trúc, chi tiết đã chuyển sang phụ lục A–E; trích dẫn slide đã đối chiếu kèm số trang (`review/verify-slides.md`) |
-| 8–9 | Thảo luận; Kết luận | Bản nháp, chờ kiểm vòng 2 |
-| Tài liệu tham khảo | IEEE | Bản nháp, chờ kiểm vòng 2 |
-| Phụ lục | A–E: dữ liệu, cờ hợp lệ, cài đặt, số liệu chi tiết, minh chứng; F–G: hướng dẫn chạy và tái lập, ghi chú dùng AI | A–G: bản nháp (`sections/95-phu-luc-*.md`); F–G chờ kiểm vòng 2 |
+| Bìa và thông tin nhóm | Tên đề tài, khoa, lớp, thành viên, phân công | Bản nháp (`sections/00-bia.md`); chỉ còn thiếu ngày nộp |
+| Tóm tắt | 150–250 từ | Đã kiểm vòng 2 và sửa theo `review/verify-round2.md` |
+| 1–2 | Giới thiệu; Cơ sở và công nghệ liên quan | Đã kiểm vòng 2 và sửa |
+| 3–7 | Dữ liệu và yêu cầu; Thiết kế; Cài đặt; Thực nghiệm; Kết quả demo | Đã kiểm vòng 1, slide và vòng 2 (`review/`), đã sửa; chi tiết đã chuyển sang phụ lục A–E |
+| 8–9 | Thảo luận; Kết luận | Đã kiểm vòng 2 và sửa |
+| Tài liệu tham khảo | IEEE | Đã kiểm vòng 2 và sửa; định dạng chưa đối chiếu hướng dẫn IEEE gốc |
+| Phụ lục | A–E: dữ liệu, cờ hợp lệ, cài đặt, số liệu chi tiết, minh chứng; F–G: hướng dẫn chạy và tái lập, ghi chú dùng AI | A–G: đã kiểm vòng 2 và sửa (`sections/95-phu-luc-*.md`); các lệnh cần Docker ở F chưa chạy lại trên bản clone |
 
 | Thư mục | Nội dung |
 |---|---|

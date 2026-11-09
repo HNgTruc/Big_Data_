@@ -1,6 +1,6 @@
 # scale_workers — (b) 1 worker so với 2 worker
 
-**Trạng thái: chưa chạy.**
+**Trạng thái: đã đo chính thức ngày 2026-11-07 (commit 8164042).** Số đo ở `results/metrics/scale_workers/`, hình ở `results/figures/scale_workers/`.
 
 - **Mục tiêu:** tính speedup S = T(1 worker) / T(2 worker) và efficiency E = S / 2 trên orders_5m (công thức ở slide chương 2).
 - **Giả thuyết (chưa kiểm chứng):** 1 < S < 2 vì có phần tuần tự (driver, ghi metadata, đọc từ MinIO dùng chung) và chi phí shuffle; đối chiếu định luật Amdahl khi phân tích.

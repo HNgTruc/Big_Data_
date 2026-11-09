@@ -8,6 +8,8 @@ tham chiếu chéo và trích dẫn kiểu IEEE. File `.docx` là bản trung gi
 |---|---|
 | `build_docx.py` | Script dựng `.docx` (hai lượt: đánh số rồi dựng); hằng số trình bày ở đầu file |
 | `draw_architecture.py` | Vẽ sơ đồ kiến trúc chương 4 bằng matplotlib; mặc định ghi `report/figures/kien-truc.png`, đổi bằng `--output` |
+| `draw_plan_comparison.py` | Vẽ sơ đồ so sánh ba kế hoạch đã chạy ở mục 7.4, dùng lại kiểu của `draw_architecture.py`; mặc định ghi `report/figures/ke-hoach-so-sanh.png`, đổi bằng `--output` |
+| `prepare_screenshots.py` | Cắt khung, thêm viền, đặt bề rộng in cho 13 ảnh chụp; ảnh gốc giữ nguyên, có kiểm tra pixel. Đầu ra `report/figures/screenshots/`; đổi bằng `--source`, `--output`. Dùng Pillow có sẵn trong `.venv-exp` |
 | `requirements.txt` | Phụ thuộc: `python-docx` (kéo theo `lxml`); `pytest` cho kiểm thử |
 
 Kiểm thử: `tests/test_build_docx.py` (xem `tests/README.md`).

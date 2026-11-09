@@ -1,42 +1,52 @@
 # Phụ lục E. Minh chứng bổ sung
 
-Phụ lục này bổ sung cho chương 7: các ảnh chụp còn lại, mẫu bảng tổng hợp và trích đoạn log. Toàn bộ dữ liệu là **dữ liệu mô phỏng**. Ảnh được chụp ngày 2026-11-08, sau bộ đo chính thức.
+Phụ lục này bổ sung cho chương 7: các ảnh chụp còn lại, mẫu bảng tổng hợp và trích đoạn log. Toàn bộ dữ liệu là **dữ liệu mô phỏng**. Ảnh được chụp ngày 2026-11-08, sau bộ đo chính thức. Như ở chương 7, hình là bản cắt khung và thêm viền của ảnh gốc ghi ở dòng Nguồn.
 
 ## E.1 Ảnh chụp MinIO
 
-![MinIO Console: bucket bigdata với các vùng raw, curated, quarantine và smoke](results/logs/screenshots/02_minio_bucket_root.png){#fig:ss-minio-goc}
+![MinIO Console: bucket bigdata với các vùng raw, curated, quarantine và smoke](report/figures/screenshots/02_minio_bucket_root.png){#fig:ss-minio-goc}
 
 Nguồn: results/logs/screenshots/02_minio_bucket_root.png
 
-![Vùng curated/orders_5m: năm bảng sạch và ba bảng tổng hợp agg_*](results/logs/screenshots/04_minio_curated_orders_5m.png){#fig:ss-minio-curated}
+![Vùng curated/orders_5m: năm bảng sạch và ba bảng tổng hợp agg_*](report/figures/screenshots/04_minio_curated_orders_5m.png){#fig:ss-minio-curated}
 
 Nguồn: results/logs/screenshots/04_minio_curated_orders_5m.png
 
-![Vùng quarantine/orders_5m: ba bảng cách ly orders, order_items, web_events](results/logs/screenshots/05_minio_quarantine_orders_5m.png){#fig:ss-minio-quarantine}
+![Vùng quarantine/orders_5m: ba bảng cách ly orders, order_items, web_events](report/figures/screenshots/05_minio_quarantine_orders_5m.png){#fig:ss-minio-quarantine}
 
 Nguồn: results/logs/screenshots/05_minio_quarantine_orders_5m.png
 
 ## E.2 Ảnh chụp Spark UI
 
-![Tab Executors của một lần chạy skew_shuffle_aqe: 2 executor trên 2 worker, mỗi executor 2 lõi, Storage Memory 434,4 MiB](results/logs/screenshots/13_executors.png){#fig:ss-executors}
+![Tab Executors của một lần chạy skew_shuffle_aqe: 2 executor trên 2 worker, mỗi executor 2 lõi, Storage Memory 434,4 MiB](report/figures/screenshots/13_executors.png){#fig:ss-executors}
 
 Nguồn: results/logs/screenshots/13_executors.png (ứng dụng app-20261107154233-0032)
 
 Storage Memory 434,4 MiB mỗi executor là vùng nhớ hợp nhất tách ra từ heap 1 GB (mục 5.2).
 
-![Spark History Server: danh sách ứng dụng của thí nghiệm skew dựng lại từ event log](results/logs/screenshots/06_history_app_list.png){#fig:ss-history}
+![Spark History Server: danh sách ứng dụng của thí nghiệm skew dựng lại từ event log](report/figures/screenshots/06_history_app_list.png){#fig:ss-history}
 
 Nguồn: results/logs/screenshots/06_history_app_list.png
 
-![DAG của một job: các stage và ranh giới shuffle (ứng dụng skew_shuffle_aqe)](results/logs/screenshots/12_job_dag.png){#fig:ss-dag}
+![DAG của một job: các stage và ranh giới shuffle (ứng dụng skew_shuffle_aqe)](report/figures/screenshots/12_job_dag.png){#fig:ss-dag}
 
 Nguồn: results/logs/screenshots/12_job_dag.png; mã ứng dụng app-20261107154233-0032 theo results/logs/screenshots/README.md (không hiện trên phần ảnh đã cắt)
 
-@fig:ss-dag minh hoạ cách Spark chia một job thành các stage tại ranh giới shuffle (nút `Exchange`), theo mô hình DAG ở slide chương 5, tr. 26, 43 [@slide-c5]. Hai stage đầu (33 và 37) được đánh dấu "skipped"; chỉ stage 38 (join rồi `WriteFiles`) thực sự chạy. Theo nhận định của người viết, hai stage đó được bỏ qua vì kết quả shuffle của chúng đã có từ job trước và được dùng lại; tài liệu Spark đã kiểm không giải thích lý do này.
+@fig:ss-dag minh hoạ cách Spark chia một job thành các stage tại ranh giới shuffle (nút `Exchange`), theo mô hình DAG ở slide chương 5, tr. 26, 43 [@slide-c5]. Hai stage đầu (33 và 37) được đánh dấu "skipped"; chỉ stage 38 (join rồi `WriteFiles`) thực sự chạy. Theo nhận định của nhóm, hai stage đó được bỏ qua vì kết quả shuffle của chúng đã có từ job trước và được dùng lại; tài liệu Spark đã kiểm không giải thích lý do này.
 
-![Kế hoạch SQL của skew_shuffle_noaqe, bước ghi order_items sạch: SortMergeJoin không có xử lý lệch](results/logs/screenshots/08_skew_shuffle_noaqe_sql_plan.png){#fig:ss-noaqe-plan}
+![Kế hoạch SQL của skew_shuffle_aqe, bước ghi order_items sạch: SortMergeJoin(skew=true) theo product_id và dòng 49 lần tách phân vùng lệch](report/figures/screenshots/07_skew_shuffle_aqe_sql_plan.png){#fig:ss-aqe-plan}
+
+Nguồn: results/logs/screenshots/07_skew_shuffle_aqe_sql_plan.png (ứng dụng app-20261107154233-0032, truy vấn SQL số 4)
+
+![Kế hoạch SQL của skew_shuffle_noaqe, bước ghi order_items sạch: phần ảnh này là phép join theo order_id, ở phía sau join theo product_id](report/figures/screenshots/08_skew_shuffle_noaqe_sql_plan.png){#fig:ss-noaqe-plan}
 
 Nguồn: results/logs/screenshots/08_skew_shuffle_noaqe_sql_plan.png; mã ứng dụng app-20261107154442-0033 và truy vấn SQL số 4 theo results/logs/screenshots/README.md (không hiện trên phần ảnh đã cắt)
+
+![Kế hoạch SQL của skew_auto_aqe: BroadcastHashJoin và nút HashAggregate của bước bỏ trùng có spill](report/figures/screenshots/11_skew_auto_aqe_sql_plan.png){#fig:ss-auto-plan}
+
+Nguồn: results/logs/screenshots/11_skew_auto_aqe_sql_plan.png (ứng dụng app-20261107153343-0028, truy vấn SQL số 4); tên bảng theo results/logs/skew/plan_query4.txt (không hiện trên phần ảnh đã cắt)
+
+Hai ảnh @fig:ss-aqe-plan và @fig:ss-noaqe-plan chụp hai phép join khác nhau nên không so sánh trực tiếp được: ảnh đầu là join theo `product_id`, ảnh sau là join theo `order_id`. Phép so sánh đúng cặp nằm ở @fig:ke-hoach-so-sanh (mục 7.4), dựa trên event log. Lưu ý khi đọc ảnh: tổng thời gian của một khối WholeStageCodegen hiển thị trên ảnh (ví dụ 3.05 h) là tổng cộng dồn thời gian của mọi task chạy song song, không phải thời gian thực của lần chạy, nên không được dùng làm số đo thời gian xử lý.
 
 ## E.3 Mẫu bảng tổng hợp đầu ra
 

@@ -9,7 +9,7 @@ Chương này mô tả đầu vào của giai đoạn Storage → Processing: ng
 Lý do chọn dữ liệu mô phỏng thay vì một bộ dữ liệu công khai:
 
 - Điều khiển được kích thước (0,5 đến 5 triệu đơn) để đo khả năng mở rộng trong giới hạn phần cứng.
-- Biết chính xác số lỗi đã chèn từng loại, nên kiểm chứng được job làm sạch: số dòng bị loại phải khớp đúng số lỗi đã chèn.
+- Biết chính xác số lỗi đã chèn từng loại, nên kiểm chứng được job làm sạch: số dòng trùng đã bỏ và các lý do cách ly trực tiếp phải khớp đúng số lỗi đã chèn.
 - Bật hoặc tắt được độ lệch khoá để làm thí nghiệm skew.
 
 Bộ sinh dùng seed cố định 42 và kích thước khối (chunk) 500.000 dòng. Kết quả là hàm thuần của bộ tham số: cùng tham số cho ra cùng nội dung từng byte (theo `src/data_generation/README.md`). Mỗi bộ dữ liệu có tệp `manifest.json` ghi tham số, phiên bản thư viện, số dòng và số lỗi đã chèn từng loại.
@@ -36,7 +36,7 @@ Bảng: Tổng số dòng thô và dung lượng tệp thô của năm bộ dữ
 | orders_5m | 20.931.505 | 1.089,70 |
 | orders_5m_skew | 20.930.359 | 1.063,22 |
 
-Nguồn: results/metrics/datasets/datasets_summary.csv (cột rows_written, bytes; tổng năm bảng do người viết cộng)
+Nguồn: results/metrics/datasets/datasets_summary.csv (cột rows_written, bytes; tổng năm bảng do nhóm cộng)
 
 Dung lượng tệp thô của bộ `orders_5m` theo từng bảng: `customers.csv` 12,90 MB, `orders.csv` 216,90 MB, `order_items.csv` 235,52 MB, `products.parquet` 0,20 MB, `web_events.jsonl` 624,17 MB (nguồn: `results/metrics/format_compare/sizes.csv`, đo bằng Hadoop `FileSystem.getContentSummary` trên MinIO; khớp `datasets_summary.csv`).
 
@@ -55,7 +55,7 @@ Bảng: Các loại lỗi được chèn theo bảng {#tbl:loi-chen}
 
 Nguồn: docs/design/schema.md (mục "Định dạng lỗi ngày được chèn"), src/data_generation/README.md
 
-Số lỗi đo được sau ETL trên `orders_5m` cho thấy tỉ lệ thực tế sát 2%: 100.000 dòng trùng trên 5.000.000 đơn gốc của `orders`; 99.579 đơn thiếu `customer_id` và 100.377 đơn có `customer_id` mồ côi; 200.030 dòng trùng trên 10.001.475 dòng hàng gốc của `order_items` (nguồn: `results/metrics/orders_5m.json`; các tỉ lệ do người viết chia). Số dòng sai định dạng ngày đã chèn vào `orders_5m` là 99.949 ở `order_date`, 100.375 ở `event_time` và 9.847 ở `signup_date` (cột `defects_injected`, các trường `bad_order_date`, `bad_event_time`, `bad_signup_date` trong `results/metrics/datasets/datasets_summary.csv`). Chi tiết chất lượng dữ liệu trước và sau xử lý ở mục 6.3.
+Số lỗi đo được sau ETL trên `orders_5m` cho thấy tỉ lệ thực tế sát 2%: 100.000 dòng trùng trên 5.000.000 đơn gốc của `orders`; 99.579 đơn thiếu `customer_id` và 100.377 đơn có `customer_id` mồ côi; 200.030 dòng trùng trên 10.001.475 dòng hàng gốc của `order_items` (nguồn: `results/metrics/orders_5m.json`; các tỉ lệ do nhóm chia). Số dòng sai định dạng ngày đã chèn vào `orders_5m` là 99.949 ở `order_date`, 100.375 ở `event_time` và 9.847 ở `signup_date` (cột `defects_injected`, các trường `bad_order_date`, `bad_event_time`, `bad_signup_date` trong `results/metrics/datasets/datasets_summary.csv`). Chi tiết chất lượng dữ liệu trước và sau xử lý ở mục 6.3.
 
 ## 3.5 Độ lệch khoá
 
@@ -72,6 +72,8 @@ Mức lệch đo được khi băm `order_items` theo `product_id` vào 64 phân
 - **Veracity:** dữ liệu có lỗi trùng, thiếu, không hợp lệ và sai định dạng ngày, phải làm sạch trước khi dùng.
 
 Velocity không thuộc phạm vi: dữ liệu được xử lý theo lô (batch), không có luồng phát sinh liên tục.
+
+Về nhu cầu xử lý phân tán: bộ nhớ đỉnh của Pandas tăng gần tỉ lệ với dữ liệu, từ 906 MiB ở bộ 500k lên 1.682 MiB ở bộ 1M (mục 6.10). Nếu tiếp tục tăng tuyến tính, bộ 5M sẽ cần khoảng 8 GB RAM cho một tiến trình (ngoại suy của nhóm, chưa đo), và đó là lúc giới hạn một máy trở thành vấn đề.
 
 ## 3.7 Yêu cầu của giai đoạn Storage → Processing
 
@@ -92,7 +94,7 @@ Velocity không thuộc phạm vi: dữ liệu được xử lý theo lô (batch
 - Chạy phân tán trên cụm Spark nhiều worker, không phụ thuộc vào một máy đơn.
 - Tái lập được: dữ liệu sinh bằng seed cố định; mỗi lần chạy lưu lệnh, cấu hình, commit, log và số đo vào `results/`.
 - Đo được: tách thời gian xử lý khỏi thời gian khởi động; có lặp lại để tính độ lệch chuẩn.
-- Kiểm chứng được tính đúng: số dòng bị loại phải khớp số lỗi đã chèn.
+- Kiểm chứng được tính đúng: số dòng trùng đã bỏ và các lý do cách ly trực tiếp phải khớp số lỗi đã chèn.
 - Chạy được trong giới hạn bộ nhớ của máy thí nghiệm (mục 3.8).
 - Không ghi lộ thông tin đăng nhập MinIO: lấy từ biến môi trường, không viết cứng trong mã.
 
@@ -119,6 +121,7 @@ Nguồn mục 3.8: `results/logs/environment.txt`, `.claude/CLAUDE.md`, `infra/R
 - 99.579 / 100.377 / 100.000 / 200.030: results/metrics/orders_5m.json; 10.001.475 = 10.201.505 − 200.030.
 - Tỉ số 10,54; 16,2 MB; 1,54 MB; 9 phân vùng; 1,18: results/metrics/skew/partition_stats_summary.csv (partitions = 64).
 - hot_share 0,5, hot_products 10, 20.000 sản phẩm: config.py, src/experiments/skew/README.md.
+- 906 và 1.682 MiB: results/metrics/pandas_baseline/summary.csv. Khoảng 8 GB = 1.682 × 5, ngoại suy chưa đo: mục 6.10.
 - Mô hình 5V, mức cấu trúc dữ liệu: đã đối chiếu slide chương 1, tr. 14, 26 (report/review/verify-slides.md). Việc áp 3 V vào đồ án là nhận định của người viết.
 - CPU, RAM 15,76 GB, ổ đĩa, wslconfig: results/logs/environment.txt.
 - Bảng lỗi chèn: docs/design/schema.md dòng "Lỗi chèn"; "các loại lỗi không chồng lên cùng một dòng": src/data_generation/README.md.

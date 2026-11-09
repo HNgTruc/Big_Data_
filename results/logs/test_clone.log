@@ -1,0 +1,48 @@
+# Kiểm tra các bước không cần Docker trên một bản clone mới của repo, chạy 2026-11-09 trên máy thí nghiệm.
+# Bản clone tạo bằng `git clone` từ repo cục bộ, ở commit 8c0bcf1, đặt trong thư mục tạm; Python 3.12.10 của .venv-exp.
+# Không kiểm tra: venv tạo mới, các bước cần Docker (dựng cụm, chép lên MinIO, ETL, đo). Đường dẫn thư mục tạm được rút gọn thành <clone>.
+
+== Bộ sinh dữ liệu, không có --overwrite
+> python -m src.data_generation.generate --orders 500000
+ERROR <clone>\data\raw\orders_500k is not empty; pass --overwrite to replace it
+exit=1
+
+== Bộ thí nghiệm, xem trước
+> python -m src.experiments.run_all --group all --dry-run
+status per experiment (0 ok, 1 some runs failed, 2 aborted/refused): {'scale_data': 0, 'join_strategy': 0, 'skew': 0, 'format_compare': 0, 'cache': 0, 'scale_workers': 0, 'pandas_baseline': 0}
+exit=0
+
+== Bộ thí nghiệm, không có --overwrite
+> python -m src.experiments.run_all --group all
+scale_data aborted (status 2); remaining experiments not started
+status per experiment (0 ok, 1 some runs failed, 2 aborted/refused): {'scale_data': 2}
+exit=2
+Số tệp thay đổi trong bản clone sau lệnh này: 0
+
+== Kiểm thử trên host
+> python -m pytest tests/test_build_docx.py tests/test_experiments.py tests/test_experiments_pandas.py tests/test_data_generation.py -q
+69 passed in 4.36s
+
+== Bộ sinh dữ liệu, có --overwrite, so sánh SHA-256 với dữ liệu đã dùng để đo (data/raw/orders_500k của máy thí nghiệm)
+> python -m src.data_generation.generate --orders 500000 --overwrite
+customers.csv same=True
+orders.csv same=True
+order_items.csv same=True
+web_events.jsonl same=True
+products.parquet same=True
+
+== Phân tích, trên bản clone không có event log
+> python -m src.experiments.analyze_all
+exit=0
+results/metrics/skew/plan_check.csv, dòng tiêu đề trước: config,rep,status,event_log,SortMergeJoin,BroadcastHashJoin,ShuffledHashJoin,BroadcastNestedLoopJoin,CartesianProduct,SortMergeJoin(skew=true),ShuffledHashJoin(skew=true),AQEShuffleRead(skewed),executions
+results/metrics/skew/plan_check.csv, sau: config,rep,status,event_log,note / balanced_auto_aqe,1,ok,results/logs/skew/eventlogs/app-20261107153018-0026,missing app-20261107153018-0026
+Tệp có trên git bị thay đổi trong results/ (git status --short -- results):
+ M results/metrics/join_strategy/plan_check.csv
+ M results/metrics/skew/plan_check.csv
+> git checkout -- results/metrics/join_strategy/plan_check.csv results/metrics/skew/plan_check.csv
+results/metrics/skew/plan_check.csv, sau khi khôi phục: dòng tiêu đề như ban đầu
+
+== Dựng báo cáo
+> python report\build\draw_architecture.py
+> python report\build\build_docx.py --strict
+exit=0

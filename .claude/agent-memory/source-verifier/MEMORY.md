@@ -2,5 +2,5 @@
 
 Agent tự cập nhật file này khi làm việc (giữ dưới 200 dòng). Chỉ ghi điều đã xác nhận.
 
-- [Nguồn đã kiểm chứng](reference_sources.md): Drive slide (cách liệt kê, tên thật, không đọc được nội dung), trang Spark 4.0.0, tệp results/ chính
-- [Lỗi hay tái diễn](recurring_errors.md): phạm vi khẳng định quá rộng, số từ r1, tên slide sai, trích nguồn ngoài sai ý, mặc định Spark 4.0
+- [Nguồn đã kiểm chứng](reference_sources.md): Drive slide, trang Spark 4.0.0, Microsoft WSL, tệp results/ chính, cách đọc .git/index không cần Bash
+- [Lỗi hay tái diễn](recurring_errors.md): phạm vi quá rộng, số từ r1, chọn mốc thuận lợi, trích thiếu vế, lệnh tái lập không xét bản clone

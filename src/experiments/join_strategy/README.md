@@ -1,6 +1,6 @@
 # join_strategy — (d) broadcast join so với shuffle (sort-merge) join
 
-**Trạng thái: chưa chạy.**
+**Trạng thái: đã đo chính thức ngày 2026-11-07 (commit 8164042).** Số đo ở `results/metrics/join_strategy/`, hình ở `results/figures/join_strategy/`.
 
 - **Mục tiêu:** so thời gian ETL khi các join với bảng nhỏ dùng broadcast hash join hay sort-merge join (cần shuffle), trên orders_5m; `auto` làm tham chiếu.
 - **Giả thuyết (chưa kiểm chứng):** broadcast nhanh hơn với bảng nhỏ (`products`, tập `customer_id`) vì tránh shuffle bảng lớn (slide chương 5).

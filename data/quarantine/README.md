@@ -1,3 +1,3 @@
 # quarantine
 
-Bản ghi không hợp lệ bị tách khỏi luồng chính, kèm lý do, để thống kê chất lượng dữ liệu. Trạng thái: chưa có dữ liệu.
+Thư mục để trống. Job ETL mặc định ghi bản ghi lỗi kèm cột `reject_reason` lên MinIO (`s3a://bigdata/quarantine/`), không ghi vào đây; xem `src/etl/pipeline.py`.

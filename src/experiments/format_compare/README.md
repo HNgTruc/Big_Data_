@@ -1,6 +1,6 @@
 # format_compare — (c) CSV/JSON thô so với Parquet đã làm sạch
 
-**Trạng thái: chưa chạy.**
+**Trạng thái: đã đo chính thức ngày 2026-11-07 (commit 8164042).** Số đo ở `results/metrics/format_compare/`, hình ở `results/figures/format_compare/`.
 
 - **Mục tiêu:** cùng một bộ truy vấn Spark trên dữ liệu thô (`raw/<bộ>/`, CSV và JSON lines) và trên Parquet (`curated/<label>/`), đo thời gian từng truy vấn và dung lượng lưu trữ.
 - **Giả thuyết (chưa kiểm chứng):** Parquet nhanh hơn rõ ở truy vấn chỉ dùng ít cột nhờ đọc theo cột (column pruning) và đẩy điều kiện lọc xuống (predicate pushdown); dung lượng nhỏ hơn nhờ nén theo cột (slide chương 4).

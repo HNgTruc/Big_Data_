@@ -1,10 +1,10 @@
 # Chương 7. Kết quả demo
 
-Chương này tập hợp minh chứng hệ thống đã chạy thật: ảnh chụp giao diện Spark và MinIO, và mẫu dữ liệu trước và sau xử lý. Các ảnh chụp còn lại, mẫu bảng tổng hợp và trích đoạn log nằm ở Phụ lục E. Toàn bộ dữ liệu trong ảnh và bảng là **dữ liệu mô phỏng**. Ảnh được chụp ngày 2026-11-08, sau bộ đo chính thức; ảnh từ Spark History Server được dựng lại từ event log của thí nghiệm (e).
+Chương này tập hợp minh chứng hệ thống đã chạy thật: ảnh chụp giao diện Spark và MinIO, và mẫu dữ liệu trước và sau xử lý. Các ảnh chụp còn lại, mẫu bảng tổng hợp và trích đoạn log nằm ở Phụ lục E. Toàn bộ dữ liệu trong ảnh và bảng là **dữ liệu mô phỏng**. Ảnh được chụp ngày 2026-11-08, sau bộ đo chính thức; ảnh từ Spark History Server được dựng lại từ event log của thí nghiệm (e). Ảnh chụp trong báo cáo là bản cắt khung và thêm viền của ảnh gốc, không sửa nội dung bên trong; ảnh gốc ghi ở dòng Nguồn của từng hình. Riêng @fig:ke-hoach-so-sanh là sơ đồ vẽ lại, không phải ảnh chụp.
 
 ## 7.1 Cụm Spark và tài nguyên
 
-![Spark Master UI: 2 worker ALIVE, tổng 4 lõi và 4,0 GiB, mỗi executor 1024 MiB, 68 ứng dụng đã hoàn thành](results/logs/screenshots/01_spark_master_workers.png){#fig:ss-master}
+![Spark Master UI: 2 worker ALIVE, tổng 4 lõi và 4,0 GiB, mỗi executor 1024 MiB, 68 ứng dụng đã hoàn thành](report/figures/screenshots/01_spark_master_workers.png){#fig:ss-master}
 
 Nguồn: results/logs/screenshots/01_spark_master_workers.png
 
@@ -14,7 +14,7 @@ Tab Executors của một lần chạy `skew_shuffle_aqe` (@fig:ss-executors, Ph
 
 ## 7.2 Lưu trữ trên MinIO
 
-![Vùng raw/orders_5m: sáu object gồm ba tệp CSV, một tệp Parquet, một tệp JSON lines và manifest](results/logs/screenshots/03_minio_raw_orders_5m.png){#fig:ss-minio-raw}
+![Vùng raw/orders_5m: sáu object gồm ba tệp CSV, một tệp Parquet, một tệp JSON lines và manifest](report/figures/screenshots/03_minio_raw_orders_5m.png){#fig:ss-minio-raw}
 
 Nguồn: results/logs/screenshots/03_minio_raw_orders_5m.png
 
@@ -87,27 +87,23 @@ Nguồn: results/samples/orders_5m/missing_region_customers.csv
 
 Mục này so sánh kế hoạch và task giữa các cấu hình của thí nghiệm (e). Danh sách ứng dụng đọc lại từ event log (@fig:ss-history) và ảnh DAG minh hoạ ranh giới stage tại shuffle (@fig:ss-dag) ở mục E.2 (Phụ lục E).
 
-![Kế hoạch SQL của skew_shuffle_aqe, bước ghi order_items sạch: SortMergeJoin(skew=true) và AQEShuffleRead với 49 lần tách phân vùng lệch](results/logs/screenshots/07_skew_shuffle_aqe_sql_plan.png){#fig:ss-aqe-plan}
+![Ba kế hoạch đã chạy của bước ghi order_items sạch: phép join theo product_id khác nhau giữa các cấu hình, các bước còn lại giống nhau](report/figures/ke-hoach-so-sanh.png){#fig:ke-hoach-so-sanh}
 
-Nguồn: results/logs/screenshots/07_skew_shuffle_aqe_sql_plan.png (ứng dụng app-20261107154233-0032, truy vấn SQL số 4)
+Nguồn: vẽ bằng script report/build/draw_plan_comparison.py; cấu trúc theo event log của truy vấn SQL số 4 (results/logs/skew/plan_query4.txt), số liệu theo ảnh 07, 09, 10, 11 trong results/logs/screenshots/
 
-So sánh @fig:ss-aqe-plan với kế hoạch khi tắt AQE (@fig:ss-noaqe-plan, Phụ lục E): khi bật AQE, nút join được đánh dấu `skew=true` và phía trên có `AQEShuffleRead` ghi "number of skewed partition splits: 49"; khi tắt AQE, nút `SortMergeJoin` không có xử lý lệch. Lưu ý khi đọc ảnh: tổng thời gian của một khối WholeStageCodegen hiển thị trên ảnh (ví dụ 3.05 h) là tổng cộng dồn thời gian của mọi task chạy song song, không phải thời gian thực của lần chạy, nên không được dùng làm số đo thời gian xử lý.
+@fig:ke-hoach-so-sanh so sánh cùng một phép join qua ba cấu hình. Khi tắt AQE (a), join theo `product_id` là `SortMergeJoin` thường. Khi bật AQE (b), join đó được đánh dấu `skew=true`, và `AQEShuffleRead` ở phía trước ghi "number of skewed partition splits: 49". Ảnh chụp giao diện tương ứng là @fig:ss-aqe-plan, @fig:ss-noaqe-plan và @fig:ss-auto-plan (mục E.2, Phụ lục E).
 
-![Summary Metrics của stage đọc shuffle khi tắt AQE (64 task): dữ liệu đọc lớn nhất 15,5 MiB, task lâu nhất 0,5 s](results/logs/screenshots/09_skew_shuffle_noaqe_stage_tasks.png){#fig:ss-noaqe-tasks}
+![Summary Metrics của stage đọc shuffle khi tắt AQE (64 task): dữ liệu đọc lớn nhất 15,5 MiB, task lâu nhất 0,5 s](report/figures/screenshots/09_skew_shuffle_noaqe_stage_tasks.png){#fig:ss-noaqe-tasks}
 
 Nguồn: results/logs/screenshots/09_skew_shuffle_noaqe_stage_tasks.png; mã ứng dụng app-20261107154442-0033 và stage 19 theo results/logs/screenshots/README.md (không hiện trên phần ảnh đã cắt)
 
-![Summary Metrics của stage tương ứng khi bật AQE (104 task): dữ liệu đọc lớn nhất 1,9 MiB, task lâu nhất 0,2 s](results/logs/screenshots/10_skew_shuffle_aqe_stage_tasks.png){#fig:ss-aqe-tasks}
+![Summary Metrics của stage tương ứng khi bật AQE (104 task): dữ liệu đọc lớn nhất 1,9 MiB, task lâu nhất 0,2 s](report/figures/screenshots/10_skew_shuffle_aqe_stage_tasks.png){#fig:ss-aqe-tasks}
 
 Nguồn: results/logs/screenshots/10_skew_shuffle_aqe_stage_tasks.png; mã ứng dụng app-20261107154233-0032 và stage 32 theo results/logs/screenshots/README.md (không hiện trên phần ảnh đã cắt)
 
 Hai ảnh @fig:ss-noaqe-tasks và @fig:ss-aqe-tasks cho thấy trực tiếp tác dụng của tách phân vùng lệch: trung vị dữ liệu đọc của một task giữ khoảng 1,5 MiB, nhưng giá trị lớn nhất giảm từ 15,5 MiB xuống 1,9 MiB. Khi tắt AQE, Shuffle Write lớn nhất của một task là 1.059.025 bản ghi, trùng chính xác `rows_max` của phép đo `partition_stats` ở 64 phân vùng (`results/metrics/skew/partition_stats_summary.csv`), còn Shuffle Read lớn nhất là 1.059.341 bản ghi. Sự trùng khớp này cho thấy phép đo dùng để chọn tham số phản ánh đúng phân vùng lớn nhất khi chạy thật.
 
-![Kế hoạch SQL của skew_auto_aqe: join với products là BroadcastHashJoin, khoá lệch không đi qua shuffle](results/logs/screenshots/11_skew_auto_aqe_sql_plan.png){#fig:ss-auto-plan}
-
-Nguồn: results/logs/screenshots/11_skew_auto_aqe_sql_plan.png (ứng dụng app-20261107153343-0028, truy vấn SQL số 4)
-
-Ở cấu hình mặc định (@fig:ss-auto-plan), join `order_items` với `products` là `BroadcastHashJoin`, nên dữ liệu không bị shuffle theo `product_id`. Ảnh cũng cho thấy nút `HashAggregate` của bước bỏ trùng phía trên có spill 1312,3 MiB: với heap 1 GB, phép bỏ trùng trên 10 triệu dòng hàng phải tràn ra đĩa (nhận định của người viết).
+Ở cấu hình mặc định (cột (c) của @fig:ke-hoach-so-sanh), join `order_items` với `products` là `BroadcastHashJoin`, nên dữ liệu không bị shuffle theo `product_id`. @fig:ss-auto-plan (Phụ lục E) cũng cho thấy nút `HashAggregate` của bước bỏ trùng phía trên có spill 1312,3 MiB: với heap 1 GB, phép bỏ trùng trên 10 triệu dòng hàng phải tràn ra đĩa (nhận định của nhóm).
 
 <!-- VERIFY
 - Ảnh chụp 2026-11-08: results/logs/screenshots/README.md cột Trạng thái.
@@ -122,6 +118,8 @@ Nguồn: results/logs/screenshots/11_skew_auto_aqe_sql_plan.png (ứng dụng ap
 - Ảnh 07, 09, 10, 11: số đọc từ screenshots/README.md mục "Số đọc được trên ảnh" và chính ảnh. Ảnh 09: Shuffle Write max 13.7 MiB / 1059025, Shuffle Read max 15.5 MiB / 1059341 (đã xem ảnh); rows_max 1059025 ở partition_stats_summary.csv dòng orders_5m_skew, 64.
 - ID ứng dụng và stage của ảnh 09, 10 không hiện trên ảnh đã cắt: verify-round1 mục B; nguồn là results/logs/screenshots/README.md.
 - 3.05 h là tổng cộng dồn: screenshots/README.md.
+- Tên bảng `products` không hiện trên ảnh 11 đã cắt; event log xác nhận join theo product_id là BroadcastHashJoin (results/logs/skew/plan_query4.txt).
+- @fig:ke-hoach-so-sanh: cấu trúc của cả ba cột và số phân vùng (64, 8) đã đối chiếu với results/logs/skew/plan_query4.txt; đã lược các nút WholeStageCodegen, InputAdapter, ColumnarToRow, Project, Filter phía trước join. Số liệu 15,5 MiB, 0,5 s, 64 task: ảnh 09; 1,9 MiB, 0,2 s, 104 task: ảnh 10; 49: ảnh 07; 10.000.351, 1312,3 MiB: ảnh 11. Đều của lần r1.
 - Spill 1312,3 MiB ở HashAggregate: ảnh 11. Diễn giải "phải tràn ra đĩa do heap 1 GB" là nhận định của người viết.
 - Câu "phép đo phản ánh đúng phân vùng lớn nhất" là nhận định của người viết từ sự trùng khớp số.
 -->

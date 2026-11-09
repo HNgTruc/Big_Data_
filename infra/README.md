@@ -9,7 +9,7 @@ Lịch sử kiểm chứng: Đã xác nhận trên máy người dùng (2026-11-
 - `minio/minio`, `minio/mc` (Docker Hub) và `quay.io/minio/*` (cả `latest` lẫn tag cố định) **không kéo được** (bị từ chối).
 - `cgr.dev/chainguard/minio` và `minio-client` (Chainguard) kéo được; entrypoint là `/usr/bin/minio` và `/usr/bin/mc`; image client **không có shell**.
 
-Vì vậy MinIO lấy từ Chainguard. Nguồn tham khảo: [bài của bex.co](https://bex.co/blog/2026/09/25/minio-docker-hub-removal-quay-repoint) và [bài của Chainguard](https://www.chainguard.dev/unchained/secure-and-free-minio-chainguard-containers). Chưa kiểm chứng: bản MinIO trong image Chainguard (xem bằng `docker run --rm cgr.dev/chainguard/minio:latest --version`), và việc cấu hình có chạy được. Báo cáo cần ghi lý do chọn nguồn image này.
+Vì vậy MinIO lấy từ Chainguard. Nguồn tham khảo: [bài của bex.co](https://bex.co/blog/2026/09/25/minio-docker-hub-removal-quay-repoint) và [bài của Chainguard](https://www.chainguard.dev/unchained/secure-and-free-minio-chainguard-containers). Bản MinIO đã đo ghi ở `results/logs/environment.txt`; thẻ `latest` có thể đổi theo thời gian. Lý do chọn nguồn image này ở mục 5.1 của báo cáo.
 
 ## Thành phần
 
@@ -74,8 +74,8 @@ Không dùng `docker compose exec` (xem mục "Kết quả đã xác nhận"). J
 - Nếu sập lại: thử tắt Radmin VPN (nghi vấn thứ hai, chưa có bằng chứng), xem Event Viewer của `wslservice.exe`.
 
 ### Dung lượng đĩa (2026-11-07)
-- Sau 7 lần chạy, `/opt/spark/work` trên mỗi worker chiếm khoảng 4,1 GB: mỗi ứng dụng chép lại các jar của `--packages` vào thư mục riêng và worker không tự xoá. Ổ C còn 2,6 GB vì `docker_data.vhdx` (37,7 GB) nằm trên C.
-- Đã xử lý: worker bật `spark.worker.cleanup.enabled` (quét 10 phút/lần, xoá thư mục của ứng dụng đã kết thúc quá 1 giờ) và ổ đĩa Docker được chuyển sang `D:\Data\DockerDesktopWSL`.
+- Sau 7 lần chạy, `/opt/spark/work` trên mỗi worker chiếm khoảng 4,1 GB: mỗi ứng dụng chép lại các jar của `--packages` vào thư mục riêng và theo mặc định worker chỉ xoá sau 7 ngày. Ổ C còn 2,6 GB vì `docker_data.vhdx` (37,7 GB) nằm trên C.
+- Đã xử lý: rút ngắn chu kỳ dọn của worker (`spark.worker.cleanup.*`: mặc định quét 30 phút/lần và giữ 7 ngày, nay quét 10 phút/lần và xoá thư mục của ứng dụng đã kết thúc quá 1 giờ) và ổ đĩa Docker được chuyển sang `D:\Data\DockerDesktopWSL`.
 - Hệ quả: log executor (`stderr`) của một lần chạy chỉ còn trên worker khoảng 1 giờ. Log driver vẫn lưu trong `results/logs/`.
 - Lưu ý khi chạy cả bộ thí nghiệm: mỗi ứng dụng vẫn chép jar vào thư mục làm việc của worker (bộ đệm Ivy chỉ tránh tải lại ở driver), và thư mục chỉ bị xoá sau 1 giờ, nên trong lúc chạy liên tục dung lượng `/opt/spark/work` sẽ tăng theo số lần chạy trong một giờ. Theo dõi dung lượng ổ D.
 - Ổ C và ổ D là hai phân vùng của **cùng một ổ đĩa vật lý** (bộ đếm `PhysicalDisk(0 c: d:)`), nên chuyển sang D chỉ giải quyết dung lượng, không giảm tranh chấp I/O. Trước khi đo chính thức: tạm dừng Windows Update, đóng Chrome/Discord, dừng container không liên quan.

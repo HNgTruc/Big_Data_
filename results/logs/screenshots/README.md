@@ -1,7 +1,7 @@
 # screenshots — ảnh chụp minh chứng
 
 Ảnh chụp Spark UI, Spark History Server và MinIO Console, dùng cho chương 7 (Kết quả demo) và mục 7 của đề (minh chứng demo).
-Tên file: `<số thứ tự>_<nội dung>.png`. Không sửa ảnh ngoài việc cắt khung.
+Tên file: `<số thứ tự>_<nội dung>.png`. Không sửa ảnh ngoài việc cắt khung. Báo cáo dùng bản cắt khung và thêm viền ở `report/figures/screenshots/`, sinh từ các ảnh này.
 
 ## Cách mở lại giao diện
 
@@ -42,7 +42,7 @@ Chạy trong `infra/` (PowerShell):
 | `05_minio_quarantine_orders_5m.png` | MinIO, `quarantine/orders_5m/` | Ba bảng cách ly: orders, order_items, web_events | Đã có (2026-11-08) |
 | `06_history_app_list.png` | History Server, trang chủ | Danh sách ứng dụng skew đã đọc lại từ event log | Đã có (2026-11-08) |
 | `07_skew_shuffle_aqe_sql_plan.png` | App `...-0032`, tab SQL / DataFrame, query ID 4 (ghi `order_items` sạch) | Sơ đồ kế hoạch có nút `SortMergeJoin(skew=true)` và `AQEShuffleRead` có partition bị tách (cùng tên nút mà `plan_check.csv` đếm) | Đã có (2026-11-08) |
-| `08_skew_shuffle_noaqe_sql_plan.png` | App `...-0033`, tab SQL / DataFrame, query ID 4 | `SortMergeJoin` không có xử lý skew | Đã có (2026-11-08) |
+| `08_skew_shuffle_noaqe_sql_plan.png` | App `...-0033`, tab SQL / DataFrame, query ID 4 | `SortMergeJoin` không có xử lý skew. Lưu ý: khung ảnh là join theo `order_id`, khác phép join theo `product_id` ở ảnh 07; cây đầy đủ ở `../skew/plan_query4.txt` | Đã có (2026-11-08) |
 | `09_skew_shuffle_noaqe_stage_tasks.png` | App `...-0033`, tab Stages, stage 19 (64 task, đọc shuffle 158 MiB) | Bảng Summary Metrics: thời gian task min/median/max lệch nhau | Đã có (2026-11-08) |
 | `10_skew_shuffle_aqe_stage_tasks.png` | App `...-0032`, tab Stages, stage 32 (104 task: 64 + các task tách từ partition lệch) | Summary Metrics sau khi AQE tách partition | Đã có (2026-11-08) |
 | `11_skew_auto_aqe_sql_plan.png` | App `...-0028`, tab SQL / DataFrame, query ID 4 | `BroadcastHashJoin` với `products`: không có shuffle theo khoá lệch | Đã có (2026-11-08) |

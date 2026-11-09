@@ -6,7 +6,7 @@
 
 **Khả năng mở rộng (mục tiêu 3).** Dữ liệu tăng 10 lần thì thời gian xử lý tăng 3,52 lần. Thêm worker từ 1 lên 2 chỉ đạt speedup 1,29, efficiency 0,64 (mục 6.4, 6.5).
 
-**Tối ưu và so sánh (mục tiêu 4).** Parquet nhanh hơn dữ liệu thô 2,1–2,7 lần. Ép sort-merge join chậm hơn khoảng 12% so với `broadcast`. Cache hoà vốn sau khoảng 3,1 truy vấn. Trái giả thuyết, lệch khoá không làm job chậm rõ rệt (tỉ lệ 0,95–1,09), dù AQE có tách join lệch. Pandas nhanh hơn Spark 6,1 lần ở bộ 500k và 4,0 lần ở bộ 1M, trong hai môi trường khác nhau (mục 6.6 đến 6.10).
+**Tối ưu và so sánh (mục tiêu 4).** Parquet nhanh hơn dữ liệu thô 2,1–2,7 lần. Ép sort-merge join chậm hơn khoảng 7–12%. Cache hoà vốn sau khoảng 3,1 truy vấn. Trái giả thuyết ở biến thể ép shuffle, lệch khoá không làm job chậm rõ rệt (tỉ lệ 0,95–1,09 ở cả 4 cặp), dù AQE có tách join lệch. Pandas nhanh hơn Spark 6,1 lần ở bộ 500k và 4,0 lần ở bộ 1M, trong hai môi trường khác nhau (mục 6.6 đến 6.10).
 
 **Tái lập (mục tiêu 5).** Cả 69 lần chạy đều có bản ghi lệnh, commit và số đo trong `results/`; không lần nào bị loại. Các bước tái lập ở Phụ lục F.
 
@@ -17,6 +17,6 @@
 <!-- VERIFY
 - 20.931.505 / 19.244.742 / 1.276.733 / 410.030: @tbl:chat-luong-5m, results/samples/orders_5m/summary.csv.
 - Khớp số lỗi ở cả năm bộ: docs/design/etl.md, mục 6.3.
-- 3,52; 1,29; 0,64; 2,1–2,7; 12%; 0,95–1,09; 3,1; 6,1; 4,0: mục 6.4 đến 6.11.
+- 3,52; 1,29; 0,64; 2,1–2,7; 7–12%; 0,95–1,09; 3,1; 6,1; 4,0: mục 6.4 đến 6.11.
 - Không có kết luận ngoài chương 6, 8.
 -->

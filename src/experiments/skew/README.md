@@ -1,6 +1,6 @@
 # skew — (e) lệch khoá × cách join × AQE
 
-**Trạng thái: chưa chạy đo chính thức.** Đã có bằng chứng chọn tham số (`results/metrics/skew/partition_stats*.csv`, xem dưới).
+**Trạng thái: đã đo chính thức ngày 2026-11-07 (commit 8164042).** Số đo ở `results/metrics/skew/`, hình ở `results/figures/skew/`. Phép đo kích thước phân vùng để chọn tham số: `results/metrics/skew/partition_stats*.csv`, xem dưới.
 
 - **Mục tiêu:** so thời gian ETL trên dữ liệu cân bằng (orders_5m) và lệch khoá (orders_5m_skew), với hai cách join và AQE bật/tắt → **8 cấu hình**, mỗi cấu hình 3 lần.
 - **Biến cố định:** 2 worker, seed 42, cùng mã ETL.

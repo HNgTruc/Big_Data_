@@ -1,7 +1,7 @@
 # experiments — thí nghiệm hiệu năng
 
 Mã điều khiển, đo và phân tích các thí nghiệm. Người chạy đo chính thức: `benchmark-analyst`.
-**Trạng thái: chưa chạy đo chính thức thí nghiệm nào** (mới kiểm thử mã, dry-run và vài lần chạy thử; đầu ra chạy thử không để trong `results/`). Bằng chứng duy nhất đã lưu là phép đo kích thước phân vùng của `skew` (`results/metrics/skew/partition_stats*.csv`).
+**Trạng thái: đã đo chính thức cả bảy thí nghiệm ngày 2026-11-07 (commit 8164042, 69 lần chạy).** Số đo ở `results/metrics/<exp>/`, log ở `results/logs/<exp>/`, hình ở `results/figures/<exp>/`.
 
 ## Cấu trúc
 

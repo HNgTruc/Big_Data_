@@ -19,9 +19,11 @@
 [@chainguard-minio]: M. Moser, D. J. Ledkov, L. Tagliaferri, and A. Jain, "Secure and Free MinIO Chainguard Containers," Chainguard, 27/10/2025. [Online]. Available: https://www.chainguard.dev/unchained/secure-and-free-minio-chainguard-containers (truy cập: 2026-11-08).
 [@bex-minio]: D. Noda, "MinIO Vanished From Docker Hub: The One-Line Fix and the Migration You Actually Owe Yourself," bex.co, 25/09/2026. [Online]. Available: https://bex.co/blog/2026/09/25/minio-docker-hub-removal-quay-repoint (truy cập: 2026-11-08).
 [@docker-767]: M-transferts, "Docker Desktop 4.95.0 / WSL2: intermittent startup failure (0xc00000fd) and unexplained backend errors," docker/desktop-feedback, issue #767, GitHub, 21/10/2026. [Online]. Available: https://github.com/docker/desktop-feedback/issues/767 (truy cập: 2026-11-08).
+[@wsl-config]: Microsoft, "Advanced settings configuration in WSL," Microsoft Learn, 16/10/2026. [Online]. Available: https://learn.microsoft.com/en-us/windows/wsl/wsl-config (truy cập: 2026-11-08).
 
 <!-- VERIFY
-- Danh sách gồm các nguồn được trích ở toàn báo cáo. Chương 2 thêm spark-cloud và hadoop-s3-third-party, lấy nguyên từ verify-slides mục E.2 (đã mở bằng WebFetch 2026-11-08, nên đối chiếu nguyên văn).
+- Danh sách gồm các nguồn được trích ở toàn báo cáo; verify-round2 đã kiểm mọi khoá. Chương 2 thêm spark-cloud và hadoop-s3-third-party, lấy nguyên từ verify-slides mục E.2. wsl-config: Phụ lục F, lấy nguyên từ verify-round2 E4.
+- Tên giảng viên ở bốn mục slide: người dùng cung cấp (2026-11-09); slide không ghi tên người.
 - Slide chương 1, 2, 4, 5: tên, khoa, năm, tổng số trang PDF đã đối chiếu (report/review/verify-slides.md mục A). Slide không ghi tên giảng viên. Tên gốc dùng gạch ngang dài sau "Chương N"; ở đây viết dấu hai chấm theo quy ước báo cáo. Slide chương 1 in mẫu số "n/56" nhưng tệp có 51 trang; ghi 51.
 - minio-docs: README đã mở lại 2026-11-08; "MinIO, Inc." lấy từ chân trang www.min.io, README không ghi; liên kết trỏ nhánh master nên nội dung có thể đổi. Định dạng các mục chưa đối chiếu hướng dẫn IEEE gốc (không mở được).
 - Tiêu đề và ngày truy cập URL: verify-round1 mục D. Tiêu đề gốc của pyspark-cache có gạch ngang dài giữa hai vế; ở đây viết gạch nối theo quy ước của báo cáo.

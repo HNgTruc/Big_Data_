@@ -28,7 +28,7 @@ Bảng: Dung lượng lưu trữ thô và Parquet đã làm sạch, kèm byte/d�
 | web_events | JSON lines | 624,17 | 105,73 | 5,90 | 122,4 | 21,6 |
 | **Tổng** | | **1.089,70** | **226,24** | **4,82** | | |
 
-Nguồn: results/metrics/format_compare/sizes.csv (raw_bytes, curated_bytes, ratio_raw_over_curated); số dòng từ results/samples/orders_5m/summary.csv; cột byte/dòng và dòng Tổng do người viết tính
+Nguồn: results/metrics/format_compare/sizes.csv (raw_bytes, curated_bytes, ratio_raw_over_curated); số dòng từ results/samples/orders_5m/summary.csv; cột byte/dòng và dòng Tổng do nhóm tính
 
 ## D.3 Thí nghiệm (e): kích thước phân vùng
 
@@ -58,7 +58,7 @@ Bảng: Thời gian từng truy vấn không cache và có cache (orders_5m, n =
 | Tổng 5 truy vấn | 15,75 ± 1,01 | 2,88 ± 0,09 | 5,48 |
 | Tổng gồm materialize | 15,75 ± 1,01 | 10,90 ± 0,59 | 1,44 |
 
-Nguồn: results/metrics/cache/summary.csv; cột tỉ lệ do người viết tính
+Nguồn: results/metrics/cache/summary.csv; cột tỉ lệ do nhóm tính
 
 ## D.5 Thí nghiệm (g): thời gian từng giai đoạn của Pandas
 

@@ -11,7 +11,7 @@ Hệ thống gồm hai lớp chạy trong Docker Compose trên cùng một máy:
 
 ![Kiến trúc hệ thống](report/figures/kien-truc.png){#fig:kien-truc}
 
-Nguồn: nhóm tự vẽ từ infra/docker-compose.yml và src/etl/pipeline.py (script report/build/draw_architecture.py)
+Nguồn: vẽ bằng script report/build/draw_architecture.py, theo infra/docker-compose.yml và src/etl/pipeline.py
 
 @fig:kien-truc thể hiện luồng dữ liệu và luồng điều khiển của hệ thống. Bộ sinh dữ liệu (`src/data_generation`, seed 42) chạy trên máy host và ghi `data/raw/<bộ>/` (CSV, Parquet, JSON lines, `manifest.json`). Container `minio-init` chép dữ liệu này lên vùng `raw/` của MinIO (`s3a://bigdata/raw/<bộ>/`, giao thức S3, cổng 9000) bằng lệnh `mc cp`. Driver chạy trong một container riêng (`etl-driver` hoặc `bench-driver`) do `docker compose run` tạo, gọi `spark-submit src/etl/etl_job.py` và nộp ứng dụng tới master qua `spark://spark-master:7077`. Master cấp executor trên các worker `spark-worker-1` và `spark-worker-2`, còn driver mới là bên gửi task cho executor [@spark-cluster]; mỗi worker chạy một executor (2 lõi, heap 1 GB). Executor đọc `raw/`, làm sạch, join, tổng hợp, rồi ghi `curated/<nhãn>/` và `quarantine/<nhãn>/` dạng Parquet qua S3A. Metrics và log về thư mục `results/` trên host: metrics JSON do driver ghi qua thư mục gắn bind mount, còn log là stdout và stderr của driver do bộ điều khiển trên host ghi lại.
 
@@ -86,7 +86,7 @@ Nguồn: docs/design/etl.md
 
 **Parquet cho dữ liệu đã xử lý.** Parquet tổ chức dữ liệu theo cột, nhờ đó truy vấn có thể chỉ đọc những cột cần dùng và dữ liệu thường nén hiệu quả (slide chương 4, tr. 46 [@slide-c4]). Định dạng cột còn hỗ trợ đẩy điều kiện lọc xuống, tuỳ khả năng của nguồn dữ liệu (slide chương 5, tr. 42, 44 [@slide-c5]). Thí nghiệm (c) đo trực tiếp lợi ích này (mục 6.6).
 
-**Ghi rồi đọc lại giữa các giai đoạn.** Ngoài việc đo được từng giai đoạn, cách này cắt chuỗi phụ thuộc (lineage) của DataFrame, tránh việc Spark tính lại toàn bộ chuỗi biến đổi từ dữ liệu thô ở giai đoạn sau. Đây là nhận định của người viết; đổi lại, mỗi giai đoạn phải trả thêm chi phí ghi và đọc Parquet trên MinIO.
+**Ghi rồi đọc lại giữa các giai đoạn.** Ngoài việc đo được từng giai đoạn, cách này cắt chuỗi phụ thuộc (lineage) của DataFrame, tránh việc Spark tính lại toàn bộ chuỗi biến đổi từ dữ liệu thô ở giai đoạn sau. Đây là nhận định của nhóm; đổi lại, mỗi giai đoạn phải trả thêm chi phí ghi và đọc Parquet trên MinIO.
 
 **Cấu hình Spark mặc định của job.** `spark.sql.shuffle.partitions` = 8, AQE bật, ngưỡng broadcast tự động 10 MB (giá trị ghi trong metrics). Lệnh nộp job không đặt `spark.executor.memory`, nên executor dùng heap mặc định 1 GB [@spark-config]; giá trị này được giữ vì Docker Desktop từng sập dưới giới hạn 6 GB (mục 5.5).
 
@@ -121,7 +121,7 @@ Tổng cộng 69 lần chạy: 63 lần chạy Spark và 6 lần chạy Pandas. 
 - Thứ tự xen kẽ: lần 1 của mọi cấu hình, rồi lần 2, rồi lần 3, để nhiễu theo thời gian phân bố đều. Riêng (b) chạy theo khối (3 lần 1 worker rồi 3 lần 2 worker) để chỉ phải dừng và bật worker một lần.
 - Trước mỗi lần chạy ETL, bộ điều khiển xoá đầu ra cũ của cùng nhãn trên MinIO, ngoài thời gian đo, để mọi lần lặp ghi vào thư mục rỗng như nhau.
 - Job truy vấn của (c) và (f) có một bước khởi động không tính giờ trước khi đo.
-- Trước mỗi lần chạy, bộ điều khiển kiểm tra cụm có đúng số worker ALIVE, đúng tổng số lõi, không có ứng dụng nào khác đang chạy; sai thì dừng thí nghiệm.
+- Trước mỗi lần chạy Spark, bộ điều khiển kiểm tra cụm có đúng số worker ALIVE, đúng tổng số lõi, không có ứng dụng nào khác đang chạy; sai thì dừng thí nghiệm.
 
 **Kiểm tra tính hợp lệ của từng lần chạy.** Mỗi lần chạy có một bản ghi `run_record.json`. Thống kê chỉ dùng các lần có trạng thái `ok` và không mang cờ loại trừ; bảng tổng hợp còn kiểm tra tính đồng nhất và tính nhất quán của số đếm giữa các lần chạy. Nội dung bản ghi và ý nghĩa từng cờ ở @tbl:co-hop-le (Phụ lục B).
 
@@ -133,7 +133,8 @@ Tổng cộng 69 lần chạy: 63 lần chạy Spark và 6 lần chạy Pandas. 
 - MinIO tương thích S3: README kho minio/minio, điều phối viên đã mở lại 2026-11-08 ("S3-compatible object storage"); kho ghi đã ngừng bảo trì.
 - HDFS và tách tính toán (c2 tr. 28), object storage (c4 tr. 37), Data Lake (c1 tr. 31, c4 tr. 47), Parquet (c4 tr. 46, c5 tr. 42, 44), speedup (c2 tr. 21): đã đối chiếu slide (report/review/verify-slides.md). `raw/` giữ nguyên, `quarantine/`, thí nghiệm (a), (g): quyết định của đồ án.
 - Master cấp executor, driver gửi task: Spark Cluster Mode Overview 4.0.0 (điều phối viên đã mở trang 2026-11-08: "allocate resources across applications"; "SparkContext sends tasks to the executors to run").
-- @fig:kien-truc: report/figures/kien-truc.png, report/build/draw_architecture.py; đối chiếu infra/docker-compose.yml, src/etl/pipeline.py.
+- @fig:kien-truc: report/figures/kien-truc.png, report/build/draw_architecture.py; đối chiếu infra/docker-compose.yml, src/etl/pipeline.py. Repo không ghi ai viết script (verify-round2 B7).
+- Kiểm tra cụm chỉ áp dụng cho lần chạy Spark: verify-round2 A3.
 - Metrics JSON do driver ghi qua bind mount (results/ mount vào /opt/spark/work-dir/results): infra/docker-compose.yml; log do bộ điều khiển trên host ghi: docstring và hàm của src/experiments/common/runner.py (stdout/stderr vào results/logs/<exp>/<config>_r<k>.log).
 - Cổng 9000/9001/7077/8090: infra/docker-compose.yml, infra/README.md.
 - Năm giai đoạn và thứ tự: src/etl/pipeline.py hàm run.

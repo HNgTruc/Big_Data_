@@ -45,7 +45,7 @@ Mã tuân theo một số quy ước: lược đồ khai báo tường minh thay
 
 Các bước tái lập toàn bộ (PowerShell; chi tiết ở `infra/README.md` và `src/experiments/README.md`):
 
-1. Sinh dữ liệu trên host: `python -m src.data_generation.generate --orders 5000000` (thêm `--skew` cho bộ lệch).
+1. Sinh dữ liệu trên host: `python -m src.data_generation.generate --orders 5000000` (thêm `--skew` cho bộ lệch; thêm `--overwrite` nếu thư mục đầu ra đã có `manifest.json`, như trên bản clone).
 2. Dựng cụm trong `infra/`: `docker compose up -d`; kiểm tra Master UI tại http://localhost:8090 thấy 2 worker ALIVE.
 3. Chép dữ liệu thô lên MinIO: `docker compose run --rm minio-init cp --recursive /data/raw/orders_5m local/bigdata/raw/`.
 4. Chạy job ETL một lần:
@@ -59,7 +59,7 @@ docker compose run --rm --no-deps --name etl-driver spark-master
   /opt/spark/work-dir/src/etl/etl_job.py --dataset orders_5m
 ```
 
-5. Chạy toàn bộ bộ thí nghiệm từ thư mục gốc: `python -m src.experiments.run_all --group all`, rồi `python -m src.experiments.analyze_all` để dựng lại CSV và hình.
+5. Chạy toàn bộ bộ thí nghiệm từ thư mục gốc: `python -m src.experiments.run_all --group all` (thêm `--overwrite` nếu `results/metrics/` đã có bản ghi), rồi `python -m src.experiments.analyze_all` để dựng lại CSV và hình.
 
 **Dùng `docker compose run` thay vì `docker compose exec`.** Mỗi lần chạy tạo một container driver mới có tên cố định (`etl-driver`, `bench-driver`) và đặt `spark.driver.host` bằng tên đó để executor gọi ngược về driver. Lúc đầu job được chạy bằng `exec` trong container master; khi engine Docker sập (mục 5.5), `exec` báo lỗi `500` hoặc `No such exec instance`. Dùng `run` thì driver tách khỏi master, container được xoá sau khi chạy (`--rm`), và bộ điều khiển thí nghiệm có thể kiểm tra không còn container driver cũ trước mỗi lần chạy.
 
@@ -87,5 +87,5 @@ Nguồn: tests/README.md; results/logs/test_etl.log; results/logs/test_host.log
 - ivy download 46 ms: results/metrics/scale_data/runs/orders_5m/r3/run_record.json trường ivy.download_ms.
 - Số test 12/14/3/12/29/15/13: tests/README.md, results/logs/test_etl.log (41 passed), results/logs/test_host.log (69 passed).
 - test_build_docx.py 13 test: log test_host.log chạy lại 2026-11-08 (69 = 13 + 29 + 15 + 12).
-- Lệnh chạy: infra/README.md, src/experiments/README.md.
+- Lệnh chạy: infra/README.md, src/experiments/README.md. `--overwrite`: src/data_generation/generate.py:128-130, src/experiments/common/runner.py:192-196, theo mã, chưa chạy thử (verify-round2 E1, E2).
 -->

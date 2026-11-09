@@ -6,7 +6,7 @@ data/**/*.json
 !data/**/manifest.json
 data/**/*.jsonl
 data/**/*.crc
-# Ivy cache of the spark-submit --packages jars (~0.5 GB), shared by the --rm driver containers
+# Ivy cache of the spark-submit --packages jars (~1 GB), shared by the --rm driver containers
 data/ivy_cache/
 
 # Python

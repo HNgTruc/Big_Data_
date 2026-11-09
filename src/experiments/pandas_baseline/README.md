@@ -1,6 +1,6 @@
 # pandas_baseline — (g) baseline Pandas một máy
 
-**Trạng thái: chưa chạy đo chính thức** (đã chạy thử một lần trên orders_500k, đầu ra để ngoài `results/`).
+**Trạng thái: đã đo chính thức ngày 2026-11-07 (commit 8164042).** Số đo ở `results/metrics/pandas_baseline/`, hình ở `results/figures/pandas_baseline/`.
 
 - **Mục tiêu:** cùng luật làm sạch và cùng ba bảng tổng hợp như ETL Spark, viết bằng pandas, chạy trên một máy; đo theo cùng các giai đoạn (`dimensions`, `orders`, `order_items`, `web_events`, `aggregates`) để có điểm so sánh với Spark (mục Volume trong `docs/design/schema.md`).
 - **Phạm vi:** chỉ orders_500k và orders_1m (theo quyết định).

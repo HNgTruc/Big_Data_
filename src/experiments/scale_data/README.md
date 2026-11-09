@@ -1,6 +1,6 @@
 # scale_data — (a) mở rộng theo kích thước dữ liệu
 
-**Trạng thái: chưa chạy.**
+**Trạng thái: đã đo chính thức ngày 2026-11-07 (commit 8164042).** Số đo ở `results/metrics/scale_data/`, hình ở `results/figures/scale_data/`.
 
 - **Mục tiêu:** đo thời gian ETL (`src/etl/etl_job.py`) khi số đơn tăng 0,5M → 1M → 2,5M → 5M, cấu hình mặc định.
 - **Giả thuyết (chưa kiểm chứng):** thời gian tăng chậm hơn tỉ lệ dữ liệu ở bộ nhỏ (chi phí cố định: lập lịch, khởi tạo, ghi nhiều file nhỏ) và tiến gần tuyến tính ở bộ lớn; thông lượng (dòng thô/giây) tăng theo kích thước rồi bão hoà.

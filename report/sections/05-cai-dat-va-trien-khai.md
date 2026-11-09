@@ -26,11 +26,15 @@ Nguồn: infra/.env.example, infra/README.md, results/logs/environment.txt (MinI
 
 **Lý do chọn MinIO và nguồn image Chainguard.** MinIO cung cấp API tương thích S3 [@minio-docs] chạy cục bộ, mô phỏng lớp lưu trữ đối tượng của Data Lake mà không cần dịch vụ đám mây. Khi triển khai (2026-11-06), các image `minio/minio`, `minio/mc` trên Docker Hub và `quay.io/minio/*` đều không kéo được trên máy (quan sát của đồ án, `infra/README.md`). Với Docker Hub, một bài viết ghi nhận image MinIO đã bị xoá khỏi đó từ giữa tháng 9/2026 [@bex-minio]; bài viết khuyên chuyển sang quay.io, nhưng trên máy này quay.io cũng không kéo được. Chainguard cung cấp image MinIO miễn phí [@chainguard-minio]; image này kéo được nên được dùng thay thế. Image client của Chainguard không có shell, nên mọi lệnh `mc` được gọi trực tiếp qua `docker compose run`.
 
+**Lý do chọn Docker Compose.** Đề tài cần một cụm Spark nhiều worker nhưng nhóm chỉ có một máy. Với Docker Compose, một tệp cấu hình dựng đủ MinIO, master và 2 worker, cố định phiên bản image và giới hạn số lõi, bộ nhớ của từng worker, nên cụm được dựng lại giống nhau giữa các lần chạy. Đổi lại, các worker vẫn dùng chung phần cứng của một máy, nên kết quả không thay thế được phép đo trên cụm thật.
+
+**Lý do chọn Pandas.** Pandas là thư viện xử lý bảng phổ biến trên một máy, cùng hệ sinh thái Python với PySpark. Chạy cùng các luật làm sạch bằng Pandas trong thí nghiệm (g) cho một mốc so sánh để xem ở quy mô dữ liệu này, chi phí xử lý phân tán có đáng hay không (mục 4.6, 6.10).
+
 ## 5.2 Cấu hình cụm
 
 Cụm gồm 2 worker, mỗi worker 2 lõi (tổng 4 lõi) và cho phép tối đa 2 GB; mỗi worker chạy một executor với heap mặc định 1 GB. Job ETL mặc định dùng 8 phân vùng shuffle, bật AQE và ngưỡng broadcast tự động 10 MB. Toàn bộ giá trị ở @tbl:cau-hinh-cum (Phụ lục C).
 
-Trường `resources` trong metrics ghi `spark.executor.memory` = `null`, nghĩa là không đặt và Spark dùng mặc định 1g [@spark-config]. Ảnh chụp tab Executors (@fig:ss-executors, Phụ lục E) cho thấy mỗi executor có Storage Memory 434,4 MiB: đây là vùng nhớ hợp nhất (thực thi và lưu trữ) tách ra từ heap 1 GB, khớp công thức (1024 − 300) × 0,6 = 434,4 MiB ở tài liệu Spark [@spark-tuning]. Với 2 GB cho phép trên mỗi worker, việc giữ heap 1 GB để lại khoảng trống cho hệ điều hành, MinIO và master trong giới hạn 6 GB của WSL2 (nhận định của người viết). Đánh đổi là executor dễ tràn dữ liệu ra đĩa hơn khi shuffle hoặc cache (thấy rõ ở thí nghiệm (f), mục 6.9).
+Trường `resources` trong metrics ghi `spark.executor.memory` = `null`, nghĩa là không đặt và Spark dùng mặc định 1g [@spark-config]. Ảnh chụp tab Executors (@fig:ss-executors, Phụ lục E) cho thấy mỗi executor có Storage Memory 434,4 MiB: đây là vùng nhớ hợp nhất (thực thi và lưu trữ) tách ra từ heap 1 GB, khớp công thức (1024 − 300) × 0,6 = 434,4 MiB ở tài liệu Spark [@spark-tuning]. Với 2 GB cho phép trên mỗi worker, việc giữ heap 1 GB để lại khoảng trống cho hệ điều hành, MinIO và master trong giới hạn 6 GB của WSL2 (nhận định của nhóm). Đánh đổi là executor dễ tràn dữ liệu ra đĩa hơn khi shuffle hoặc cache (thấy rõ ở thí nghiệm (f), mục 6.9).
 
 ## 5.3 Mã nguồn và cách chạy
 
@@ -62,6 +66,7 @@ Ngoài kiểm thử đơn vị, tính đúng của job được kiểm chứng b
 Nguồn mục 5.5: infra/README.md (mục "Sự cố engine Docker Desktop sập", "Dung lượng đĩa", "Đưa dữ liệu thô lên MinIO"), src/experiments/README.md (mục "Bộ đệm Ivy"), infra/docker-compose.yml.
 
 <!-- VERIFY
+- Lý do chọn Docker Compose và Pandas: bản nháp do điều phối viên đề xuất, người dùng đồng ý (2026-11-09). Giới hạn lõi, bộ nhớ, image cố định: infra/docker-compose.yml, infra/.env.example.
 - Java 17.0.15, Spark 4.0.0, nhân 6.18.54.1-microsoft-standard-WSL2: results/logs/export_samples_orders_5m.log dòng 29–31.
 - Python 3.10.12, numpy 2.2.6, pandas 2.3.3, pyarrow 25.0.1, 41 passed in 64.91s: results/logs/test_etl.log.
 - 69 passed in 4.42s: results/logs/test_host.log (chạy lại 2026-11-08 sau khi thêm test phụ lục); phân bổ 13/29/15/12 do điều phối viên đếm bằng pytest --co (log chỉ in tổng).

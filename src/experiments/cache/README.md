@@ -1,6 +1,6 @@
 # cache — (f) cache DataFrame dùng lại
 
-**Trạng thái: chưa chạy.** Đo trong job truy vấn riêng (`src/experiments/common/query_bench.py cache`), không đo trong ETL (theo quyết định của người dùng; `etl_job.py` không có cờ `--cache`).
+**Trạng thái: đã đo chính thức ngày 2026-11-07 (commit 8164042).** Số đo ở `results/metrics/cache/`, hình ở `results/figures/cache/`. Đo trong job truy vấn riêng (`src/experiments/common/query_bench.py cache`), không đo trong ETL (theo quyết định của người dùng; `etl_job.py` không có cờ `--cache`).
 
 - **Mục tiêu:** chạy K truy vấn tổng hợp trên cùng DataFrame `order_items ⋈ orders` (đọc từ `curated/<label>/`), so không cache với có cache.
 - **Giả thuyết (chưa kiểm chứng):** không cache thì mỗi truy vấn đọc lại Parquet và làm lại join (shuffle); có cache thì lần materialize tốn thêm nhưng các truy vấn sau nhanh hơn, có lợi khi K đủ lớn (slide chương 5: chỉ cache dữ liệu thực sự dùng lại).
