@@ -16,7 +16,8 @@
 - Schema: 5 bảng `orders`, `order_items`, `customers` (CSV), `products` (Parquet), `web_events` (JSON lines) — chi tiết ở `docs/design/schema.md`.
 - Dữ liệu bẩn sẽ chèn: bản ghi trùng, giá trị thiếu, giá trị không hợp lệ, sai định dạng ngày; **2% mỗi loại**.
 - Kích thước `orders`: 0.5M, 1M, 2.5M, 5M dòng. `order_items` khoảng 2 dòng/đơn. Có tham số bật/tắt độ lệch key.
-- Lớp học phần cụ thể, phân công thực tế, hạn nộp (chưa cần): **chưa có** — không tự điền.
+- Giảng viên: Vũ Ngọc Thanh Sang. Lớp: DCT123C3. Kho mã nguồn công khai: https://github.com/HNgTruc/Big_Data_.git.
+- Mã lớp học phần, phân công thực tế, ngày nộp (giảng viên chưa thông báo): **chưa có** — không tự điền.
 
 ## Nguồn sự thật (đọc trước khi làm)
 1. `docs/requirements/yeu-cau-do-an.md` — tóm tắt file `Yêu cầu đồ án.docx` (đề gốc nằm trên Google Drive của người dùng).
