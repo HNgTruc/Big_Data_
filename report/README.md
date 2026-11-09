@@ -5,13 +5,13 @@ Agent phụ trách: `report-writer`; kiểm chứng: `source-verifier`.
 
 | Mục | Nội dung | Trạng thái |
 |---|---|---|
-| Bìa và thông tin nhóm | Tên đề tài, khoa, lớp, thành viên, phân công | Bản nháp (`sections/00-bia.md`); thiếu lớp, mã lớp, giảng viên, ngày nộp, phân công thực tế |
-| Tóm tắt | 150–250 từ | Chưa viết |
-| 1–2 | Giới thiệu; Cơ sở và công nghệ liên quan | Chưa viết |
-| 3–7 | Dữ liệu và yêu cầu; Thiết kế; Cài đặt; Thực nghiệm; Kết quả demo | Bản nháp 2 (2026-11-08): đã sửa theo `review/verify-round1.md`, đã chèn sơ đồ kiến trúc, chi tiết đã chuyển sang phụ lục A–E; nội dung slide chưa kiểm |
-| 8–9 | Thảo luận; Kết luận | Chưa viết (ý chính đã ghi ở mục 6.11) |
-| Tài liệu tham khảo | IEEE | Bản nháp, mới có nguồn của chương 3–7; thiếu tên giảng viên, năm và số trang slide, thiếu nguồn MinIO |
-| Phụ lục | A–E: dữ liệu, cờ hợp lệ, cài đặt, số liệu chi tiết, minh chứng; F–G: hướng dẫn chạy và tái lập, ghi chú dùng AI | A–E: bản nháp (`sections/95-phu-luc-*.md`); F–G chưa viết |
+| Bìa và thông tin nhóm | Tên đề tài, khoa, lớp, thành viên, phân công | Bản nháp (`sections/00-bia.md`); thiếu mã lớp, ngày nộp, phân công thực tế |
+| Tóm tắt | 150–250 từ | Bản nháp (235 từ), chờ kiểm vòng 2 |
+| 1–2 | Giới thiệu; Cơ sở và công nghệ liên quan | Bản nháp, chờ kiểm vòng 2 |
+| 3–7 | Dữ liệu và yêu cầu; Thiết kế; Cài đặt; Thực nghiệm; Kết quả demo | Bản nháp 2 (2026-11-08): đã sửa theo `review/verify-round1.md`, đã chèn sơ đồ kiến trúc, chi tiết đã chuyển sang phụ lục A–E; trích dẫn slide đã đối chiếu kèm số trang (`review/verify-slides.md`) |
+| 8–9 | Thảo luận; Kết luận | Bản nháp, chờ kiểm vòng 2 |
+| Tài liệu tham khảo | IEEE | Bản nháp, chờ kiểm vòng 2 |
+| Phụ lục | A–E: dữ liệu, cờ hợp lệ, cài đặt, số liệu chi tiết, minh chứng; F–G: hướng dẫn chạy và tái lập, ghi chú dùng AI | A–G: bản nháp (`sections/95-phu-luc-*.md`); F–G chờ kiểm vòng 2 |
 
 | Thư mục | Nội dung |
 |---|---|

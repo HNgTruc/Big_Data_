@@ -5,4 +5,5 @@ Dùng làm danh sách việc khi sửa `report/sections/`, và làm bằng chứ
 
 | File | Phạm vi | Trạng thái |
 |---|---|---|
-| `verify-round1.md` | Bìa, chương 3–7, tài liệu tham khảo (bản nháp 1, 2026-11-08) | Chưa áp dụng vào `sections/`; nội dung slide chưa kiểm được |
+| `verify-round1.md` | Bìa, chương 3–7, tài liệu tham khảo (bản nháp 1, 2026-11-08) | Đã áp dụng vào `sections/` (2026-11-08); phần slide kiểm ở `verify-slides.md` |
+| `verify-slides.md` | 12 chỗ trích slide chương 1, 2, 4, 5 kèm số trang; bảng khái niệm; nguồn thay thế đã mở; mục IEEE | Đã áp dụng vào `sections/` (2026-11-08) |

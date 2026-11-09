@@ -12,11 +12,11 @@
 
 **Quy trình con:** Storage → Processing
 
-**Lớp:** [CHƯA CÓ: tên lớp học phần]
+**Lớp:** DCT123C3
 
 **Mã lớp học phần:** [CHƯA CÓ: mã lớp]
 
-**Giảng viên hướng dẫn:** [CHƯA CÓ: họ tên giảng viên]
+**Giảng viên hướng dẫn:** Vũ Ngọc Thanh Sang
 
 **Sinh viên thực hiện:**
 Huỳnh Ngọc Trúc (3123411312)

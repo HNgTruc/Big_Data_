@@ -1,4 +1,4 @@
 # pytest trên host Windows (.venv-exp: Python 3.12.10), chạy 2026-11-08 từ gốc repo:
 # .venv-exp\Scripts\python.exe -m pytest tests/test_build_docx.py tests/test_experiments.py tests/test_experiments_pandas.py tests/test_data_generation.py -q
-....................................................................     [100%]
-68 passed in 4.12s
+.....................................................................    [100%]
+69 passed in 4.42s

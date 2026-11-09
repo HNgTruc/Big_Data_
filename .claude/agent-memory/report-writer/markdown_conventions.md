@@ -13,7 +13,11 @@ Báo cáo được script trong `report/build/` (agent khác viết) chuyển t�
 - `[CHƯA CÓ: lý do]`; khối `<!-- VERIFY ... -->` cuối mỗi tệp; không LaTeX, không footnote, không gạch ngang dài (—) trong văn bản (– chỉ cho khoảng số).
 - Số kiểu Việt: 21,90; 20.931.505; ghi rõ MB = 10^6 byte.
 - Thuật ngữ: cách ly (quarantine), bỏ trùng, chuẩn hoá, giai đoạn (giữ tên dimensions/orders/order_items/web_events/aggregates), biến thể ép shuffle, gộp phân vùng, tách phân vùng lệch, dữ liệu mô phỏng.
-- Không tự điền ngày truy cập URL (không có công cụ web).
+- Không tự điền ngày truy cập URL (không có công cụ web); chỉ ghi ngày khi source-verifier hoặc điều phối viên đã mở trang.
+- Phụ lục: tệp `95-phu-luc-<chữ>-<tên>.md`, dòng đầu `# Phụ lục A. Tên`, mục `## A.1 ...`. Thân bài dẫn tới bằng `@tbl:x (Phụ lục D)` hoặc `mục C.3`. Phát hiện và kết luận ở lại thân bài, chỉ bảng chi tiết sang phụ lục. Không tham chiếu `@fig:` trong chú thích hình.
+- Phần sau tiền tố của nhãn cũng không trùng giữa `fig` và `tbl`. Tiêu đề nguồn có gạch ngang dài thì viết gạch nối hoặc dấu hai chấm, ghi chú trong VERIFY.
+- Trích slide dạng `(slide chương N, tr. X [@slide-cN])`; `[@slide-cN, tr. X]` không khớp regex của script. Ký hiệu Amdahl: p là phần song song, N là số worker; slide dùng s, p khác. Không trích NIST. Tránh viết sát câu slide. Thân bài đã dài, nên dẫn sang mục khác thay vì lặp số. Tệp `00-tom-tat.md` đứng sau bìa theo thứ tự tên file.
+- Mỗi khẳng định suy luận ghi rõ "(nhận định của người viết)"; khi chỉ có hướng dẫn mà không có ghi nhận đã làm thì viết đúng như vậy, không khẳng định như sự kiện.
 
 **Why:** điều phối viên giao quy ước này 2026-11-08; báo cáo Word sinh tự động.
 **How to apply:** mọi lần viết/sửa trong report/sections. Xem [[chapter-status]].

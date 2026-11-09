@@ -6,7 +6,7 @@ Chương này trình bày kiến trúc tổng thể, cách tổ chức vùng lư
 
 Hệ thống gồm hai lớp chạy trong Docker Compose trên cùng một máy:
 
-- **Lớp lưu trữ:** MinIO, một hệ lưu trữ đối tượng tương thích giao thức S3 [CHƯA CÓ: nguồn MinIO], giữ dữ liệu thô, dữ liệu sạch và dữ liệu cách ly trong bucket `bigdata`. Lưu trữ đối tượng tách rời lưu trữ khỏi tính toán, khác với HDFS nơi dữ liệu nằm trên chính các nút tính toán (slide chương 4 [@slide-c4]).
+- **Lớp lưu trữ:** MinIO, một hệ lưu trữ đối tượng tương thích S3 [@minio-docs], giữ dữ liệu thô, dữ liệu sạch và dữ liệu cách ly trong bucket `bigdata`. Object storage được truy cập qua API theo bucket và object key thay vì đường dẫn tệp (slide chương 4, tr. 37 [@slide-c4]). Kiểu cụm cổ điển như HDFS/Hadoop đặt tính toán và lưu trữ cùng trên worker, còn mô hình đám mây có thể tách tính toán khỏi object storage (slide chương 2, tr. 28 [@slide-c2]). Trong đồ án, sự tách này chỉ ở mức dịch vụ vì MinIO và Spark chạy trên cùng một máy.
 - **Lớp xử lý:** cụm Apache Spark ở chế độ standalone gồm 1 master và 2 worker; mỗi worker cấp 2 lõi và tối đa 2 GB RAM. Job PySpark được nộp bằng `spark-submit` từ một container driver riêng và đọc ghi MinIO qua connector S3A của Hadoop (`hadoop-aws`) [@hadoop-s3a].
 
 ![Kiến trúc hệ thống](report/figures/kien-truc.png){#fig:kien-truc}
@@ -29,7 +29,7 @@ Nguồn: infra/docker-compose.yml, infra/README.md
 
 ## 4.2 Tổ chức vùng lưu trữ trên MinIO
 
-Bucket `bigdata` được chia thành các vùng theo tiền tố đường dẫn, theo tinh thần Data Lake ở slide chương 1 [@slide-c1]: dữ liệu thô giữ nguyên, dữ liệu đã xử lý tách riêng.
+Bucket `bigdata` được chia thành các vùng theo tiền tố đường dẫn. Data Lake có thể lưu cả dữ liệu thô và dữ liệu đã xử lý (slide chương 1, tr. 31 [@slide-c1]), và slide chương 4 minh hoạ cách chia vùng raw, clean, curated (tr. 47 [@slide-c4]). Đồ án áp dụng theo hướng đó: `raw/` giữ nguyên dữ liệu thô, dữ liệu đã xử lý nằm ở `curated/`; vùng `quarantine/` là quyết định riêng của đồ án.
 
 Bảng: Các vùng lưu trữ trong bucket bigdata {#tbl:vung-luu-tru}
 
@@ -84,7 +84,7 @@ Nguồn: docs/design/etl.md
 
 **Cách ly thay vì xoá.** Bản ghi lỗi được giữ trong `quarantine/` kèm lý do, để có thể kiểm tra, thống kê hoặc sửa sau này. Đây cũng là căn cứ để xuất mẫu dữ liệu trước và sau xử lý (chương 7).
 
-**Parquet cho dữ liệu đã xử lý.** Parquet lưu theo cột và nén theo cột, cho phép chỉ đọc những cột cần dùng và đẩy điều kiện lọc xuống tầng đọc (slide chương 4 [@slide-c4]). Thí nghiệm (c) đo trực tiếp lợi ích này (mục 6.6).
+**Parquet cho dữ liệu đã xử lý.** Parquet tổ chức dữ liệu theo cột, nhờ đó truy vấn có thể chỉ đọc những cột cần dùng và dữ liệu thường nén hiệu quả (slide chương 4, tr. 46 [@slide-c4]). Định dạng cột còn hỗ trợ đẩy điều kiện lọc xuống, tuỳ khả năng của nguồn dữ liệu (slide chương 5, tr. 42, 44 [@slide-c5]). Thí nghiệm (c) đo trực tiếp lợi ích này (mục 6.6).
 
 **Ghi rồi đọc lại giữa các giai đoạn.** Ngoài việc đo được từng giai đoạn, cách này cắt chuỗi phụ thuộc (lineage) của DataFrame, tránh việc Spark tính lại toàn bộ chuỗi biến đổi từ dữ liệu thô ở giai đoạn sau. Đây là nhận định của người viết; đổi lại, mỗi giai đoạn phải trả thêm chi phí ghi và đọc Parquet trên MinIO.
 
@@ -92,7 +92,7 @@ Nguồn: docs/design/etl.md
 
 ## 4.6 Thiết kế thí nghiệm
 
-Bảy thí nghiệm (a) đến (g) trả lời các câu hỏi về khả năng mở rộng và các kỹ thuật tối ưu học trong slide chương 2 và chương 5 [@slide-c2] [@slide-c5].
+Bảy thí nghiệm (a) đến (g) trả lời các câu hỏi về khả năng mở rộng và tối ưu. Các thí nghiệm (b) đến (f) gắn với các khái niệm trong slide: speedup (slide chương 2, tr. 21 [@slide-c2]), định dạng cột (slide chương 4, tr. 46 [@slide-c4]), broadcast join, data skew, AQE và cache (slide chương 5, tr. 31, 48, 50, 51 [@slide-c5]). Thí nghiệm (a) và (g) là câu hỏi do đồ án đặt ra, để quan sát xu hướng theo kích thước dữ liệu và so sánh với Pandas một máy.
 
 Bảng: Bảy thí nghiệm, biến thay đổi và biến cố định {#tbl:thiet-ke-thi-nghiem}
 
@@ -113,7 +113,7 @@ Tổng cộng 69 lần chạy: 63 lần chạy Spark và 6 lần chạy Pandas. 
 **Chỉ số.** So sánh hiệu năng dùng `processing_seconds_total`: tổng thời gian năm giai đoạn do job tự đo, không gồm khởi động container, JVM, đăng ký executor và bước thống kê. Thời gian cả lệnh Docker (`wall_seconds`) được ghi để tham khảo. Các chỉ số suy ra:
 
 - Thông lượng = tổng số dòng thô năm bảng / `processing_seconds_total` (dòng/giây), tính cho từng lần chạy rồi lấy trung bình.
-- Speedup S = T(1 worker) / T(2 worker); efficiency E = S / 2 (công thức ở slide chương 2 [@slide-c2]).
+- Speedup S = T(1 worker) / T(2 worker); efficiency E = S / 2 (công thức ở slide chương 2, tr. 21 [@slide-c2]).
 - Số truy vấn hoà vốn của cache n* = M / (u − c), với M là thời gian materialize, u và c là thời gian trung bình một truy vấn khi không cache và có cache.
 
 **Kiểm soát nhiễu.**
@@ -130,8 +130,8 @@ Tổng cộng 69 lần chạy: 63 lần chạy Spark và 6 lần chạy Pandas. 
 **Tham số của biến thể ép shuffle trong (e).** Theo tài liệu Spark, AQE chỉ tách một phân vùng của sort-merge join khi phân vùng đó lớn hơn cả `skewedPartitionFactor` × trung vị (mặc định 5) và `skewedPartitionThresholdInBytes` (mặc định 256 MB) [@spark-sql-tuning]. Với 8 phân vùng mặc định, phân vùng lớn nhất của bộ lệch chỉ khoảng 34,7 MB và không phân vùng nào vượt 5 lần trung vị, nên AQE không thể tách. Vì vậy biến thể ép shuffle được **chủ động** đặt 64 phân vùng, ngưỡng lệch 4 MiB và kích thước phân vùng tư vấn 2 MiB. Ngưỡng 4 MiB được chọn dựa trên phép đo kích thước phân vùng thật: ở 64 phân vùng, 9 phân vùng chứa khoá nóng có kích thước 8,07 đến 16,2 MB, các phân vùng còn lại không quá 1,71 MB, và ở bộ cân bằng phân vùng lớn nhất là 3,47 MB (@tbl:partition-stats, Phụ lục D). Như vậy ngưỡng nằm giữa hai nhóm: chỉ phân vùng nóng của bộ lệch đạt ngưỡng.
 
 <!-- VERIFY
-- MinIO tương thích S3: chưa có URL MinIO đã kiểm, để [CHƯA CÓ: nguồn MinIO] (verify-round1 mục B).
-- HDFS đặt dữ liệu trên nút tính toán, Data Lake, Parquet, speedup: slide chương 1, 2, 4, 5; CHƯA đối chiếu slide thật (verify-round1 mục E).
+- MinIO tương thích S3: README kho minio/minio, điều phối viên đã mở lại 2026-11-08 ("S3-compatible object storage"); kho ghi đã ngừng bảo trì.
+- HDFS và tách tính toán (c2 tr. 28), object storage (c4 tr. 37), Data Lake (c1 tr. 31, c4 tr. 47), Parquet (c4 tr. 46, c5 tr. 42, 44), speedup (c2 tr. 21): đã đối chiếu slide (report/review/verify-slides.md). `raw/` giữ nguyên, `quarantine/`, thí nghiệm (a), (g): quyết định của đồ án.
 - Master cấp executor, driver gửi task: Spark Cluster Mode Overview 4.0.0 (điều phối viên đã mở trang 2026-11-08: "allocate resources across applications"; "SparkContext sends tasks to the executors to run").
 - @fig:kien-truc: report/figures/kien-truc.png, report/build/draw_architecture.py; đối chiếu infra/docker-compose.yml, src/etl/pipeline.py.
 - Metrics JSON do driver ghi qua bind mount (results/ mount vào /opt/spark/work-dir/results): infra/docker-compose.yml; log do bộ điều khiển trên host ghi: docstring và hàm của src/experiments/common/runner.py (stdout/stderr vào results/logs/<exp>/<config>_r<k>.log).
