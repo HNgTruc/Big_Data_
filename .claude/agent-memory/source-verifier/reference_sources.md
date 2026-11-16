@@ -16,6 +16,10 @@ metadata:
 
 **Nguon so lieu trong repo:** results/metrics/datasets/datasets_summary.csv (kich thuoc + loi chen tung bo), results/logs/environment.txt (CPU i5-14400F 10 nhan/16 luong, MinIO RELEASE.2026-10-23T20-06-51Z), results/logs/test_host.log (69 passed, chay lai 2026-11-08). App ID Spark chinh thuc lien tuc ...-0005 den ...-0067 (63 ung dung). results/metrics/*/runs/*/*/run_record.json (host_before/after, event_logs, dirty_paths).
 
+**PDF slide trong repo:** docs/references/slides/ (gitignored) co PDF ch1, 2, 4, 5 nhung Read KHONG mo duoc vi may thieu pdftoppm (kiem 2026-11-16). Van ban trich trong scratchpad bi xoa khi doi phien. Khi can slide: xin dieu phoi vien trich lai van ban, hoac dua vao report/review/verify-slides.md.
+
+**Ai lam gi (de kiem gan chu the):** runner.py = "bo dieu khien" (kiem cum truoc chay, xoa dau ra cu, ghi wall_seconds, log); analysis.py run_flags = dat co raw_rows_mismatch, workers_changed; job Pandas tu doi chieu 49 so dem (all_match); src/experiments/README.md:3 = nguoi chay do chinh thuc la benchmark-analyst; docs/design/etl.md:60 = doi chieu so loi la "tu dong".
+
 **Kiem git khong co Bash:** Grep voi output_mode content va -o tren `.git/index` liet ke duoc duong dan dang theo doi; doc .gitignore de biet ngoai le.
 
 Lien quan: [[recurring-errors]]

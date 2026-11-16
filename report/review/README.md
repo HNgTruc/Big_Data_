@@ -8,3 +8,4 @@ Dùng làm danh sách việc khi sửa `report/sections/`, và làm bằng chứ
 | `verify-round1.md` | Bìa, chương 3–7, tài liệu tham khảo (bản nháp 1, 2026-11-08) | Đã áp dụng vào `sections/` (2026-11-08); phần slide kiểm ở `verify-slides.md` |
 | `verify-slides.md` | 12 chỗ trích slide chương 1, 2, 4, 5 kèm số trang; bảng khái niệm; nguồn thay thế đã mở; mục IEEE | Đã áp dụng vào `sections/` (2026-11-08) |
 | `verify-round2.md` | Toàn bộ báo cáo, gồm tóm tắt, chương 1–9, phụ lục A–G (2026-11-08 đến 2026-11-09) | Đã áp dụng vào `sections/` (2026-11-09) |
+| `verify-round3.md` | Sau khi chuyển chi tiết sang phụ lục và viết lại văn phong: câu đổi nghĩa, gán sai chủ thể, tham chiếu (2026-11-16) | Đã áp dụng vào `sections/` (2026-11-16) |

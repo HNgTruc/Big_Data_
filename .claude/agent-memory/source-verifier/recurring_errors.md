@@ -22,6 +22,13 @@ Them tu vong 2 (2026-11-09):
 - Huong dan tai lap viet tu README ma khong xet ban clone: tep da tren git lam lenh dung ngay (run_record.json lam run_all tra 2; manifest.json lam generate tra 1). Luon doc ma va doi chieu .gitignore, .git/index.
 - README trong repo co the loi thoi so voi .gitignore (data/README.md noi chi giu README, thuc te giu ca manifest.json).
 
+Them tu vong 3 (2026-11-16, sau luot viet lai van phong + chuyen sang phu luc):
+- Bi dong -> chu dong gan sai chu the: "Bo dieu khien doi chieu so dong tho" (thuc te analysis.py run_flags lam; runner.py chi ghi). "Nhom lam/chay" quay lai du vong 2 da chot "Do an thuc hien" (agent benchmark-analyst chay do).
+- Gop cau lam them ve vao "vi": "chon 4.0.0 vi keo duoc VA chua Hadoop 3.4.1" (nguon: Hadoop 3.4.1 la he qua).
+- Nhan "nhan dinh" bi rot khi chuyen y sang phu luc (D.14) hoac khi VERIFY ghi la nhan dinh ma than bai khong ghi.
+- Cung mot loi pham vi ("tung ly do cach ly khop so loi da chen", gom ca no_clean_order) da sua o 5 cho nhung con sot o cho thu 6: grep toan bo cum tu, khong chi cac dong vong truoc liet ke.
+- Cau ly do moi them (Docker Compose "co dinh phien ban image") mau thuan voi the latest cua MinIO.
+
 **Why:** cac loi nay khong lo ra khi chi so khop tung con so; phai doc cau chu va doi chieu pham vi.
 **How to apply:** voi moi khang dinh "chi", "ca", "moi", kiem toan bo tap du lieu; voi moi trich dan ngoai, mo trang va doi chieu dung y duoc gan; voi moi lenh tai lap, doc ma xu ly tep da ton tai.
 

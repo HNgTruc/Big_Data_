@@ -1,6 +1,6 @@
 # Phụ lục F. Hướng dẫn chạy và tái lập
 
-Phụ lục này ghi các bước tái lập từ máy trống. Lệnh lấy từ các README trong repo; lệnh đã ghi ở mục C.3 được dẫn sang, không chép lại. Chạy trong PowerShell. Thư mục làm việc ghi ở từng bước: "gốc" là thư mục gốc repo, "`infra`" là thư mục con `infra/`.
+Các bước dưới đây tái lập đồ án từ máy trống, chạy trong PowerShell. Lệnh lấy từ các README trong repo, lệnh đã ghi ở mục C.3 chỉ dẫn sang, không chép lại. Thư mục làm việc ghi ở từng bước: "gốc" là thư mục gốc repo, "`infra`" là thư mục con `infra/`.
 
 Mã nguồn công khai tại `https://github.com/HNgTruc/Big_Data_.git`.
 
@@ -9,13 +9,13 @@ git clone https://github.com/HNgTruc/Big_Data_.git
 cd Big_Data_
 ```
 
-Đồ án không cung cấp API dịch vụ; giao diện sử dụng là các tham số dòng lệnh ở mục C.3.
+Đồ án không cung cấp API dịch vụ, người chạy điều khiển job bằng các tham số dòng lệnh ở mục C.3.
 
 ## F.1 Điều kiện cần
 
-- **Docker Desktop trên WSL2.** Máy đã chạy dùng Docker engine 29.9.2 (`results/logs/environment.txt`).
-- **Giới hạn WSL2.** Tệp `C:\Users\<tên>\.wslconfig` có `memory=6GB` và `processors=8` trong nhóm `[wsl2]` (`infra/README.md`, `results/logs/environment.txt`). Lý do đặt giới hạn ở mục 5.5. Sau khi sửa tệp, chạy `wsl --shutdown` rồi khởi động lại WSL để thay đổi có hiệu lực [@wsl-config]. Lệnh này tắt mọi bản phân phối WSL 2 đang chạy, nên cần dừng cụm trước (nhận định của nhóm). Repo không ghi nhận lệnh này đã chạy trên máy thí nghiệm.
-- **Python trên host.** Máy đã chạy dùng Python 3.12.10; README không nêu phiên bản tối thiểu. Tạo venv từ thư mục gốc (`src/experiments/README.md`):
+- Docker Desktop trên WSL2: máy đã chạy dùng Docker engine 29.9.2 (`results/logs/environment.txt`).
+- Giới hạn WSL2: tệp `C:\Users\<tên>\.wslconfig` có `memory=6GB` và `processors=8` trong nhóm `[wsl2]` (`infra/README.md`, `results/logs/environment.txt`). Lý do đặt giới hạn ở mục 5.5. Sau khi sửa tệp, chạy `wsl --shutdown` rồi khởi động lại WSL để thay đổi có hiệu lực [@wsl-config]. Lệnh này tắt mọi bản phân phối WSL 2 đang chạy, nên cần dừng cụm trước (nhận định của nhóm). Repo không ghi nhận lệnh này đã chạy trên máy thí nghiệm.
+- Python trên host: máy đã chạy dùng Python 3.12.10, README không nêu phiên bản tối thiểu. Tạo venv từ thư mục gốc (`src/experiments/README.md`):
 
 ```powershell
 python -m venv .venv-exp
@@ -23,8 +23,8 @@ python -m venv .venv-exp
 pip install -r src/experiments/requirements.txt
 ```
 
-- **Dung lượng đĩa.** Năm bộ dữ liệu thô khoảng 3,0 GB (cộng từ @tbl:kich-thuoc-tong), `data/ivy_cache/` khoảng 1 GB (đo trên máy thí nghiệm). Thư mục làm việc của worker tăng theo số lần chạy trong một giờ (`infra/README.md`; xem thêm mục 5.5): 7 lần chạy chiếm khoảng 4,1 GB trên mỗi worker, và thư mục chỉ bị xoá sau 1 giờ. Bộ đo chính thức chạy 63 ứng dụng Spark trong khoảng 1 giờ 41 phút, nên đỉnh có thể tới vài chục GB (suy luận, chưa đo); cần dự phòng dung lượng.
-- **Internet.** Cần khi kéo image, tải `hadoop-aws` lần đầu và cài gói kiểm thử trong container.
+- Dung lượng đĩa: năm bộ dữ liệu thô khoảng 3,0 GB (cộng từ @tbl:kich-thuoc-tong), `data/ivy_cache/` khoảng 1 GB (đo trên máy thí nghiệm). Thư mục làm việc của worker tăng theo số lần chạy trong một giờ (`infra/README.md`, xem thêm mục C.9): 7 lần chạy chiếm khoảng 4,1 GB trên mỗi worker, và thư mục chỉ bị xoá sau 1 giờ. Bộ đo chính thức chạy 63 ứng dụng Spark trong khoảng 1 giờ 41 phút, nên đỉnh có thể tới vài chục GB (suy luận, chưa đo). Cần dự phòng dung lượng.
+- Internet: cần khi kéo image, tải `hadoop-aws` lần đầu và cài gói kiểm thử trong container.
 
 ## F.2 Cấu hình và dựng cụm
 
@@ -34,7 +34,7 @@ Các lệnh ở mục này chạy trong `infra`. Tạo `infra/.env` rồi đổi
 copy .env.example .env
 ```
 
-Kéo ba image ghi trong `.env` bằng `docker pull` (`SPARK_IMAGE`, `MINIO_IMAGE`, `MC_IMAGE`). Thẻ `latest` của MinIO có thể đổi theo thời gian; image đã đo có id `sha256:a692590bc9d7a33c1eb1e52454a02395165392adee65a8ebfa90810b5df0f5e5` (`results/logs/environment.txt`), dùng để đối chiếu. Sau đó dựng cụm (`infra/README.md`):
+Kéo ba image ghi trong `.env` bằng `docker pull` (`SPARK_IMAGE`, `MINIO_IMAGE`, `MC_IMAGE`). Thẻ `latest` của MinIO có thể đổi theo thời gian, image đã đo có id `sha256:a692590bc9d7a33c1eb1e52454a02395165392adee65a8ebfa90810b5df0f5e5` (`results/logs/environment.txt`), dùng để đối chiếu. Sau đó dựng cụm (`infra/README.md`):
 
 ```bash
 docker compose up -d
@@ -43,7 +43,7 @@ docker compose ps          # master, 2 worker, minio phải Up; minio-init thoá
 
 Giao diện: Spark Master tại http://localhost:8090, MinIO Console tại http://localhost:9001. Dừng cụm bằng `docker compose down` (thêm `-v` để xoá dữ liệu MinIO).
 
-Tuỳ chọn, kiểm tra kết nối Spark và MinIO. Thành công khi thấy `SMOKE_OK rows_written=1000000 rows_read=1000000`. Lần chạy đã ghi nhận dùng `exec`; dạng `run` dưới đây chưa chạy lại riêng cho job này (`infra/README.md`).
+Tuỳ chọn, kiểm tra kết nối Spark và MinIO. Thành công khi thấy `SMOKE_OK rows_written=1000000 rows_read=1000000`. Lần chạy đã ghi nhận dùng `exec`, dạng `run` dưới đây chưa chạy lại riêng cho job này (`infra/README.md`).
 
 ```powershell
 docker compose run --rm --no-deps --name smoke-driver spark-master /opt/spark/bin/spark-submit `
@@ -65,9 +65,9 @@ python -m src.data_generation.generate --orders 5000000 --skew  # -> data/raw/or
 python -m src.data_generation.generate --help
 ```
 
-README chỉ ghi hai lệnh ví dụ trên và lệnh `--orders 5000000` ở mục C.3. Hai bộ còn lại dùng `--orders 1000000` và `--orders 2500000`, theo trường `params.orders` trong `data/raw/orders_1m/manifest.json` và `data/raw/orders_2500k/manifest.json`. Tham số mặc định: seed 42, chunk 500.000, tỉ lệ lỗi 0,02. Cùng tham số cho cùng nội dung từng byte; đổi `chunk_size` sẽ đổi dữ liệu.
+README chỉ ghi hai lệnh ví dụ trên và lệnh `--orders 5000000` ở mục C.3. Hai bộ còn lại dùng `--orders 1000000` và `--orders 2500000`, theo trường `params.orders` trong `data/raw/orders_1m/manifest.json` và `data/raw/orders_2500k/manifest.json`. Tham số mặc định: seed 42, chunk 500.000, tỉ lệ lỗi 0,02. Cùng tham số cho cùng nội dung từng byte, đổi `chunk_size` sẽ đổi dữ liệu.
 
-Bản clone đã có `manifest.json` trong `data/raw/<bộ>/`, nên phải thêm `--overwrite`, nếu không bộ sinh báo thư mục không rỗng và dừng. Lệnh này ghi lại `manifest.json`, trong đó `elapsed_seconds` sẽ khác. Đã thử trên một bản clone mới: thiếu `--overwrite` thì dừng với mã 1; có `--overwrite` thì bộ `orders_500k` sinh ra có năm tệp dữ liệu trùng từng byte với dữ liệu đã dùng để đo, so bằng SHA-256 (`results/logs/test_clone.log`).
+Bản clone đã có `manifest.json` trong `data/raw/<bộ>/`, nên phải thêm `--overwrite`, nếu không bộ sinh báo thư mục không rỗng và dừng. Lệnh này ghi lại `manifest.json`, trong đó `elapsed_seconds` sẽ khác. Đã thử trên một bản clone mới. Thiếu `--overwrite` thì dừng với mã 1, có `--overwrite` thì bộ `orders_500k` sinh ra có năm tệp dữ liệu trùng từng byte với dữ liệu đã dùng để đo, so bằng SHA-256 (`results/logs/test_clone.log`).
 
 ## F.4 Chép dữ liệu thô lên MinIO
 
@@ -95,7 +95,7 @@ docker compose run --rm --no-deps --name etl-driver spark-master /opt/spark/bin/
 
 Trước bộ thí nghiệm, chỉ bắt buộc chạy ETL cho `orders_5m`, vì `format_compare` và `cache` cần `curated/orders_5m/`. Baseline Pandas đối chiếu `results/metrics/orders_500k.json`, `orders_1m.json`, đã có sẵn trong kho. Các bộ còn lại chạy để tái lập số đếm ở mục 6.3.
 
-**Dùng `docker compose run`, không dùng `docker compose exec`.** Khi engine Docker sập, `exec` báo lỗi `500` hoặc `No such exec instance`. Dùng `run` thì driver nằm trong container riêng, tách khỏi master, và được xoá sau khi chạy. Chi tiết ở mục C.3.
+**Dùng `docker compose run`, không dùng `docker compose exec`.** Khi engine Docker sập, `exec` báo lỗi `500` hoặc `No such exec instance`. Dùng `run` thì driver nằm trong container riêng, tách khỏi master, và `--rm` xoá container sau khi chạy. Chi tiết ở mục C.3.
 
 ## F.6 Chạy bộ thí nghiệm
 
@@ -107,7 +107,7 @@ python -m src.experiments.run_all --group all                # chạy tất cả
 python -m src.experiments.run_all --group spark --resume     # tiếp tục sau khi bị gián đoạn
 ```
 
-Trên bản clone đã có sẵn 69 bản ghi của bộ đo chính thức, nên lệnh chạy thật phải thêm `--overwrite`: bản ghi và log cũ được đổi tên kèm thời điểm, không bị xoá. `--resume` chỉ dùng khi tiếp tục lần chạy của chính mình; `--group spark` không gồm Pandas, phần đó chạy bằng `--group host`. Đã thử trên bản clone: `--dry-run` chạy được cho cả 7 thí nghiệm; thiếu `--overwrite` thì dừng ở `scale_data` với mã 2 và không đổi tệp nào (`results/logs/test_clone.log`). Lệnh có `--overwrite` cần Docker nên chưa chạy thử trên bản clone (theo mã `src/experiments/common/runner.py`, `registry.py`).
+Trên bản clone đã có sẵn 69 bản ghi của bộ đo chính thức, nên lệnh chạy thật phải thêm `--overwrite`. Bộ điều khiển đổi tên bản ghi và log cũ kèm thời điểm, không xoá. `--resume` chỉ dùng khi tiếp tục lần chạy của chính mình. `--group spark` không gồm Pandas, phần đó chạy bằng `--group host`. Đã thử trên bản clone: `--dry-run` chạy được cho cả 7 thí nghiệm, thiếu `--overwrite` thì dừng ở `scale_data` với mã 2 và không đổi tệp nào (`results/logs/test_clone.log`). Lệnh có `--overwrite` cần Docker nên chưa chạy thử trên bản clone (theo mã `src/experiments/common/runner.py`, `registry.py`).
 
 Thứ tự mặc định: `scale_data`, `join_strategy`, `skew`, `format_compare`, `cache`, `scale_workers`, `pandas_baseline`. Bộ đo chính thức kéo dài khoảng 1 giờ 41 phút (mục 6.1).
 
@@ -117,7 +117,7 @@ Thí nghiệm `scale_workers` tự dừng rồi bật lại `spark-worker-2`. N�
 docker compose start spark-worker-2
 ```
 
-Phép đo kích thước phân vùng của thí nghiệm (e) chạy riêng; lệnh ở `src/experiments/skew/README.md`. Mỗi thí nghiệm có `run.py` với `--dry-run` riêng, ghi trong README của thí nghiệm đó.
+Phép đo kích thước phân vùng của thí nghiệm (e) chạy riêng, lệnh ở `src/experiments/skew/README.md`. Mỗi thí nghiệm có `run.py` với `--dry-run` riêng, ghi trong README của thí nghiệm đó.
 
 Khi tái lập, số dòng phải khớp với báo cáo vì dữ liệu và luật làm sạch là xác định, còn thời gian sẽ dao động theo máy và nhiễu (nhận định của nhóm).
 
@@ -182,7 +182,7 @@ Bảng: Nơi lưu ghi nhận các lần chạy {#tbl:ghi-nhan-chay}
 
 Nguồn: results/logs/README.md, results/README.md, data/README.md, src/experiments/README.md
 
-Bước chép dữ liệu bằng `mc cp` không có log riêng trong `results/`; bằng chứng gián tiếp là @fig:ss-minio-raw và số dòng thô khớp manifest trong các lần chạy.
+Bước chép dữ liệu bằng `mc cp` không có log riêng trong `results/`. Bằng chứng gián tiếp là @fig:ss-minio-raw (Phụ lục E) và số dòng thô khớp manifest trong các lần chạy.
 
 <!-- VERIFY
 - Lệnh F.1 (venv): src/experiments/README.md mục "Cài đặt". F.2: infra/README.md mục "Chuẩn bị", "Chạy", "Kiểm tra Spark - MinIO". F.3: src/data_generation/README.md. F.4: infra/README.md mục "Đưa dữ liệu thô lên MinIO". F.5: infra/README.md mục "Chạy job ETL". F.6: src/experiments/README.md mục "Chạy"; src/experiments/scale_workers/README.md. F.7: results/samples/README.md. F.8: tests/README.md; results/logs/test_host.log dòng 2. F.9: report/build/README.md; report/figures/README.md.

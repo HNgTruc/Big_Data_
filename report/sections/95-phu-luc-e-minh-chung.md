@@ -1,6 +1,6 @@
 # Phụ lục E. Minh chứng bổ sung
 
-Phụ lục này bổ sung cho chương 7: các ảnh chụp còn lại, mẫu bảng tổng hợp và trích đoạn log. Toàn bộ dữ liệu là **dữ liệu mô phỏng**. Ảnh được chụp ngày 2026-11-08, sau bộ đo chính thức. Như ở chương 7, hình là bản cắt khung và thêm viền của ảnh gốc ghi ở dòng Nguồn.
+Ảnh chụp, mẫu dữ liệu và trích đoạn log bổ sung cho chương 7. Toàn bộ dữ liệu là dữ liệu mô phỏng. Nhóm chụp ảnh ngày 2026-11-08, sau bộ đo chính thức. Như ở chương 7, hình là bản cắt khung và thêm viền của ảnh gốc ghi ở dòng Nguồn.
 
 ## E.1 Ảnh chụp MinIO
 
@@ -22,7 +22,7 @@ Nguồn: results/logs/screenshots/05_minio_quarantine_orders_5m.png
 
 Nguồn: results/logs/screenshots/13_executors.png (ứng dụng app-20261107154233-0032)
 
-Storage Memory 434,4 MiB mỗi executor là vùng nhớ hợp nhất tách ra từ heap 1 GB (mục 5.2).
+Storage Memory 434,4 MiB mỗi executor là vùng nhớ hợp nhất tách ra từ heap 1 GB (mục C.1).
 
 ![Spark History Server: danh sách ứng dụng của thí nghiệm skew dựng lại từ event log](report/figures/screenshots/06_history_app_list.png){#fig:ss-history}
 
@@ -32,7 +32,7 @@ Nguồn: results/logs/screenshots/06_history_app_list.png
 
 Nguồn: results/logs/screenshots/12_job_dag.png; mã ứng dụng app-20261107154233-0032 theo results/logs/screenshots/README.md (không hiện trên phần ảnh đã cắt)
 
-@fig:ss-dag minh hoạ cách Spark chia một job thành các stage tại ranh giới shuffle (nút `Exchange`), theo mô hình DAG ở slide chương 5, tr. 26, 43 [@slide-c5]. Hai stage đầu (33 và 37) được đánh dấu "skipped"; chỉ stage 38 (join rồi `WriteFiles`) thực sự chạy. Theo nhận định của nhóm, hai stage đó được bỏ qua vì kết quả shuffle của chúng đã có từ job trước và được dùng lại; tài liệu Spark đã kiểm không giải thích lý do này.
+@fig:ss-dag minh hoạ cách Spark chia một job thành các stage tại ranh giới shuffle (nút `Exchange`), theo mô hình DAG ở slide chương 5, tr. 26, 43 [@slide-c5]. Hai stage đầu (33 và 37) mang nhãn "skipped", chỉ stage 38 (join rồi `WriteFiles`) chạy. Theo nhận định của nhóm, Spark bỏ qua hai stage đó vì kết quả shuffle của chúng đã có từ job trước và Spark dùng lại. Tài liệu Spark đã kiểm không giải thích lý do này.
 
 ![Kế hoạch SQL của skew_shuffle_aqe, bước ghi order_items sạch: SortMergeJoin(skew=true) theo product_id và dòng 49 lần tách phân vùng lệch](report/figures/screenshots/07_skew_shuffle_aqe_sql_plan.png){#fig:ss-aqe-plan}
 
@@ -46,7 +46,7 @@ Nguồn: results/logs/screenshots/08_skew_shuffle_noaqe_sql_plan.png; mã ứng 
 
 Nguồn: results/logs/screenshots/11_skew_auto_aqe_sql_plan.png (ứng dụng app-20261107153343-0028, truy vấn SQL số 4); tên bảng theo results/logs/skew/plan_query4.txt (không hiện trên phần ảnh đã cắt)
 
-Hai ảnh @fig:ss-aqe-plan và @fig:ss-noaqe-plan chụp hai phép join khác nhau nên không so sánh trực tiếp được: ảnh đầu là join theo `product_id`, ảnh sau là join theo `order_id`. Phép so sánh đúng cặp nằm ở @fig:ke-hoach-so-sanh (mục 7.4), dựa trên event log. Lưu ý khi đọc ảnh: tổng thời gian của một khối WholeStageCodegen hiển thị trên ảnh (ví dụ 3.05 h) là tổng cộng dồn thời gian của mọi task chạy song song, không phải thời gian thực của lần chạy, nên không được dùng làm số đo thời gian xử lý.
+Hai ảnh @fig:ss-aqe-plan và @fig:ss-noaqe-plan chụp hai phép join khác nhau nên không so sánh trực tiếp được. Ảnh đầu là join theo `product_id`, ảnh sau là join theo `order_id`. Phép so sánh đúng cặp nằm ở @fig:ke-hoach-so-sanh (mục 7.4), dựa trên event log. Tổng thời gian của một khối WholeStageCodegen hiển thị trên ảnh (ví dụ 3.05 h) là tổng cộng dồn thời gian của mọi task chạy song song, không phải thời gian thực của lần chạy, nên không dùng làm số đo thời gian xử lý.
 
 ## E.3 Mẫu bảng tổng hợp đầu ra
 
@@ -102,7 +102,48 @@ versions numpy 2.2.6 pandas 2.3.3 pyarrow 25.0.1 pyspark 4.0.0
 41 passed in 64.91s (0:01:04)
 ```
 
-Event log của Spark cho thí nghiệm (d) và (e) được lưu trong `results/logs/<thí nghiệm>/eventlogs/` trên máy đo nhưng không đưa lên git vì dung lượng lớn; các ảnh chụp từ Spark History Server được dựng lại từ các event log này.
+Event log của Spark cho thí nghiệm (d) và (e) nằm trong `results/logs/<thí nghiệm>/eventlogs/` trên máy đo, không đưa lên git vì dung lượng lớn. Nhóm dựng lại các ảnh chụp Spark History Server từ các event log này.
+
+## E.5 Ảnh Spark Master và vùng raw
+
+![Spark Master UI: 2 worker ALIVE, tổng 4 lõi và 4,0 GiB, mỗi executor 1024 MiB, 68 ứng dụng đã hoàn thành](report/figures/screenshots/01_spark_master_workers.png){#fig:ss-master}
+
+Nguồn: results/logs/screenshots/01_spark_master_workers.png
+
+Cột "Memory per Executor" là 1024,0 MiB, tức heap mặc định 1 GB. Master UI ghi 68 ứng dụng đã hoàn thành, gồm 63 lần chạy Spark của bộ đo chính thức (mã ứng dụng `-0005` đến `-0067`, liên tục) và 5 lần chạy thử trước đó (`-0000` đến `-0004`). Nhóm chụp ảnh trước hai ứng dụng `-0068` và `-0069`. Số lần đo chính thức lấy từ `results/metrics/*/runs.csv`, không lấy từ ảnh này.
+
+![Vùng raw/orders_5m: sáu object gồm ba tệp CSV, một tệp Parquet, một tệp JSON lines và manifest](report/figures/screenshots/03_minio_raw_orders_5m.png){#fig:ss-minio-raw}
+
+Nguồn: results/logs/screenshots/03_minio_raw_orders_5m.png
+
+## E.6 Mẫu bỏ trùng và gán giá trị thiếu
+
+Mỗi khoá trong @tbl:mau-trung xuất hiện hai lần trong dữ liệu thô và còn đúng một lần sau xử lý.
+
+Bảng: Bỏ bản ghi trùng của orders (trích 2 khoá) {#tbl:mau-trung}
+
+| Giai đoạn | order_id | customer_id | order_date | status | payment_method |
+|---|---|---|---|---|---|
+| raw | 30 | 25619 | 2024-07-24 | paid | e_wallet |
+| raw | 30 | 25619 | 2024-07-24 | paid | e_wallet |
+| curated | 30 | 25619 | 2024-07-24 | paid | e_wallet |
+| raw | 37 | 162760 | 2024-10-28 | delivered | card |
+| raw | 37 | 162760 | 2024-10-28 | delivered | card |
+| curated | 37 | 162760 | 2024-10-28 | delivered | card |
+
+Nguồn: results/samples/orders_5m/duplicates_orders.csv
+
+Khách hàng thiếu `region` không bị cách ly, job gán `unknown` tại chỗ.
+
+Bảng: Gán region thiếu thành unknown (trích) {#tbl:mau-region}
+
+| customer_id | region thô | region sau xử lý | signup_date |
+|---|---|---|---|
+| 32 | (trống) | unknown | 2023-09-21 |
+| 82 | (trống) | unknown | 2023-08-12 |
+| 178 | (trống) | unknown | 2021-08-04 |
+
+Nguồn: results/samples/orders_5m/missing_region_customers.csv
 
 <!-- VERIFY
 - Ảnh chụp 2026-11-08: results/logs/screenshots/README.md cột Trạng thái.
@@ -114,4 +155,6 @@ Event log của Spark cho thí nghiệm (d) và (e) được lưu trong `results
 - Bảng agg: results/samples/orders_5m/agg_daily_revenue.csv, agg_revenue_by_region_category.csv.
 - Trích log: results/logs/scale_data/orders_5m_r3.log (dòng 2613), runner.log dòng 1, 3, 26, export_samples_orders_5m.log dòng 3199, test_etl.log.
 - Event log không đưa lên git: src/experiments/join_strategy/README.md, results/logs/README.md.
+- E.5 ảnh 01: 2 Alive, 4 lõi, 4,0 GiB, 2,0 GiB mỗi worker, 1024,0 MiB, 68 Completed. 68 = 63 (-0005 đến -0067) + 5 chạy thử (-0000 đến -0004), chụp trước -0068, -0069: verify-round1 mục C.
+- E.6: các tệp CSV trong results/samples/orders_5m/.
 -->
