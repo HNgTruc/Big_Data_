@@ -91,7 +91,7 @@ Chạy trong `infra`, thay tên bộ ở `--dataset`. Lệnh nguyên văn ở `i
 docker compose run --rm --no-deps --name etl-driver spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --conf spark.driver.host=etl-driver --conf spark.jars.ivy=/tmp/.ivy --packages org.apache.hadoop:hadoop-aws:3.4.1 /opt/spark/work-dir/src/etl/etl_job.py --dataset orders_500k 2>&1 | Select-String "ETL_OK|ERROR|Exception|Traceback"
 ```
 
-Để không tải lại jar mỗi lần, đổi `spark.jars.ivy` như mục C.3. Thành công khi thấy `ETL_OK processing_seconds_total=...`. Đầu ra gồm `curated/<bộ>/`, `quarantine/<bộ>/` trên MinIO và `results/metrics/<bộ>.json` trên host. Thêm `--run-label <tên>` để không ghi đè kết quả cũ.
+Để không tải lại jar mỗi lần, đổi `spark.jars.ivy` như mục C.3. Job chạy thành công khi in ra dòng bắt đầu bằng `ETL_OK`. Đầu ra gồm `curated/<bộ>/`, `quarantine/<bộ>/` trên MinIO và `results/metrics/<bộ>.json` trên host. Thêm `--run-label <tên>` để không ghi đè kết quả cũ.
 
 Trước bộ thí nghiệm, chỉ bắt buộc chạy ETL cho `orders_5m`, vì `format_compare` và `cache` cần `curated/orders_5m/`. Baseline Pandas đối chiếu `results/metrics/orders_500k.json`, `orders_1m.json`, đã có sẵn trong kho. Các bộ còn lại chạy để tái lập số đếm ở mục 6.3.
 

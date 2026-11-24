@@ -54,6 +54,10 @@ CAPTION_SIZE_PT = 12
 TABLE_SIZE_PT = 11
 SOURCE_SIZE_PT = 11
 CODE_SIZE_PT = 10
+# Consolas is much wider than Times New Roman at the same size, so inline code is set smaller.
+INLINE_CODE_SCALE = 0.85
+# A code span this long cannot break, so justifying its line opens wide gaps between words.
+LONG_INLINE_CODE_CHARS = 16
 CODE_SHADING_HEX = "F2F2F2"
 IMAGE_MAX_WIDTH_CM = 16.0
 # Leave room for the caption below the picture on the same page.
@@ -1126,7 +1130,11 @@ class DocxRenderer:
         italic: bool = False,
         size: float | None = None,
     ) -> None:
-        """Append inline segments as runs, resolving citations and cross-references."""
+        """Append inline segments as runs, resolving citations and cross-references.
+
+        A paragraph holding a long code span is left-aligned instead of justified.
+        """
+        code_size = round((size or BODY_SIZE_PT) * INLINE_CODE_SCALE * 2) / 2
         for seg in segs:
             style = {
                 "bold": bold or seg.bold,
@@ -1137,7 +1145,7 @@ class DocxRenderer:
             if seg.kind == "text":
                 self._run(paragraph, seg.text, **style)
             elif seg.kind == "code":
-                self._run(paragraph, seg.text, font=CODE_FONT_NAME, **style)
+                self._run(paragraph, seg.text, font=CODE_FONT_NAME, **{**style, "size": code_size})
             elif seg.kind == "cite":
                 for idx, key in enumerate(seg.keys):
                     if idx:
@@ -1159,6 +1167,9 @@ class DocxRenderer:
                     self._run(paragraph, seg.text, red=True, **style)
                 else:
                     self._run(paragraph, target, **style)
+        has_long_code = any(s.kind == "code" and len(s.text) >= LONG_INLINE_CODE_CHARS for s in segs)
+        if has_long_code and paragraph.alignment in (None, WD_ALIGN_PARAGRAPH.JUSTIFY):
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
 
     # -- document parts ----------------------------------------------------------
     def render(self, blocks: list[Block], title: str, author: str) -> None:

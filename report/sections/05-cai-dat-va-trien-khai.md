@@ -24,7 +24,7 @@ Mã nguồn chia thành bộ sinh dữ liệu mô phỏng (`src/data_generation/
 
 ## 5.4 Kiểm thử
 
-Lần chạy trong container Spark (Python 3.10.12, pyspark 4.0.0) cho kết quả 41 passed trong 64,91 giây (log `results/logs/test_etl.log`). Lần chạy trên host Windows cho 69 passed trong 4,42 giây (log `results/logs/test_host.log`). Các bộ kiểm thử ở @tbl:kiem-thu (Phụ lục C).
+Lần chạy trong container Spark (Python 3.10.12, pyspark 4.0.0) cho kết quả 41 passed trong 64,91 giây (log `results/logs/test_etl.log`). Lần chạy trên host Windows cho 70 passed trong 7,41 giây (log `results/logs/test_host.log`). Các bộ kiểm thử ở @tbl:kiem-thu (Phụ lục C).
 
 Nhóm còn kiểm chứng job bằng đối chiếu số đếm. Với cả năm bộ dữ liệu, số dòng thô khớp manifest, còn số dòng trùng đã bỏ và các lý do cách ly trực tiếp khớp hoàn toàn số lỗi đã chèn (`docs/design/etl.md`). Mỗi lần chạy baseline Pandas làm 49 phép đối chiếu với manifest và với metrics của Spark, cả 6 lần đều khớp (`results/metrics/pandas_baseline/runs.csv`, cột `all_match`, `n_mismatch`). Job xuất mẫu đếm lại trực tiếp trên MinIO và so với metrics, log ghi `SAMPLES_OK ... mismatches=0` (`results/logs/export_samples_orders_5m.log`). Trong mọi bảng tổng hợp, số dòng sạch, cách ly và trùng giống nhau giữa các lần chạy của cùng một bộ dữ liệu (cột `counts_consistent` = True trong các `summary.csv` của thí nghiệm ETL).
 
@@ -39,7 +39,7 @@ Hướng dẫn đo của đồ án (`infra/README.md`, `src/experiments/README.m
 <!-- VERIFY
 - Lý do chọn Docker Compose và Pandas: bản nháp do điều phối viên đề xuất, người dùng đồng ý (2026-11-09). Giới hạn lõi, bộ nhớ, image cố định: infra/docker-compose.yml, infra/.env.example.
 - Python 3.10.12, 41 passed in 64.91s: results/logs/test_etl.log.
-- 69 passed in 4.42s: results/logs/test_host.log (chạy lại 2026-11-08 sau khi thêm test phụ lục).
+- 70 passed in 7.41s: results/logs/test_host.log (chạy lại 2026-11-16 sau khi thêm test căn lề mã nội dòng).
 - hadoop-aws 3.4.1: results/logs/export_samples_orders_5m.log dòng 10–16; infra/README.md.
 - Image miễn phí: chainguard-minio. quay.io không kéo được: quan sát của đồ án, infra/README.md. Thẻ latest: infra/.env.example.
 - Spark chính thức chứa Hadoop 3.4.1 (hadoop-client-api-3.4.1.jar): infra/README.md.

@@ -30,7 +30,7 @@ Người dùng công cụ xác nhận các quyết định chính của đồ á
 - Trích dẫn slide: `report/review/verify-slides.md` kiểm 12 chỗ trích, 5 đúng, 7 đúng một phần, không chỗ nào không thấy trên slide. Các chỗ đúng một phần đã được sửa.
 - Vòng kiểm chứng 2: `report/review/verify-round2.md` kiểm toàn bộ báo cáo. Khoảng 450 con số đối chiếu với `results/` đều khớp. Các lỗi tìm thấy nằm ở phạm vi câu chữ, diễn giải và lệnh tái lập, đã được sửa.
 - Tái lập trên bản clone: các bước không cần Docker đã chạy thử trên một bản clone mới, 69 test qua, dữ liệu `orders_500k` sinh lại trùng từng byte, phân tích và dựng báo cáo chạy được (`results/logs/test_clone.log`). Các bước cần Docker (dựng cụm, ETL, đo) chưa chạy lại trên bản clone, chúng đã chạy trên máy thí nghiệm theo log trong `results/logs/`.
-- Bộ kiểm thử: các test trong `tests/` cho 41 passed trong container và 69 passed trên host (mục 5.4, @tbl:kiem-thu, Phụ lục C).
+- Bộ kiểm thử: các test trong `tests/` cho 41 passed trong container và 70 passed trên host (mục 5.4, @tbl:kiem-thu, Phụ lục C).
 - Đối chiếu số đếm: số dòng trùng đã bỏ và các lý do cách ly trực tiếp được đối chiếu tự động với số lỗi đã chèn (`docs/design/etl.md`), baseline Pandas làm 49 phép đối chiếu mỗi lần chạy (mục 5.4).
 - Phần nhóm tự kiểm tra: nhóm xác nhận đã chạy và kiểm tra toàn bộ, kết quả đều bình thường. Đây là xác nhận của nhóm, repo không có bản ghi riêng cho lần kiểm tra này.
 

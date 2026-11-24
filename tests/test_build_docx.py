@@ -318,6 +318,28 @@ def test_lists_code_and_heading_style(built):
     assert heading.paragraph_format.page_break_before
 
 
+def test_inline_code_is_smaller_and_long_code_is_not_justified(tmp_path: Path):
+    sections = tmp_path / "report" / "sections"
+    sections.mkdir(parents=True)
+    chapter = (
+        "# Chương 1. Mã\n\nĐoạn có mã ngắn `auto` vẫn căn đều.\n\n"
+        "Đoạn có đường dẫn `results/metrics/orders_500k.json` thì căn trái.\n"
+    )
+    (sections / "01-ma.md").write_text(chapter, encoding="utf-8")
+    output = tmp_path / "report" / "bao-cao.docx"
+
+    build_docx.build_report(sections, output, tmp_path)
+    document = docx.Document(str(output))
+
+    short = next(p for p in document.paragraphs if p.text.startswith("Đoạn có mã ngắn"))
+    long = next(p for p in document.paragraphs if p.text.startswith("Đoạn có đường dẫn"))
+    assert short.alignment is None  # inherits the justified Normal style
+    assert long.alignment == build_docx.WD_ALIGN_PARAGRAPH.LEFT
+    code_run = next(r for r in long.runs if r.text.startswith("results/"))
+    expected = round(build_docx.BODY_SIZE_PT * build_docx.INLINE_CODE_SCALE * 2) / 2
+    assert code_run.font.size.pt == expected < build_docx.BODY_SIZE_PT
+
+
 def test_inline_parser_details():
     segs = build_docx.parse_inline(r"a **b `c*d`** \*e\* [@x; @y] @tbl:t1.")
     kinds = [(s.kind, s.text) for s in segs]

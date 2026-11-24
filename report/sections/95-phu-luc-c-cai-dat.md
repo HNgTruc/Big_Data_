@@ -65,7 +65,7 @@ docker compose run --rm --no-deps --name etl-driver spark-master
   /opt/spark/work-dir/src/etl/etl_job.py --dataset orders_5m
 ```
 
-5. Chạy toàn bộ bộ thí nghiệm từ thư mục gốc: `python -m src.experiments.run_all --group all` (thêm `--overwrite` nếu `results/metrics/` đã có bản ghi), rồi `python -m src.experiments.analyze_all` để dựng lại CSV và hình.
+5. Chạy cả bộ thí nghiệm từ thư mục gốc: `python -m src.experiments.run_all --group all` (thêm `--overwrite` nếu `results/metrics/` đã có bản ghi), rồi `python -m src.experiments.analyze_all` để dựng lại CSV và hình.
 
 **Dùng `docker compose run` thay vì `docker compose exec`.** Mỗi lần chạy tạo một container driver mới có tên cố định (`etl-driver`, `bench-driver`) và đặt `spark.driver.host` bằng tên đó để executor gọi ngược về driver. Lúc đầu job chạy bằng `exec` trong container master, và khi engine Docker sập (mục C.9), `exec` báo lỗi `500` hoặc `No such exec instance`. Dùng `run` thì driver tách khỏi master, `--rm` xoá container sau khi chạy, và bộ điều khiển thí nghiệm kiểm tra được không còn container driver cũ trước mỗi lần chạy.
 
@@ -83,7 +83,7 @@ Bảng: Các bộ kiểm thử và kết quả {#tbl:kiem-thu}
 | `test_export_samples.py` | Chọn mẫu xác định, so số đếm với metrics | 12 | Container |
 | `test_experiments.py` | Thống kê, speedup/efficiency, dựng lệnh Docker, kiểm tra worker, run record, event log, cờ chất lượng | 29 | Windows |
 | `test_experiments_pandas.py` | Luật làm sạch Pandas, đối chiếu hằng số với `src/etl/` | 15 | Windows |
-| `test_build_docx.py` | Script dựng Word của báo cáo trên fixture Markdown nhỏ | 13 | Windows |
+| `test_build_docx.py` | Script dựng Word của báo cáo trên fixture Markdown nhỏ | 14 | Windows |
 
 Nguồn: tests/README.md; results/logs/test_etl.log; results/logs/test_host.log
 
@@ -161,8 +161,8 @@ Nguồn mục C.9: infra/README.md (mục "Sự cố engine Docker Desktop sập
 - SPARK_DAEMON_MEMORY 512m, cleanup interval 600, appDataTtl 3600: infra/docker-compose.yml. Mặc định 1800 giây và 604800 giây: Spark Standalone Mode 4.0.0 (verify-round1 A2).
 - Master UI 4,0 GiB, 1024,0 MiB mỗi executor: ảnh results/logs/screenshots/01_spark_master_workers.png.
 - ivy download 46 ms: results/metrics/scale_data/runs/orders_5m/r3/run_record.json trường ivy.download_ms.
-- Số test 12/14/3/12/29/15/13: tests/README.md, results/logs/test_etl.log (41 passed), results/logs/test_host.log (69 passed).
-- test_build_docx.py 13 test: log test_host.log chạy lại 2026-11-08 (69 = 13 + 29 + 15 + 12); phân bổ 13/29/15/12 do điều phối viên đếm bằng pytest --co (log chỉ in tổng).
+- Số test 12/14/3/12/29/15/14: tests/README.md, results/logs/test_etl.log (41 passed), results/logs/test_host.log (70 passed).
+- test_build_docx.py 14 test: log test_host.log chạy lại 2026-11-16 sau khi thêm test căn lề mã nội dòng (70 = 14 + 29 + 15 + 12); phân bổ do điều phối viên đếm bằng pytest --co (log chỉ in tổng).
 - Lệnh chạy: infra/README.md, src/experiments/README.md. `--overwrite`: src/data_generation/generate.py:128-130, src/experiments/common/runner.py:192-196, theo mã, chưa chạy thử (verify-round2 E1, E2).
 - C.1 Storage Memory 434,4 MiB: ảnh 13 và results/logs/screenshots/README.md; (1024 − 300) × 0,6 khớp công thức ở Tuning - Spark 4.0.0 (verify-round1 mục C). spark.executor.memory mặc định 1g: Spark Configuration 4.0.0.
 - C.5 Cổng 9000/9001/7077/8090: infra/docker-compose.yml, infra/README.md.

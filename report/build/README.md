@@ -58,7 +58,7 @@ Sau khi mở `bao-cao.docx` trong Word: chọn tất cả (Ctrl+A) rồi F9, ho�
 | Nội dung giữa bìa và `# Chương` đầu tiên (vd `## Thông tin thực hiện` + bảng phân công) | Trang riêng ngay sau bìa, trước mục lục; hình/bảng ở đây đánh số không kèm chương (`Bảng 1`) |
 | `# Chương N. …` | Heading 1, sang trang mới; N dùng để đánh số hình/bảng. `# Phụ lục A …` cho số `A.k`; tiêu đề cấp 1 khác (Tóm tắt, Tài liệu tham khảo) đánh số `k` không kèm chương |
 | `##`, `###`, `####` | Heading 2, 3, 4 (cấp 5–6 dựng như 4 và cảnh báo). Không tự đánh số tiêu đề |
-| `**đậm**`, `*nghiêng*`, `` `mã` `` | Đậm, nghiêng, font Consolas. Dấu `\` thoát ký tự: `` \* \` \_ \[ \] \@ \| \\ `` |
+| `**đậm**`, `*nghiêng*`, `` `mã` `` | Đậm, nghiêng, font Consolas cỡ bằng 85% chữ xung quanh; đoạn có mã dài từ 16 ký tự trở lên căn trái thay vì căn đều, để không giãn khoảng trắng. Dấu `\` thoát ký tự: `` \* \` \_ \[ \] \@ \| \\ `` |
 | `- mục`, `1. mục` (lồng 1 cấp bằng 2–4 dấu cách) | Danh sách có ký hiệu `•`/`◦` hoặc số; số bắt đầu từ số của mục đầu. Dòng thụt vào tiếp nối mục trước |
 | Khối ```` ``` ```` | Consolas 10, nền xám nhạt, viền mảnh |
 | `![chú thích](đường/dẫn/từ/gốc/repo.png){#fig:nhan}` | Ảnh căn giữa, co vừa 16 cm bề rộng và chiều cao trang (giữ tỉ lệ, không phóng to), chú thích dưới ảnh `Hình N.k. chú thích`. Ảnh thiếu/không đọc được → đoạn đỏ `[THIẾU HÌNH: path]` và cảnh báo, vẫn đánh số |
