@@ -42,6 +42,10 @@ Các bước không cần Docker đã được chạy thử trên một bản cl
 
 Toàn bộ các bước (5 bộ dữ liệu, 7 thí nghiệm, phân tích, kiểm thử, dựng báo cáo) ở Phụ lục F của báo cáo, nguồn tại [report/sections/95-phu-luc-f-huong-dan-chay.md](report/sections/95-phu-luc-f-huong-dan-chay.md). Lưu ý khi chạy lại trên bản clone: `run_all` cần `--overwrite`; `analyze_all` ghi đè hai tệp `plan_check.csv`, khôi phục bằng `git checkout`.
 
+## Đọc mã nguồn
+
+Giải thích toàn bộ mã (mục lục, link tới từng hàm, sơ đồ luồng, câu hỏi vấn đáp): [docs/codebase.md](docs/codebase.md).
+
 ## Bản đồ thư mục
 
 | Thư mục | Nội dung | Đọc README |
